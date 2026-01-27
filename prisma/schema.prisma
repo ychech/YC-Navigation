@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  links Link[]
+}
+
+model Link {
+  id          Int      @id @default(autoincrement())
+  title       String
+  url         String
+  icon        String?
+  snapshotUrl String?  @db.Text
+  description String?  @db.Text
+  clicks      Int      @default(0)
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+}
+
+model GalleryImage {
+  id        Int      @id @default(autoincrement())
+  url       String
+  title     String?
+  createdAt DateTime @default(now())
+}
+
+model AboutContent {
+  id          Int    @id @default(autoincrement())
+  title       String @db.Text
+  description String @db.Text
+  updatedAt   DateTime @updatedAt
+}
+
+model SiteConfig {
+  id        Int    @id @default(autoincrement())
+  key       String @unique
+  value     String @db.Text
+}

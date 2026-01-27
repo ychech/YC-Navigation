@@ -1,0 +1,340 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 253, 253, 253;
+    --foreground: 9, 9, 11;
+    --card: 255, 255, 255;
+    --card-foreground: 9, 9, 11;
+    --popover: 255, 255, 255;
+    --popover-foreground: 9, 9, 11;
+    --primary: 99, 102, 241; /* Indigo-500 for blue version */
+    --primary-foreground: 255, 255, 255;
+    --nm-flat: 6px 6px 12px #e2e2e2, -6px -6px 12px #ffffff;
+    --nm-inset: inset 4px 4px 8px #e2e2e2, inset -4px -4px 8px #ffffff;
+  }
+
+  .dark {
+    --background: 2, 6, 23; /* Matching Hero background */
+    --foreground: 250, 250, 250;
+    --card: 12, 12, 12;
+    --card-foreground: 250, 250, 250;
+    --popover: 12, 12, 12;
+    --popover-foreground: 250, 250, 250;
+    --primary: 99, 102, 241; /* Indigo-500 */
+    --primary-foreground: 255, 255, 255;
+    --nm-flat: 10px 10px 20px rgba(0, 0, 0, 0.4), -5px -5px 15px rgba(255, 255, 255, 0.02);
+    --nm-inset: inset 6px 6px 12px rgba(0, 0, 0, 0.4), inset -3px -3px 10px rgba(255, 255, 255, 0.01);
+  }
+}
+
+/* Background Grid Animation */
+.admin-grid {
+  background-image: linear-gradient(rgba(110, 231, 183, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(110, 231, 183, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: gridMove 30s linear infinite;
+}
+
+@keyframes gridMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+.glow-border:focus-within {
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2), 0 0 15px rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.slant-decor {
+  position: relative;
+  overflow: hidden;
+}
+
+.slant-decor::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: #6366f1; /* Blue for homepage */
+  transform: skewX(-15deg);
+  transform-origin: top;
+}
+
+/* Admin Theme Specifics */
+.admin-theme .slant-decor::before {
+  background: #6ee7b7; /* Green for admin */
+}
+
+/* Custom Artistic Cursor */
+@media (pointer: fine) {
+  .custom-cursor {
+    width: 20px;
+    height: 20px;
+    background: rgba(99, 102, 241, 0.3);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease, background 0.3s ease;
+    backdrop-filter: blur(2px);
+  }
+  
+  .custom-cursor-inner {
+    width: 4px;
+    height: 4px;
+    background: rgb(99, 102, 241);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+  }
+}
+
+/* Immersive Paper Texture Overlay */
+.paper-texture {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.03;
+  background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+}
+
+.dark .paper-texture {
+  opacity: 0.05;
+  filter: invert(1);
+}
+
+/* Animated Ink Flow Background */
+.ink-flow-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.03) 0%, transparent 70%);
+  animation: inkFlowMove 20s ease-in-out infinite alternate;
+}
+
+@keyframes inkFlowMove {
+  0% { transform: scale(1) translate(0, 0); }
+  50% { transform: scale(1.1) translate(2%, 2%); }
+  100% { transform: scale(1) translate(-2%, -1%); }
+}
+
+/* Refined Typography */
+.archive-title {
+  font-family: var(--font-sans);
+  letter-spacing: -0.05em;
+  font-weight: 900;
+  line-height: 0.9;
+  filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.15));
+}
+
+.dark .archive-title {
+  filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.2));
+}
+
+/* Dynamic Grid Background */
+.dynamic-grid {
+  background-image: 
+    linear-gradient(to right, rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+  background-size: 4rem 4rem;
+  animation: gridFlow 60s linear infinite;
+}
+
+@keyframes gridFlow {
+  0% { background-position: 0 0; }
+  100% { background-position: 4rem 4rem; }
+}
+
+.archive-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5em;
+  font-weight: 800;
+  color: rgba(var(--foreground), 0.4);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1), color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.03), transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Ink Shimmer Effect */
+@keyframes inkFlow {
+  0% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+  50% { background-position: 100% 50%; filter: hue-rotate(45deg); }
+  100% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+}
+
+.ink-shimmer {
+  background: var(--ink-glow);
+  background-size: 400% 400%;
+  animation: inkFlow 15s ease infinite;
+  mask-image: radial-gradient(circle at center, black, transparent 80%);
+}
+
+/* Neumorphism Utilities - Refined & Subtle */
+.nm-flat {
+  box-shadow: 8px 8px 16px rgba(99, 102, 241, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  background: rgb(var(--background));
+  transition: all 0.4s ease;
+}
+
+.dark .nm-flat {
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.4), -5px -5px 15px rgba(255, 255, 255, 0.02);
+}
+
+.nm-inset {
+  box-shadow: inset 4px 4px 8px rgba(99, 102, 241, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  background: rgb(var(--background));
+}
+
+.dark .nm-inset {
+  box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.4), inset -3px -3px 10px rgba(255, 255, 255, 0.01);
+}
+
+/* Unified Button Style - Clean & Pro */
+.btn-action {
+  @apply px-5 py-2.5 text-[10px] uppercase tracking-[0.15em] font-bold transition-all duration-300 rounded-xl flex items-center gap-2;
+  border: 1px solid rgba(var(--foreground), 0.05);
+  background: rgb(var(--background));
+  color: rgb(var(--foreground));
+}
+
+.btn-action:hover {
+  @apply text-[#6366f1] scale-[1.02];
+  box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.btn-action.active {
+  @apply bg-[#6366f1] text-white border-transparent shadow-lg shadow-[#6366f1]/20;
+}
+
+/* Dashboard Sidebar Item */
+.sidebar-link {
+  @apply flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 text-sm font-medium text-gray-500 dark:text-gray-400;
+}
+
+.sidebar-link:hover {
+  @apply bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white;
+}
+
+.sidebar-link.active {
+  @apply bg-[#6366f1] text-white shadow-lg shadow-[#6366f1]/20;
+}
+
+/* Ink Bleed Card Style - Refined for Clarity */
+.card-ink-bleed {
+  position: relative;
+  background: rgb(var(--background)); /* Fully opaque background */
+  border-radius: 32px;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(var(--foreground), 0.1); /* Increased border opacity */
+  box-shadow: var(--nm-flat);
+  z-index: 1;
+}
+
+.card-ink-bleed::before {
+  content: "";
+  position: absolute;
+  inset: -2px; /* Slightly tighter bleed area */
+  background: linear-gradient(135deg, 
+    rgba(99, 102, 241, 0.4), 
+    rgba(168, 85, 247, 0.4), 
+    rgba(236, 72, 153, 0.4),
+    rgba(99, 102, 241, 0.4)
+  );
+  background-size: 300% 300%;
+  border-radius: 34px;
+  z-index: -1;
+  opacity: 0;
+  filter: blur(6px); /* Reduced blur for sharpness */
+  transition: opacity 0.6s ease;
+  animation: inkFlow 8s linear infinite;
+}
+
+.card-ink-bleed::after {
+  /* Inner content background to ensure text readability */
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: rgb(var(--background));
+  border-radius: 31px;
+  z-index: -1;
+}
+
+.card-ink-bleed:hover::before {
+  opacity: 0.8;
+}
+
+.card-ink-bleed:hover {
+  transform: translateY(-6px);
+}
+
+.perspective-2000 {
+  perspective: 2000px;
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.scanline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(var(--foreground), 0.05);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 100;
+}
+
+@keyframes float {
+  0% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+
+.floating-element {
+  animation: float 10s ease-in-out infinite;
+}
+
+::selection {
+  background: rgb(var(--foreground));
+  color: rgb(var(--background));
+}
