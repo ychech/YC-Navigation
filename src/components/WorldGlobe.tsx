@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useMemo, memo } from 'react';
+import { useRef, useMemo, memo, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Sphere, Stars, useTexture, OrbitControls } from '@react-three/drei';
+import { Sphere, Stars, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
-const Particles = memo(({ count = 4000 }: { count?: number }) => {
+// Optimized Particles
+const Particles = memo(({ count = 2000 }: { count?: number }) => {
   const points = useRef<THREE.Points>(null);
 
   const particlesPosition = useMemo(() => {
@@ -26,8 +27,8 @@ const Particles = memo(({ count = 4000 }: { count?: number }) => {
 
   useFrame((state) => {
     if (points.current) {
-      points.current.rotation.y += 0.0003;
-      points.current.rotation.x += 0.0001;
+      points.current.rotation.y += 0.0005;
+      points.current.rotation.x += 0.0002;
     }
   });
 
@@ -41,10 +42,10 @@ const Particles = memo(({ count = 4000 }: { count?: number }) => {
       </bufferGeometry>
       <pointsMaterial
         color="#6366f1"
-        size={0.012}
+        size={0.015}
         sizeAttenuation
         transparent
-        opacity={0.3}
+        opacity={0.4}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
       />
@@ -54,94 +55,171 @@ const Particles = memo(({ count = 4000 }: { count?: number }) => {
 
 Particles.displayName = 'Particles';
 
-function Earth() {
-  const earthRef = useRef<THREE.Mesh>(null);
-  const cloudsRef = useRef<THREE.Mesh>(null);
-  
-  // High quality textures (2K resolution)
-  const [colorMap, normalMap, specularMap, cloudsMap] = useTexture([
-    'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg',
-    'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg',
-    'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg',
-    'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png'
-  ]);
-
+// Fallback Wireframe Earth
+function FallbackEarth() {
+  const groupRef = useRef<THREE.Group>(null);
   useFrame(() => {
-    if (earthRef.current) earthRef.current.rotation.y += 0.0008;
-    if (cloudsRef.current) {
-      cloudsRef.current.rotation.y += 0.001;
-      cloudsRef.current.rotation.z += 0.0001;
-    }
+    if (groupRef.current) groupRef.current.rotation.y += 0.001;
   });
 
   return (
-    <group rotation={[0, 0, Math.PI / 8]}>
-      {/* Atmosphere Glow Layer - Indigo/Blue */}
-      <Sphere args={[2.35, 64, 64]}>
-        <meshPhongMaterial 
-          color="#4f46e5"
-          transparent 
-          opacity={0.12} 
-          side={THREE.BackSide}
-          blending={THREE.AdditiveBlending}
-        />
-      </Sphere>
-
-      {/* Main Earth Body */}
-      <Sphere ref={earthRef} args={[2.2, 64, 64]}>
-        <meshPhongMaterial
-          map={colorMap}
-          normalMap={normalMap}
-          specularMap={specularMap}
-          shininess={10}
-        />
-      </Sphere>
-
-      {/* Clouds Layer */}
-      <Sphere ref={cloudsRef} args={[2.22, 64, 64]}>
-        <meshPhongMaterial
-          map={cloudsMap}
+    <group ref={groupRef} rotation={[0, 0, Math.PI / 6]}>
+      <Sphere args={[2.2, 32, 32]}>
+        <meshStandardMaterial 
+          color="#1e1b4b" 
+          emissive="#0f172a"
+          wireframe 
           transparent
-          opacity={0.35}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
+          opacity={0.3}
         />
       </Sphere>
-
-      {/* Digital Grid Overlay - Ultra faint cyan */}
-      <Sphere args={[2.26, 40, 40]}>
-        <meshBasicMaterial
-          color="#6ee7b7"
-          wireframe
-          transparent
-          opacity={0.04}
-        />
+      {/* Inner Core */}
+      <Sphere args={[2.1, 32, 32]}>
+         <meshBasicMaterial color="#000000" />
       </Sphere>
     </group>
   );
 }
 
+// Real Earth with Manual Texture Loading
+function Earth() {
+  const earthRef = useRef<THREE.Mesh>(null);
+  const cloudsRef = useRef<THREE.Mesh>(null);
+  
+  const [textures, setTextures] = useState<{
+    map: THREE.Texture | null;
+    normal: THREE.Texture | null;
+    specular: THREE.Texture | null;
+    clouds: THREE.Texture | null;
+  } | null>(null);
+  
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    const loader = new THREE.TextureLoader();
+    let isMounted = true;
+
+    const loadTexture = (url: string) => {
+      return new Promise<THREE.Texture | null>((resolve) => {
+        loader.load(
+          url,
+          (tex) => resolve(tex),
+          undefined,
+          (err) => {
+            console.warn(`Failed to load texture: ${url}`, err);
+            resolve(null); // Resolve null instead of rejecting
+          }
+        );
+      });
+    };
+
+    Promise.all([
+      loadTexture('/textures/earth/map.jpg'),
+      loadTexture('/textures/earth/normal.jpg'),
+      loadTexture('/textures/earth/specular.jpg'),
+      loadTexture('/textures/earth/clouds.png')
+    ]).then(([map, normal, specular, clouds]) => {
+      if (!isMounted) return;
+      
+      // Check if critical textures loaded
+      if (!map) {
+        console.error("Critical earth texture failed to load, falling back to wireframe.");
+        setHasError(true);
+        return;
+      }
+
+      setTextures({ map, normal, specular, clouds });
+    }).catch(err => {
+      console.error("Unexpected error loading textures:", err);
+      if (isMounted) setHasError(true);
+    });
+
+    return () => { isMounted = false; };
+  }, []);
+
+  useFrame(() => {
+    if (earthRef.current) earthRef.current.rotation.y += 0.0005; 
+    if (cloudsRef.current) {
+      cloudsRef.current.rotation.y += 0.0007;
+      cloudsRef.current.rotation.z += 0.0001;
+    }
+  });
+
+  // Render fallback if error or still loading
+  if (hasError || !textures) {
+    return <FallbackEarth />;
+  }
+
+  return (
+    <group rotation={[0, 0, Math.PI / 6]}>
+      {/* 1. Atmosphere Glow (Natural) */}
+      <Sphere args={[2.35, 64, 64]}>
+        <meshPhongMaterial 
+          color="#0044ff"
+          transparent 
+          opacity={0.15} 
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+        />
+      </Sphere>
+
+      {/* 2. Main Earth Body - Realistic Style */}
+      <Sphere ref={earthRef} args={[2.2, 64, 64]}>
+        <meshStandardMaterial
+          map={textures.map!} 
+          normalMap={textures.normal || undefined}
+          roughness={0.7} 
+          metalness={0.1}
+          color="#ffffff" // Pure white base for natural color
+        />
+      </Sphere>
+
+      {/* 3. Clouds Layer - Realistic */}
+      {textures.clouds && (
+        <Sphere ref={cloudsRef} args={[2.23, 64, 64]}>
+          <meshPhongMaterial
+            map={textures.clouds}
+            transparent
+            opacity={0.8} 
+            color="#ffffff" // Pure white clouds
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            side={THREE.DoubleSide}
+          />
+        </Sphere>
+      )}
+    </group>
+  );
+}
+
 function StarField() {
-  return <Stars radius={100} depth={50} count={6000} factor={4} saturation={0} fade speed={1} />;
+  return <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={0.5} />;
 }
 
 export default function WorldGlobe() {
   return (
-    <div className="w-full h-full">
-      <Canvas camera={{ position: [0, 0, 9], fov: 45 }}>
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[10, 5, 5]} intensity={2.5} color="#ffffff" />
-        <pointLight position={[-10, -5, -5]} intensity={1.5} color="#6366f1" />
+    <div className="w-full h-full cursor-move">
+      <Canvas 
+        camera={{ position: [0, 0, 9], fov: 45 }}
+        dpr={[1, 2]}
+        gl={{ antialias: true, alpha: true }}
+      >
+        <ambientLight intensity={0.2} /> {/* Natural dark space ambient */}
+        <directionalLight position={[10, 5, 5]} intensity={3} color="#ffffff" /> {/* Bright Sun */}
+        <pointLight position={[-10, -5, -5]} intensity={0.5} color="#ffffff" /> {/* Subtle fill */}
         
         <Earth />
-        <Particles count={4000} />
+        <Particles count={1000} />
         <StarField />
         
         <OrbitControls 
-          enableZoom={false} 
+          enableZoom={true}
           enablePan={false} 
+          enableRotate={true}
           autoRotate 
-          autoRotateSpeed={0.3}
+          autoRotateSpeed={0.5}
+          minDistance={6}
+          maxDistance={15}
         />
       </Canvas>
     </div>

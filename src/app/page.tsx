@@ -21,12 +21,13 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-[#020617] transition-colors duration-300 relative">
       <GlobalSpotlight />
-      <Navbar />
+      <Navbar categories={categories} />
       
       {/* Hero section should be full width and handled separately from the main container */}
       <Hero 
         title={configMap.hero_title || "灵感与设计的边界"} 
         subtitle={configMap.hero_subtitle || "一个精心策划的数字档案馆，收集最纯粹的设计工具与艺术灵感。"} 
+        categories={categories}
       />
 
       {/* Visual Transition Zone - Overlapping with Hero */}
@@ -39,7 +40,7 @@ export default async function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/80 to-[#020617]" />
       </div>
 
-      <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 xl:px-24 pb-20 relative z-10 -mt-20">
+      <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 xl:px-24 pb-20 relative z-10 -mt-40">
         <div id="directory" className="space-y-32">
           {categories.map((category, idx) => (
             <div key={category.id} className="relative group">

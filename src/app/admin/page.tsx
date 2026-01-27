@@ -451,9 +451,9 @@ export default function AdminPage() {
               </div>
             </div>
             <div className="flex gap-4 pt-4">
-              <a href="/" target="_blank" className="group flex items-center gap-4 px-10 py-5 bg-gray-900 dark:bg-white text-white dark:text-black rounded-[24px] text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#6ee7b7] dark:hover:bg-[#6ee7b7] hover:text-white dark:hover:text-white transition-all shadow-2xl hover:shadow-[#6ee7b7]/20 active:scale-95">
+              <a href="/" className="group flex items-center gap-4 px-10 py-5 bg-gray-900 dark:bg-white text-white dark:text-black rounded-[24px] text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#6ee7b7] dark:hover:bg-[#6ee7b7] hover:text-white dark:hover:text-white transition-all shadow-2xl hover:shadow-[#6ee7b7]/20 active:scale-95">
                 <Globe size={16} className="group-hover:rotate-12 transition-transform" strokeWidth={2.5} /> 
-                预览主页
+                返回前台
               </a>
             </div>
           </div>

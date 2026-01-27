@@ -4,33 +4,32 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search as SearchIcon, X, ArrowUpRight, Command } from "lucide-react";
 
+import { Category, Link } from "@prisma/client";
+
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
+  categories: (Category & { links: Link[] })[];
 }
 
-export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
+export const SearchModal = ({ isOpen, onClose, categories = [] }: SearchModalProps) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [allLinks, setAllLinks] = useState<any[]>([]);
 
   useEffect(() => {
-    if (isOpen) {
-      fetch("/api/categories")
-        .then(res => res.json())
-        .then(data => {
-          const links = data.flatMap((cat: any) => 
-            cat.links.map((link: any) => ({ ...link, categoryName: cat.name }))
-          );
-          setAllLinks(links);
-        });
+    if (isOpen && categories.length > 0) {
+      const links = categories.flatMap((cat) => 
+        (cat.links || []).map((link) => ({ ...link, categoryName: cat.name }))
+      );
+      setAllLinks(links);
       
       // Focus input on open
       setTimeout(() => {
         document.getElementById("search-input")?.focus();
       }, 100);
     }
-  }, [isOpen]);
+  }, [isOpen, categories]);
 
   useEffect(() => {
     if (query.trim() === "") {
@@ -77,7 +76,7 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
             initial={{ opacity: 0, scale: 0.95, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            className="relative w-full max-w-2xl bg-[#111] border border-white/10 overflow-hidden shadow-2xl"
+            className="relative w-full max-w-2xl bg-[#0a0a0a]/90 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-2xl rounded-2xl"
           >
             <div className="flex items-center p-6 border-b border-white/5">
               <SearchIcon size={20} className="text-gray-500 mr-4" />

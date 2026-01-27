@@ -1,15 +1,20 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Search, Menu, Clock, Sun, Moon } from "lucide-react";
+import { Search, Menu, Clock, Sun, Moon, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SearchModal } from "./SearchModal";
 import { useTheme } from "next-themes";
 import Link from "next/link";
+import { Category, Link as PrismaLink } from "@prisma/client";
 
 const MotionLink = motion(Link);
 
-export const Navbar = () => {
+interface NavbarProps {
+  categories?: (Category & { links: PrismaLink[] })[];
+}
+
+export const Navbar = ({ categories = [] }: NavbarProps) => {
   const { scrollY, scrollYProgress } = useScroll();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -105,14 +110,6 @@ export const Navbar = () => {
               <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-indigo-500 rounded-full opacity-0 transition-all duration-500 group-hover:opacity-100" />
             </MotionLink>
           ))}
-          <MotionLink 
-            href="/admin" 
-            whileHover={{ color: "#6366f1", y: -1 }}
-            className="transition-colors relative group text-indigo-500"
-          >
-            控制台
-            <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-indigo-500 rounded-full opacity-0 transition-all duration-500 group-hover:opacity-100" />
-          </MotionLink>
         </div>
         
         <div className="flex gap-3 items-center">
@@ -135,10 +132,18 @@ export const Navbar = () => {
           <button className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.05] text-gray-500 transition-all shadow-sm">
             <Menu size={16} strokeWidth={2.5} />
           </button>
+
+          <Link 
+            href="/admin" 
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-transparent text-gray-300/20 hover:text-indigo-500/50 hover:bg-indigo-500/5 transition-all"
+            aria-label="Admin Access"
+          >
+            <Lock size={14} strokeWidth={2.5} />
+          </Link>
         </div>
       </div>
 
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} categories={categories} />
     </motion.nav>
   );
 };

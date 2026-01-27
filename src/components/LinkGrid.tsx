@@ -9,7 +9,7 @@ interface LinkGridProps {
   links: Link[];
 }
 
-const TiltCard = ({ link, index }: { link: Link; index: number }) => {
+const TiltCard = ({ link, index, isActive, onActivate }: { link: Link; index: number; isActive: boolean; onActivate: () => void }) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -61,6 +61,7 @@ const TiltCard = ({ link, index }: { link: Link; index: number }) => {
         x.set(0);
         y.set(0);
       }}
+      onClick={onActivate}
       style={{
         rotateY,
         rotateX,
@@ -74,18 +75,22 @@ const TiltCard = ({ link, index }: { link: Link; index: number }) => {
         ease: [0.16, 1, 0.3, 1],
         delay: index * 0.05 
       }}
-      className="group relative p-8 bg-[#0a0a0a]/80 backdrop-blur-2xl border border-white/5 overflow-hidden block transition-all duration-700 hover:scale-[1.01] perspective-1000 min-h-[220px] rounded-[24px] shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.4),0_0_20px_rgba(99,102,241,0.08)] active:scale-[0.99]"
+      className={`group relative p-8 bg-[#0a0a0a]/80 backdrop-blur-2xl border overflow-hidden block transition-all duration-700 hover:scale-[1.01] perspective-1000 min-h-[220px] rounded-[24px] shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.4),0_0_20px_rgba(99,102,241,0.08)] active:scale-[0.99] ${
+        isActive 
+          ? "border-indigo-500/50 shadow-[0_0_30px_rgba(99,102,241,0.15)]" 
+          : "border-white/5 hover:border-white/10"
+      }`}
     >
       {/* Tech Corner Accents */}
-      <div className="absolute top-4 left-4 w-2 h-2 border-t border-l border-indigo-500/10 group-hover:border-indigo-500/40 transition-colors duration-500" />
-      <div className="absolute top-4 right-4 w-2 h-2 border-t border-r border-indigo-500/10 group-hover:border-indigo-500/40 transition-colors duration-500" />
-      <div className="absolute bottom-4 left-4 w-2 h-2 border-b border-l border-indigo-500/10 group-hover:border-indigo-500/40 transition-colors duration-500" />
-      <div className="absolute bottom-4 right-4 w-2 h-2 border-b border-r border-indigo-500/10 group-hover:border-indigo-500/40 transition-colors duration-500" />
+      <div className={`absolute top-4 left-4 w-2 h-2 border-t border-l transition-colors duration-500 ${isActive ? "border-indigo-500" : "border-indigo-500/10"}`} />
+      <div className={`absolute top-4 right-4 w-2 h-2 border-t border-r transition-colors duration-500 ${isActive ? "border-indigo-500" : "border-indigo-500/10"}`} />
+      <div className={`absolute bottom-4 left-4 w-2 h-2 border-b border-l transition-colors duration-500 ${isActive ? "border-indigo-500" : "border-indigo-500/10"}`} />
+      <div className={`absolute bottom-4 right-4 w-2 h-2 border-b border-r transition-colors duration-500 ${isActive ? "border-indigo-500" : "border-indigo-500/10"}`} />
 
       {/* Ink Bleed Effect on Hover - REMOVED per user request for simpler lighting */}
       
       {/* Subtle Border Glow */}
-      <div className="absolute inset-0 rounded-[24px] border border-white/5 group-hover:border-indigo-500/30 transition-colors duration-500" />
+      <div className={`absolute inset-0 rounded-[24px] border transition-colors duration-500 ${isActive ? "border-indigo-500/30" : "border-white/5"}`} />
 
       {/* Holographic Scanline */}
       <motion.div 
@@ -116,7 +121,7 @@ const TiltCard = ({ link, index }: { link: Link; index: number }) => {
       <div style={{ transform: "translateZ(20px)" }} className="relative z-10 flex flex-col h-full">
         <div className="flex justify-between items-start mb-6 shrink-0">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-[16px] flex items-center justify-center bg-white/5 border border-white/10 shadow-lg group-hover:border-indigo-500/30 transition-all duration-500 overflow-hidden relative">
+            <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center bg-white/5 border shadow-lg transition-all duration-500 overflow-hidden relative ${isActive ? "border-indigo-500/30" : "border-white/10"}`}>
               {link.icon ? (
                 <img src={link.icon} alt="" className="w-6 h-6 object-contain relative z-10" />
               ) : getFaviconUrl(link.url) ? (
@@ -127,10 +132,10 @@ const TiltCard = ({ link, index }: { link: Link; index: number }) => {
                 </div>
               )}
               {/* Inner Icon Glow */}
-              <div className="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className={`absolute inset-0 bg-indigo-500/5 transition-opacity ${isActive ? "opacity-100" : "opacity-0"}`} />
             </div>
             <div>
-              <h3 className="text-base font-bold tracking-tight text-white transition-colors duration-500 group-hover:text-indigo-400">
+              <h3 className={`text-base font-bold tracking-tight transition-colors duration-500 ${isActive ? "text-indigo-400" : "text-white"}`}>
                 {link.title}
               </h3>
               <p className="text-[9px] text-gray-500 mt-0.5 font-mono tracking-widest uppercase opacity-60">
@@ -138,22 +143,22 @@ const TiltCard = ({ link, index }: { link: Link; index: number }) => {
               </p>
             </div>
           </div>
-          <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-indigo-400 group-hover:bg-indigo-500/5 transition-all duration-500 border border-transparent group-hover:border-indigo-500/20">
+          <div className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-all duration-500 border ${isActive ? "text-indigo-400 bg-indigo-500/5 border-indigo-500/20" : "text-gray-500 border-transparent"}`}>
             <ArrowUpRight size={14} strokeWidth={1.5} />
           </div>
         </div>
         
-        <p className="text-xs font-normal text-gray-400 line-clamp-2 leading-relaxed group-hover:text-gray-300 transition-colors duration-500 mb-6 pl-3 border-l border-transparent group-hover:border-indigo-500/20">
+        <p className={`text-xs font-normal line-clamp-2 leading-relaxed transition-colors duration-500 mb-6 pl-3 border-l ${isActive ? "text-gray-300 border-indigo-500/20" : "text-gray-400 border-transparent"}`}>
           {link.description || "探索艺术与设计的数字边界。"}
         </p>
 
         <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
           <div className="flex-1 mr-4">
             <div className="flex items-center justify-between mb-1.5">
-               <span className="text-[8px] uppercase tracking-[0.2em] text-gray-600 font-bold group-hover:text-indigo-500/60 transition-colors">Stats</span>
+               <span className={`text-[8px] uppercase tracking-[0.2em] font-bold transition-colors ${isActive ? "text-indigo-500/60" : "text-gray-600"}`}>Stats</span>
                <div className="flex items-center gap-1.5">
                   <Activity size={8} className="text-indigo-500/40" />
-                  <span className="text-[8px] font-mono text-gray-600 font-bold group-hover:text-indigo-500 transition-colors">{link.clicks || 0}</span>
+                  <span className={`text-[8px] font-mono font-bold transition-colors ${isActive ? "text-indigo-500" : "text-gray-600"}`}>{link.clicks || 0}</span>
                </div>
             </div>
             <div className="h-[1.5px] w-full bg-white/5 rounded-full overflow-hidden relative">
@@ -166,7 +171,7 @@ const TiltCard = ({ link, index }: { link: Link; index: number }) => {
             </div>
           </div>
           
-          <div className="text-[7px] font-mono text-gray-700 uppercase tracking-[0.2em] border border-white/5 px-1.5 py-0.5 rounded opacity-40 group-hover:opacity-100 group-hover:border-indigo-500/20 group-hover:text-indigo-500/60 transition-all">
+          <div className={`text-[7px] font-mono uppercase tracking-[0.2em] border px-1.5 py-0.5 rounded transition-all ${isActive ? "opacity-100 border-indigo-500/20 text-indigo-500/60" : "opacity-40 border-white/5 text-gray-700"}`}>
             #{link.id}
           </div>
         </div>
@@ -176,10 +181,18 @@ const TiltCard = ({ link, index }: { link: Link; index: number }) => {
 };
 
 export const LinkGrid = ({ links }: LinkGridProps) => {
+  const [activeId, setActiveId] = useState<number | null>(null);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {links.map((link, i) => (
-        <TiltCard key={link.id} link={link} index={i} />
+        <TiltCard 
+          key={link.id} 
+          link={link} 
+          index={i} 
+          isActive={activeId === link.id}
+          onActivate={() => setActiveId(link.id)}
+        />
       ))}
     </div>
   );
