@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Search, Menu, Clock, Sun, Moon, Lock } from "lucide-react";
+import { Search, Menu, Clock, Sun, Moon, Lock, Bot } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SearchModal } from "./SearchModal";
 import { useTheme } from "next-themes";
@@ -9,6 +9,51 @@ import Link from "next/link";
 import { Category, Link as PrismaLink } from "@prisma/client";
 
 const MotionLink = motion(Link);
+
+// --- New NavBrand Component ---
+const NavBrand = () => {
+  return (
+    <Link href="/" className="group flex items-center gap-4 relative z-50">
+      <div className="relative flex items-center justify-center">
+        {/* Animated Icon Symbol - Metal Bot Style */}
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-700 via-gray-900 to-black flex items-center justify-center border border-gray-600/50 shadow-[0_4px_10px_rgba(0,0,0,0.5)] group-hover:border-gray-400/80 transition-all duration-300 relative overflow-hidden">
+          {/* Metal Sheen Highlight */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          <Bot size={20} className="text-gray-300 group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:-rotate-12 drop-shadow-[0_2px_3px_rgba(0,0,0,0.8)]" />
+        </div>
+        
+        {/* Glow Effect behind icon */}
+        <div className="absolute inset-0 bg-blue-500/30 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      </div>
+
+      <div className="flex flex-col">
+        <h1 className="text-xl font-black tracking-tight flex items-center gap-[2px]">
+          {/* Character-level animation for "艺术导航" - Liquid Metal Style */}
+          {["艺", "术", "导", "航"].map((char, i) => (
+            <motion.span
+              key={i}
+              className="inline-block bg-clip-text text-transparent bg-gradient-to-b from-white via-gray-300 to-gray-500 drop-shadow-sm"
+              whileHover={{ 
+                y: -3, 
+                scale: 1.1,
+                textShadow: "0 0 10px rgba(255,255,255,0.8)",
+                backgroundImage: "linear-gradient(to bottom, #ffffff, #a5f3fc, #22d3ee)"
+              }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              {char}
+            </motion.span>
+          ))}
+        </h1>
+        <span className="text-[10px] font-mono text-gray-500 tracking-[0.2em] uppercase group-hover:text-gray-300 transition-colors flex items-center gap-1">
+          <span className="w-1 h-1 bg-red-500 rounded-full animate-pulse" />
+          ARTISTIC NAV
+        </span>
+      </div>
+    </Link>
+  );
+};
 
 interface NavbarProps {
   categories?: (Category & { links: PrismaLink[] })[];
@@ -77,15 +122,7 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
       />
 
       <div className="flex items-center gap-12">
-        <Link href="/" className="text-xl font-black tracking-tighter group flex items-center gap-3">
-          <div className="flex items-center">
-            <span className="text-indigo-500 font-mono animate-pulse mr-1">_</span>
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-500 dark:from-white dark:to-gray-400">
-              艺术导航
-            </span>
-            <span className="text-indigo-500 font-mono animate-pulse ml-1">_</span>
-          </div>
-        </Link>
+        <NavBrand />
         
         <div className="hidden lg:flex items-center gap-3 text-[10px] text-gray-400 font-black tracking-widest">
           <Clock size={10} />
