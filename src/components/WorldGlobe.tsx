@@ -2,31 +2,31 @@
 
 import { useRef, useMemo, memo, useState, useEffect } from 'react';
 import { Canvas, useFrame, extend, ReactThreeFiber } from '@react-three/fiber';
-import { Sphere, Stars, OrbitControls, shaderMaterial } from '@react-three/drei';
+import { Sphere, Stars, OrbitControls, shaderMaterial, RoundedBox, Billboard, Plane } from '@react-three/drei';
 import * as THREE from 'three';
 
 // --- Shaders ---
 
-// Sun Material with High-Def Texture & HDR Lighting
+// Sun Material (Burning Plasma Shader)
 const SunMaterial = shaderMaterial(
   { 
     time: 0,
-    colorCore: new THREE.Color("#fff7ed"), // Ultra Bright Core
-    colorMid: new THREE.Color("#f59e0b"), // Vivid Orange
-    colorEdge: new THREE.Color("#7c2d12"), // Deep Red-Brown Edge (Limb Darkening)
-    intensity: 1.5 
+    colorDeep: new THREE.Color("#440000"), // Deepest Dark Red (Cooler spots)
+    colorMid: new THREE.Color("#ff0000"),  // Vibrant Red (Main body)
+    colorHot: new THREE.Color("#ffaa00"),  // Bright Orange-Yellow (Hot spots)
+    colorCore: new THREE.Color("#ffffff"), // Blinding White (Eruption centers)
   },
   // Vertex Shader
   `
     varying vec2 vUv;
-    varying vec3 vNormal;
     varying vec3 vPosition;
+    varying vec3 vNormal;
     varying vec3 vViewPosition;
     
     void main() {
       vUv = uv;
-      vNormal = normalize(normalMatrix * normal);
       vPosition = position;
+      vNormal = normalize(normalMatrix * normal);
       vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
       vViewPosition = -mvPosition.xyz;
       gl_Position = projectionMatrix * mvPosition;
@@ -35,83 +35,337 @@ const SunMaterial = shaderMaterial(
   // Fragment Shader
   `
     uniform float time;
-    uniform vec3 colorCore;
+    uniform vec3 colorDeep;
     uniform vec3 colorMid;
-    uniform vec3 colorEdge;
-    uniform float intensity;
+    uniform vec3 colorHot;
+    uniform vec3 colorCore;
+    
     varying vec2 vUv;
-    varying vec3 vNormal;
     varying vec3 vPosition;
+    varying vec3 vNormal;
     varying vec3 vViewPosition;
 
-    // Improved Noise Function (More detail)
-    float hash(float n) { return fract(sin(n) * 1e4); }
-    float noise(vec3 x) {
-        const vec3 step = vec3(110, 241, 171);
-        vec3 i = floor(x);
-        vec3 f = fract(x);
-        float n = dot(i, step);
-        vec3 u = f * f * (3.0 - 2.0 * f);
-        return mix(mix(mix( hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
-                       mix( hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
-                   mix(mix( hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
-                       mix( hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
-    }
-
-    // FBM for Granulation Detail
-    float fbm(vec3 p) {
-        float v = 0.0;
-        float a = 0.5;
-        vec3 shift = vec3(100.0);
-        for (int i = 0; i < 4; ++i) {
-            v += a * noise(p);
-            p = p * 2.0 + shift;
-            a *= 0.5;
-        }
-        return v;
+    // Cube Noise Function
+    float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
+    vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
+    vec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}
+    
+    float noise(vec3 p){
+        vec3 a = floor(p);
+        vec3 d = p - a;
+        d = d * d * (3.0 - 2.0 * d);
+    
+        vec4 b = a.xxyy + vec4(0.0, 1.0, 0.0, 1.0);
+        vec4 k1 = perm(b.xyxy);
+        vec4 k2 = perm(k1.xyxy + b.zzww);
+    
+        vec4 c = k2 + a.zzzz;
+        vec4 k3 = perm(c);
+        vec4 k4 = perm(c + 1.0);
+    
+        vec4 o1 = fract(k3 * (1.0 / 41.0));
+        vec4 o2 = fract(k4 * (1.0 / 41.0));
+    
+        vec4 o3 = o2 * d.z + o1 * (1.0 - d.z);
+        vec2 o4 = o3.yw * d.x + o3.xz * (1.0 - d.x);
+    
+        return o4.y * d.y + o4.x * (1.0 - d.y);
     }
 
     void main() {
-      vec3 viewDir = normalize(vViewPosition);
-      float dotNV = dot(viewDir, vNormal);
-      
-      // 1. Sharp Limb Darkening (HDR Feel)
-      float limb = pow(dotNV, 3.5); 
-      
-      // 2. Dynamic Granulation Texture
-      // High frequency noise for surface detail
-      float detail = fbm(vPosition * 8.0 + vec3(time * 0.1));
-      
-      // Low frequency noise for large convection cells
-      float convection = noise(vPosition * 3.0 - vec3(time * 0.05));
-      
-      // Combine textures
-      float solarActivity = detail * 0.6 + convection * 0.4;
-      
-      // 3. Color Grading
-      // Mix from Edge (Dark) to Mid (Orange) based on Limb
-      vec3 baseColor = mix(colorEdge, colorMid, smoothstep(0.0, 0.6, limb));
-      
-      // Add texture detail to the mid-tones
-      baseColor += colorMid * solarActivity * 0.3;
-      
-      // Mix to Core (White) at the very center, blowing out detail
-      float coreMask = smoothstep(0.5, 1.0, limb);
-      baseColor = mix(baseColor, colorCore, coreMask * 0.9 + solarActivity * 0.1);
+      float fresnel = dot(normalize(vViewPosition), vNormal);
+      fresnel = clamp(fresnel, 0.0, 1.0);
 
-      gl_FragColor = vec4(baseColor * intensity, 1.0);
+      float noise1 = noise(vPosition * 2.0 + vec3(time * 0.5));
+      float noise2 = noise(vPosition * 6.0 + vec3(time * 1.5));
+      float noise3 = noise(vPosition * 12.0 + vec3(time * 2.0));
+      
+      float brightness = noise1 * 0.5 + noise2 * 0.3 + noise3 * 0.2;
+      
+      // Super bright core
+      float core = smoothstep(0.4, 0.8, brightness);
+      
+      vec3 color = mix(colorDeep, colorMid, brightness);
+      color = mix(color, colorHot, core);
+      color += colorCore * smoothstep(0.8, 1.0, brightness) * 2.0;
+      
+      // Corona glow edge
+      float rim = 1.0 - fresnel;
+      color += colorHot * pow(rim, 2.0) * 1.5;
+
+      gl_FragColor = vec4(color, 1.0);
     }
   `
 );
 
-extend({ SunMaterial });
+// Deep Space Background (Clean Gradient)
+const DeepSpaceMaterial = shaderMaterial(
+  { 
+    colorTop: new THREE.Color("#000000"), 
+    colorBottom: new THREE.Color("#020617") // Very dark slate/blue
+  },
+  // Vertex
+  `
+    varying vec3 vPosition;
+    void main() {
+      vPosition = position;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  // Fragment
+  `
+    uniform vec3 colorTop;
+    uniform vec3 colorBottom;
+    varying vec3 vPosition;
+
+    void main() {
+      vec3 dir = normalize(vPosition);
+      // Vertical gradient from bottom (blueish) to top (black)
+      float t = smoothstep(-1.0, 1.0, dir.y);
+      vec3 color = mix(colorBottom, colorTop, t);
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `
+);
+
+extend({ SunMaterial, DeepSpaceMaterial });
 
 declare global {
   namespace JSX {
     interface IntrinsicElements {
       sunMaterial: any;
+      deepSpaceMaterial: any;
     }
   }
+}
+
+// --- Components ---
+
+// Background Gradient
+function DeepSpace() {
+  return (
+    <mesh>
+      <sphereGeometry args={[50, 32, 32]} />
+      <deepSpaceMaterial side={THREE.BackSide} />
+    </mesh>
+  );
+}
+
+// Improved Astronaut (Detailed & Articulated)
+// function Astronaut() {
+//   const group = useRef<THREE.Group>(null);
+//   const leftArm = useRef<THREE.Group>(null);
+//   const rightArm = useRef<THREE.Group>(null);
+//   const leftLeg = useRef<THREE.Group>(null);
+//   const rightLeg = useRef<THREE.Group>(null);
+  
+//   useFrame((state) => {
+//     if (group.current) {
+//       // Floating animation
+//       const t = state.clock.getElapsedTime();
+//       group.current.position.y = Math.sin(t * 0.5) * 0.5 + 3; // Float range
+//       group.current.rotation.z = Math.sin(t * 0.2) * 0.1; // Gentle sway
+//       group.current.rotation.y += 0.005; // Slow spin
+      
+//       // Limb movement (Spacewalking)
+//       if (leftArm.current) leftArm.current.rotation.x = Math.sin(t * 0.5) * 0.3 - 0.5;
+//       if (rightArm.current) rightArm.current.rotation.x = Math.cos(t * 0.5) * 0.3 - 0.5;
+//       if (leftLeg.current) leftLeg.current.rotation.x = Math.cos(t * 0.5) * 0.2 + 0.2;
+//       if (rightLeg.current) rightLeg.current.rotation.x = Math.sin(t * 0.5) * 0.2 + 0.2;
+//     }
+//   });
+
+//   const suitMaterial = <meshStandardMaterial color="#eeeeee" roughness={0.6} metalness={0.1} />;
+  
+//   return (
+//     <group ref={group} position={[-5, 3, 4]} rotation={[0.5, 0.5, 0]} scale={0.8}>
+//       {/* Self-illumination for visibility */}
+//       <pointLight position={[2, 2, 5]} intensity={3} distance={10} color="#ffffff" />
+      
+//       {/* --- Torso --- */}
+//       <mesh position={[0, 0, 0]}>
+//         <boxGeometry args={[1, 1.5, 0.8]} />
+//         {suitMaterial}
+//       </mesh>
+//       {/* Chest Control Box */}
+//       <mesh position={[0, 0.2, 0.45]}>
+//         <boxGeometry args={[0.6, 0.4, 0.2]} />
+//         <meshStandardMaterial color="#dddddd" roughness={0.4} metalness={0.3} />
+//       </mesh>
+      
+//       {/* --- Head --- */}
+//       <group position={[0, 1.1, 0]}>
+//         <mesh>
+//           <sphereGeometry args={[0.6, 32, 32]} />
+//           {suitMaterial}
+//         </mesh>
+//         {/* Visor (Gold Reflection) */}
+//         <mesh position={[0, 0.05, 0.35]}>
+//           <sphereGeometry args={[0.45, 32, 32]} />
+//           <meshStandardMaterial 
+//             color="#ffd700" 
+//             roughness={0.1} 
+//             metalness={1.0} 
+//             envMapIntensity={2}
+//           />
+//         </mesh>
+//       </group>
+
+//       {/* --- Backpack (PLSS) --- */}
+//       <group position={[0, 0.2, -0.6]}>
+//         <mesh>
+//           <boxGeometry args={[1.2, 1.8, 0.5]} />
+//           {suitMaterial}
+//         </mesh>
+//         {/* Details */}
+//         <mesh position={[0.4, 0.5, 0.3]}>
+//            <cylinderGeometry args={[0.1, 0.1, 0.6]} />
+//            <meshStandardMaterial color="#999" />
+//         </mesh>
+//       </group>
+
+//       {/* --- Left Arm --- */}
+//       <group ref={leftArm} position={[-0.6, 0.6, 0]}>
+//         <mesh position={[0, 0, 0]}>
+//           <sphereGeometry args={[0.25]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[-0.2, -0.3, 0]} rotation={[0, 0, 0.5]}>
+//           <cylinderGeometry args={[0.15, 0.15, 0.6]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[-0.35, -0.7, 0]}>
+//           <sphereGeometry args={[0.2]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[-0.4, -1.0, 0]} rotation={[0, 0, 0.5]}>
+//           <cylinderGeometry args={[0.12, 0.12, 0.6]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[-0.45, -1.4, 0]}>
+//            <boxGeometry args={[0.2, 0.3, 0.2]} />
+//            <meshStandardMaterial color="#aaaaaa" roughness={0.5} />
+//         </mesh>
+//       </group>
+
+//       {/* --- Right Arm --- */}
+//       <group ref={rightArm} position={[0.6, 0.6, 0]}>
+//         <mesh position={[0, 0, 0]}>
+//           <sphereGeometry args={[0.25]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[0.2, -0.3, 0]} rotation={[0, 0, -0.5]}>
+//           <cylinderGeometry args={[0.15, 0.15, 0.6]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[0.35, -0.7, 0]}>
+//           <sphereGeometry args={[0.2]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[0.4, -1.0, 0]} rotation={[0, 0, -0.5]}>
+//           <cylinderGeometry args={[0.12, 0.12, 0.6]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[0.45, -1.4, 0]}>
+//            <boxGeometry args={[0.2, 0.3, 0.2]} />
+//            <meshStandardMaterial color="#aaaaaa" roughness={0.5} />
+//         </mesh>
+//       </group>
+
+//       {/* --- Left Leg --- */}
+//       <group ref={leftLeg} position={[-0.3, -0.8, 0]}>
+//          <mesh position={[0, 0, 0]}>
+//           <sphereGeometry args={[0.25]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[0, -0.4, 0]}>
+//           <cylinderGeometry args={[0.2, 0.2, 0.8]} />
+//           {suitMaterial}
+//         </mesh>
+//          <mesh position={[0, -0.9, 0]}>
+//           <sphereGeometry args={[0.22]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[0, -1.4, 0]}>
+//           <cylinderGeometry args={[0.18, 0.18, 0.8]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[0, -1.9, 0.1]}>
+//            <boxGeometry args={[0.25, 0.2, 0.4]} />
+//            <meshStandardMaterial color="#aaaaaa" roughness={0.5} />
+//         </mesh>
+//       </group>
+
+//       {/* --- Right Leg --- */}
+//       <group ref={rightLeg} position={[0.3, -0.8, 0]}>
+//          <mesh position={[0, 0, 0]}>
+//           <sphereGeometry args={[0.25]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[0, -0.4, 0]}>
+//           <cylinderGeometry args={[0.2, 0.2, 0.8]} />
+//           {suitMaterial}
+//         </mesh>
+//          <mesh position={[0, -0.9, 0]}>
+//           <sphereGeometry args={[0.22]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[0, -1.4, 0]}>
+//           <cylinderGeometry args={[0.18, 0.18, 0.8]} />
+//           {suitMaterial}
+//         </mesh>
+//         <mesh position={[0, -1.9, 0.1]}>
+//            <boxGeometry args={[0.25, 0.2, 0.4]} />
+//            <meshStandardMaterial color="#aaaaaa" roughness={0.5} />
+//         </mesh>
+//       </group>
+
+//     </group>
+//   );
+// }
+
+// Shooting Star
+function ShootingStar() {
+  const ref = useRef<THREE.Mesh>(null);
+  const [active, setActive] = useState(false);
+  
+  // Random start position logic
+  const reset = () => {
+    if (!ref.current) return;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.random() * Math.PI;
+    const r = 30;
+    ref.current.position.set(
+      r * Math.sin(theta) * Math.cos(phi),
+      r * Math.sin(theta) * Math.sin(phi),
+      r * Math.cos(theta)
+    );
+    // Aim somewhat towards center but offset
+    ref.current.lookAt(new THREE.Vector3(Math.random()*5, Math.random()*5, Math.random()*5));
+    setActive(true);
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (Math.random() > 0.7) reset(); // 30% chance every 2s
+    }, 2000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useFrame(() => {
+    if (!active || !ref.current) return;
+    ref.current.translateZ(0.8); // Speed
+    if (ref.current.position.length() > 40) setActive(false); // Out of bounds
+  });
+
+  if (!active) return null;
+
+  return (
+    <mesh ref={ref}>
+      <cylinderGeometry args={[0, 0.1, 8, 8]} />
+      <meshBasicMaterial color="#ffffff" transparent opacity={0.8} />
+    </mesh>
+  );
 }
 
 // --- Custom Hooks ---
@@ -175,7 +429,7 @@ function useEarthTextures() {
 // --- Components ---
 
 // Optimized Particles - Floating Stardust
-const Particles = memo(({ count = 2000 }: { count?: number }) => {
+const Particles = memo(({ count = 10000 }: { count?: number }) => {
   const points = useRef<THREE.Points>(null);
 
   const particlesPosition = useMemo(() => {
@@ -183,7 +437,8 @@ const Particles = memo(({ count = 2000 }: { count?: number }) => {
     for (let i = 0; i < count; i++) {
       const theta = THREE.MathUtils.randFloatSpread(360); 
       const phi = THREE.MathUtils.randFloatSpread(360); 
-      const distance = 4 + Math.random() * 6; // Cloud around earth
+      // Distribute stars far away to form a background field
+      const distance = 20 + Math.random() * 25; 
       const x = distance * Math.sin(theta) * Math.cos(phi);
       const y = distance * Math.sin(theta) * Math.sin(phi);
       const z = distance * Math.cos(theta);
@@ -196,9 +451,8 @@ const Particles = memo(({ count = 2000 }: { count?: number }) => {
 
   useFrame((state) => {
     if (points.current) {
-      // Gentle floating rotation
-      points.current.rotation.y += 0.0003;
-      points.current.rotation.x += 0.0001;
+      // Very slow rotation for the whole starfield
+      points.current.rotation.y += 0.0001;
     }
   });
 
@@ -211,11 +465,11 @@ const Particles = memo(({ count = 2000 }: { count?: number }) => {
         />
       </bufferGeometry>
       <pointsMaterial
-        color="#a5b4fc" // Soft Indigo/Blue
-        size={0.02}
+        color="#ffffff" 
+        size={0.03}
         sizeAttenuation
         transparent
-        opacity={0.6}
+        opacity={0.8}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
       />
@@ -223,7 +477,7 @@ const Particles = memo(({ count = 2000 }: { count?: number }) => {
   );
 });
 
-Particles.displayName = 'Stardust';
+Particles.displayName = 'StarFieldParticles';
 
 // Fallback Wireframe Earth
 function FallbackEarth() {
@@ -332,17 +586,16 @@ function RealisticSun() {
   });
 
   return (
-    <group position={[12, 6, -10]}> {/* Positioned in the top-right background */}
-      {/* 1. Core - Solid 3D Sphere with Limb Darkening */}
-      <Sphere args={[1.5, 64, 64]}> 
+    <group position={[15, 8, -20]}> {/* Further away to reduce perspective distortion */}
+      {/* 1. Core - Solid 3D Sphere with Volumetric Shader */}
+      <Sphere args={[5, 64, 64]}> 
+        {/* @ts-ignore */}
         <sunMaterial 
           ref={sunMatRef}
-          colorCore={new THREE.Color("#fff7ed")} 
-          colorMid={new THREE.Color("#f59e0b")}
-          colorEdge={new THREE.Color("#7c2d12")} 
-          intensity={1.5}
         />
       </Sphere>
+      
+      {/* 2. Outer Glow (Removed as requested) */}
     </group>
   );
 }
@@ -373,8 +626,9 @@ export default function WorldGlobe() {
         <Earth textures={textures} hasError={hasError} />
         <RealisticSun />
         
-        <Particles count={2000} />
-        <StarField />
+        <Particles count={10000} />
+        <ShootingStar />
+        <DeepSpace />
         
         <OrbitControls 
           enableZoom={true}
