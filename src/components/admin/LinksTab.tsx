@@ -435,13 +435,14 @@ export function LinksTab() {
 
             return (
               <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {paginatedCategories.map((cat: Category, catIndex: number) => {
                   const globalIndex = startIndex + catIndex;
                   const isFirst = globalIndex === 0;
                   const isLast = globalIndex === categories.length - 1;
 
                   return (
-                    <motion.div key={cat.id} layout initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="group/category nm-flat p-10 rounded-[40px] border border-gray-100/50 dark:border-white/[0.03] relative overflow-hidden">
+                    <motion.div key={cat.id} layout initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="group/category nm-flat p-10 rounded-[40px] border border-gray-100/50 dark:border-white/[0.03] relative overflow-hidden h-full">
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#6ee7b7] via-cyan-500 to-transparent opacity-30" />
                       <div className="flex justify-between items-center mb-10 pb-6 border-b border-gray-100 dark:border-white/5">
                         <div className="flex items-center gap-5">
@@ -547,6 +548,7 @@ export function LinksTab() {
                     </motion.div>
                   );
                 })}
+                </div>
 
                 {totalPages > 1 && (
                   <div className="flex items-center justify-center gap-8 mt-4 shrink-0 pt-4 border-t border-gray-100 dark:border-white/5">
