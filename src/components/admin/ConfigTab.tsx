@@ -49,8 +49,8 @@ export function ConfigTab() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-12">
-      <section className="nm-flat p-10 rounded-[40px] border border-gray-100/50 dark:border-white/[0.03] relative overflow-hidden">
+    <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <section className="nm-flat p-8 rounded-[40px] border border-gray-100/50 dark:border-white/[0.03] relative overflow-hidden">
         <h2 className="text-[11px] uppercase tracking-[0.5em] text-[#6ee7b7] font-black mb-10 flex items-center gap-4">
           <Settings size={14} />
           系统参数
@@ -77,7 +77,7 @@ export function ConfigTab() {
         </form>
       </section>
 
-      <section className="nm-flat p-10 rounded-[40px] border border-red-500/10 relative overflow-hidden">
+      <section className="nm-flat p-8 rounded-[40px] border border-red-500/10 relative overflow-hidden">
         <h2 className="text-[11px] uppercase tracking-[0.5em] text-red-500 font-black mb-10 flex items-center gap-4">
           <Lock size={14} />
           安全设置
