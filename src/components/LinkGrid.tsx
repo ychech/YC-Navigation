@@ -172,6 +172,17 @@ const TiltCard = ({ link, index, isActive, onActivate }: { link: Link; index: nu
 export const LinkGrid = ({ links }: LinkGridProps) => {
   const [activeId, setActiveId] = useState<number | null>(null);
 
+  if (!links || links.length === 0) {
+    return (
+      <div className="w-full h-40 flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.02]">
+        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4">
+          <Activity size={20} className="text-gray-600" />
+        </div>
+        <p className="text-sm text-gray-500 font-mono tracking-widest uppercase">暂无收录内容</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
       {links.map((link, i) => (

@@ -1,3 +1,4 @@
+
 import prisma from "@/lib/prisma";
 import { LinkGrid } from "@/components/LinkGrid";
 import { Navbar } from "@/components/Navbar";
@@ -10,6 +11,9 @@ import { AnimatedSectionHeader } from "@/components/AnimatedSectionHeader";
 import { LogoCarousel } from "@/components/LogoCarousel";
 
 import { CategoryNav } from "@/components/CategoryNav";
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function Home() {
   const [categories, galleryImages, aboutContent, siteConfigs] = await Promise.all([
