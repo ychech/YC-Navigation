@@ -225,9 +225,9 @@ export function LinksTab() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Forms */}
-        <div className="lg:col-span-5 space-y-6 sticky top-6 self-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start h-[calc(100vh-240px)]">
+        {/* Left Column: Forms - Sticky & Scrollable if needed */}
+        <div className="lg:col-span-5 space-y-6 h-full overflow-y-auto pr-2 scrollbar-hide">
           {/* Category Form */}
           <section className="nm-flat p-8 rounded-[40px] border border-gray-100/50 dark:border-white/[0.03] slant-decor group relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#6ee7b7]/10 to-transparent blur-3xl pointer-events-none" />
@@ -357,8 +357,8 @@ export function LinksTab() {
           </section>
         </div>
 
-        {/* Right Column: List */}
-        <div className="lg:col-span-7">
+        {/* Right Column: List - Fixed Height & Internal Scroll */}
+        <div className="lg:col-span-7 h-full flex flex-col">
           <AnimatePresence mode="popLayout">
             {(() => {
               let displayCategories = [...categories];
@@ -383,7 +383,8 @@ export function LinksTab() {
               const paginatedCategories = displayCategories.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
               return (
-                <div className="space-y-6">
+                <div className="flex-1 flex flex-col min-h-0">
+                  <div className="flex-1 overflow-y-auto pr-2 space-y-6 pb-4">
                   {paginatedCategories.map((cat: any, catIndex: number) => {
                     const globalIndex = startIndex + catIndex;
                     const isFirst = globalIndex === 0;
@@ -496,25 +497,26 @@ export function LinksTab() {
                       </motion.div>
                     );
                   })}
+                  </div>
 
                   {totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-8 mt-16">
+                    <div className="flex items-center justify-center gap-8 mt-4 shrink-0 pt-4 border-t border-gray-100 dark:border-white/5">
                       <button 
                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                         disabled={currentPage === 1}
-                        className="w-16 h-16 nm-flat flex items-center justify-center text-gray-400 hover:text-[#6ee7b7] disabled:opacity-10 disabled:hover:text-gray-400 transition-all rounded-3xl bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 active:scale-90"
+                        className="w-12 h-12 nm-flat flex items-center justify-center text-gray-400 hover:text-[#6ee7b7] disabled:opacity-10 disabled:hover:text-gray-400 transition-all rounded-2xl bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 active:scale-90"
                       >
-                        <ChevronLeft size={24} strokeWidth={2.5} />
+                        <ChevronLeft size={20} strokeWidth={2.5} />
                       </button>
-                      <div className="nm-inset px-12 py-5 rounded-3xl text-[10px] font-black tracking-[0.4em] text-gray-400 bg-gray-50/50 dark:bg-black/40 border border-gray-100 dark:border-white/5">
+                      <div className="nm-inset px-8 py-3 rounded-2xl text-[10px] font-black tracking-[0.4em] text-gray-400 bg-gray-50/50 dark:bg-black/40 border border-gray-100 dark:border-white/5">
                         序列 <span className="text-[#6ee7b7]">{currentPage.toString().padStart(2, '0')}</span> <span className="mx-3 text-gray-300">/</span> {totalPages.toString().padStart(2, '0')}
                       </div>
                       <button 
                         onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                         disabled={currentPage === totalPages}
-                        className="w-16 h-16 nm-flat flex items-center justify-center text-gray-400 hover:text-[#6ee7b7] disabled:opacity-10 disabled:hover:text-gray-400 transition-all rounded-3xl bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 active:scale-90"
+                        className="w-12 h-12 nm-flat flex items-center justify-center text-gray-400 hover:text-[#6ee7b7] disabled:opacity-10 disabled:hover:text-gray-400 transition-all rounded-2xl bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 active:scale-90"
                       >
-                        <ChevronRight size={24} strokeWidth={2.5} />
+                        <ChevronRight size={20} strokeWidth={2.5} />
                       </button>
                     </div>
                   )}
