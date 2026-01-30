@@ -97,11 +97,6 @@ const TiltCard = ({ link, index, isActive, onActivate }: { link: Link; index: nu
              {/* Simulated second slide sliding in (Visual Polish) 
                  In a real app, this would be `link.images[1]`
              */}
-             <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 backdrop-blur-[2px]">
-                <span className="px-3 py-1 rounded-full border border-white/20 bg-black/40 text-[10px] text-white backdrop-blur-md">
-                   Visit Site
-                </span>
-             </div>
            </div>
         ) : (
            // Placeholder pattern when no snapshot
