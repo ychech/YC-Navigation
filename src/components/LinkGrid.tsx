@@ -77,18 +77,32 @@ const TiltCard = ({ link, index, isActive, onActivate }: { link: Link; index: nu
       }}
       className={`group relative bg-[#0a0a0a]/80 backdrop-blur-2xl border overflow-hidden block transition-all duration-500 hover:scale-[1.02] rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.5),0_0_20px_rgba(99,102,241,0.1)] active:scale-[0.99] flex flex-col ${
         isActive 
-          ? "border-indigo-500/50" 
+          ? "border-white/10" // Reduced from strong indigo to subtle border
           : "border-white/5 hover:border-white/10"
       }`}
     >
       {/* 1. Cover Image Section (AspectRatio 16:9 like Bilibili) */}
       <div className="relative w-full aspect-video bg-black/40 overflow-hidden group-hover:brightness-110 transition-all duration-500">
+        {/* If we had multiple images, we would implement a carousel here. 
+            For now, let's simulate a "flip" effect by panning the image slightly on hover 
+            to hint at interactivity, or we can cross-fade to a secondary image if available.
+        */}
         {link.snapshotUrl ? (
-           <img 
-             src={link.snapshotUrl} 
-             alt={link.title} 
-             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-           />
+           <div className="w-full h-full relative">
+             <img 
+               src={link.snapshotUrl} 
+               alt={link.title} 
+               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:-translate-x-2"
+             />
+             {/* Simulated second slide sliding in (Visual Polish) 
+                 In a real app, this would be `link.images[1]`
+             */}
+             <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 backdrop-blur-[2px]">
+                <span className="px-3 py-1 rounded-full border border-white/20 bg-black/40 text-[10px] text-white backdrop-blur-md">
+                   Visit Site
+                </span>
+             </div>
+           </div>
         ) : (
            // Placeholder pattern when no snapshot
            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-black relative">
@@ -152,8 +166,8 @@ const TiltCard = ({ link, index, isActive, onActivate }: { link: Link; index: nu
       {/* Tech Corner Accents - Minimal */}
       {isActive && (
         <>
-          <div className="absolute top-0 left-0 w-full h-[2px] bg-indigo-500/50" />
-          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-indigo-500/30" />
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-white/10" />
+          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-white/5" />
         </>
       )}
     </motion.a>

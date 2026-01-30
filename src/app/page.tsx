@@ -9,6 +9,8 @@ import { StarFieldTransition } from "@/components/StarFieldTransition";
 import { AnimatedSectionHeader } from "@/components/AnimatedSectionHeader";
 import { LogoCarousel } from "@/components/LogoCarousel";
 
+import { CategoryNav } from "@/components/CategoryNav";
+
 export default async function Home() {
   const [categories, galleryImages, aboutContent, siteConfigs] = await Promise.all([
     prisma.category.findMany({ include: { links: true } }),
@@ -41,14 +43,24 @@ export default async function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/80 to-[#020617]" />
       </div>
 
-      <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 xl:px-24 pb-20 relative z-10 -mt-40">
+      <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 xl:px-24 pb-20 relative z-10 -mt-20">
+        
         <div id="directory" className="space-y-32">
           {categories.map((category, idx) => (
-            <div key={category.id} className="relative group">
+            <div key={category.id} id={`category-${category.id}`} className="relative group scroll-mt-32">
               {/* Special Carousel for AI Section */}
               {(category.name.includes("AI") || category.name.includes("智能")) && (
                  <div className="mb-16 -mt-8">
                    <LogoCarousel links={category.links} />
+                 </div>
+              )}
+
+              {/* Sticky Category Navigation - Placed inside content flow, specifically after AI Carousel if present */}
+              {idx === 0 && (
+                 <div className="mb-12 sticky top-4 z-40 flex justify-center pointer-events-none">
+                    <div className="pointer-events-auto">
+                       <CategoryNav categories={categories} />
+                    </div>
                  </div>
               )}
 
