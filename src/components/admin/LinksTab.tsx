@@ -229,7 +229,7 @@ export function LinksTab() {
         {/* Left Column: Forms */}
         <div className="lg:col-span-5 space-y-12">
           {/* Category Form */}
-          <section className="nm-flat p-10 rounded-[40px] border border-gray-100/50 dark:border-white/[0.03] slant-decor group relative overflow-hidden">
+          <section className="nm-flat p-8 rounded-[40px] border border-gray-100/50 dark:border-white/[0.03] slant-decor group relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#6ee7b7]/10 to-transparent blur-3xl pointer-events-none" />
             <h2 className="text-[11px] uppercase tracking-[0.5em] text-[#6ee7b7] font-black mb-10 flex items-center gap-4">
               <Sparkles size={14} />
@@ -430,7 +430,7 @@ export function LinksTab() {
                           </div>
                         )}
 
-                        <div className="grid grid-cols-1 gap-6">
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                           {(cat.links || []).map((link: any, linkIndex: number) => {
                             const isLinkFirst = linkIndex === 0;
                             const isLinkLast = linkIndex === (cat.links || []).length - 1;
