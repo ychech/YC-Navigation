@@ -161,6 +161,7 @@ function DeepSpace() {
   return (
     <mesh>
       <sphereGeometry args={[50, 32, 32]} />
+      {/* @ts-ignore */}
       <deepSpaceMaterial side={THREE.BackSide} />
     </mesh>
   );
