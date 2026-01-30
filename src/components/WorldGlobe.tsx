@@ -2,12 +2,12 @@
 
 import { useRef, useMemo, memo, useState, useEffect } from 'react';
 import { Canvas, useFrame, extend, ReactThreeFiber } from '@react-three/fiber';
-import { Sphere, Stars, OrbitControls, shaderMaterial, RoundedBox, Billboard, Plane } from '@react-three/drei';
+import { Sphere, Stars, OrbitControls, shaderMaterial, Billboard, Plane } from '@react-three/drei';
 import * as THREE from 'three';
 
 // --- Shaders ---
 
-// Sun Material (Burning Plasma Shader)
+// Sun Material (Burning Plasma Shader) - Optimized for 2D Billboard
 const SunMaterial = shaderMaterial(
   { 
     time: 0,
@@ -20,16 +20,11 @@ const SunMaterial = shaderMaterial(
   `
     varying vec2 vUv;
     varying vec3 vPosition;
-    varying vec3 vNormal;
-    varying vec3 vViewPosition;
     
     void main() {
       vUv = uv;
       vPosition = position;
-      vNormal = normalize(normalMatrix * normal);
-      vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-      vViewPosition = -mvPosition.xyz;
-      gl_Position = projectionMatrix * mvPosition;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `,
   // Fragment Shader
@@ -42,8 +37,6 @@ const SunMaterial = shaderMaterial(
     
     varying vec2 vUv;
     varying vec3 vPosition;
-    varying vec3 vNormal;
-    varying vec3 vViewPosition;
 
     // Cube Noise Function
     float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
@@ -73,12 +66,35 @@ const SunMaterial = shaderMaterial(
     }
 
     void main() {
-      float fresnel = dot(normalize(vViewPosition), vNormal);
+      // 1. Circular Mask (Make Plane look like Sphere)
+      vec2 center = vec2(0.5);
+      float dist = distance(vUv, center);
+      if (dist > 0.5) discard;
+      
+      // 2. Simulate 3D Sphere Geometry from 2D UV
+      // Map UV (0..1) to (-1..1)
+      vec2 uvCentered = (vUv - 0.5) * 2.0;
+      float r = length(uvCentered);
+      // Calculate Z depth based on sphere equation: x^2 + y^2 + z^2 = 1
+      float z = sqrt(1.0 - clamp(r * r, 0.0, 1.0));
+      
+      // Virtual Normal (since it's a sphere, normal = position on unit sphere)
+      vec3 sphereNormal = vec3(uvCentered, z);
+      
+      // 3. Fresnel Effect
+      // On a sphere looking down -Z, fresnel is related to the Z component of the normal
+      // Center (z=1) -> Facing camera -> Fresnel = 0
+      // Edge (z=0) -> Perpendicular -> Fresnel = 1
+      float fresnel = 1.0 - z; 
       fresnel = clamp(fresnel, 0.0, 1.0);
 
-      float noise1 = noise(vPosition * 2.0 + vec3(time * 0.5));
-      float noise2 = noise(vPosition * 6.0 + vec3(time * 1.5));
-      float noise3 = noise(vPosition * 12.0 + vec3(time * 2.0));
+      // 4. Noise Mapping
+      // Use the spherical coordinate to sample 3D noise so it wraps correctly
+      vec3 noisePos = sphereNormal * 3.0; // Scale noise
+      
+      float noise1 = noise(noisePos * 2.0 + vec3(time * 0.5));
+      float noise2 = noise(noisePos * 6.0 + vec3(time * 1.5));
+      float noise3 = noise(noisePos * 12.0 + vec3(time * 2.0));
       
       float brightness = noise1 * 0.5 + noise2 * 0.3 + noise3 * 0.2;
       
@@ -90,8 +106,7 @@ const SunMaterial = shaderMaterial(
       color += colorCore * smoothstep(0.8, 1.0, brightness) * 2.0;
       
       // Corona glow edge
-      float rim = 1.0 - fresnel;
-      color += colorHot * pow(rim, 2.0) * 1.5;
+      color += colorHot * pow(fresnel, 3.0) * 1.5;
 
       gl_FragColor = vec4(color, 1.0);
     }
@@ -150,179 +165,6 @@ function DeepSpace() {
     </mesh>
   );
 }
-
-// Improved Astronaut (Detailed & Articulated)
-// function Astronaut() {
-//   const group = useRef<THREE.Group>(null);
-//   const leftArm = useRef<THREE.Group>(null);
-//   const rightArm = useRef<THREE.Group>(null);
-//   const leftLeg = useRef<THREE.Group>(null);
-//   const rightLeg = useRef<THREE.Group>(null);
-  
-//   useFrame((state) => {
-//     if (group.current) {
-//       // Floating animation
-//       const t = state.clock.getElapsedTime();
-//       group.current.position.y = Math.sin(t * 0.5) * 0.5 + 3; // Float range
-//       group.current.rotation.z = Math.sin(t * 0.2) * 0.1; // Gentle sway
-//       group.current.rotation.y += 0.005; // Slow spin
-      
-//       // Limb movement (Spacewalking)
-//       if (leftArm.current) leftArm.current.rotation.x = Math.sin(t * 0.5) * 0.3 - 0.5;
-//       if (rightArm.current) rightArm.current.rotation.x = Math.cos(t * 0.5) * 0.3 - 0.5;
-//       if (leftLeg.current) leftLeg.current.rotation.x = Math.cos(t * 0.5) * 0.2 + 0.2;
-//       if (rightLeg.current) rightLeg.current.rotation.x = Math.sin(t * 0.5) * 0.2 + 0.2;
-//     }
-//   });
-
-//   const suitMaterial = <meshStandardMaterial color="#eeeeee" roughness={0.6} metalness={0.1} />;
-  
-//   return (
-//     <group ref={group} position={[-5, 3, 4]} rotation={[0.5, 0.5, 0]} scale={0.8}>
-//       {/* Self-illumination for visibility */}
-//       <pointLight position={[2, 2, 5]} intensity={3} distance={10} color="#ffffff" />
-      
-//       {/* --- Torso --- */}
-//       <mesh position={[0, 0, 0]}>
-//         <boxGeometry args={[1, 1.5, 0.8]} />
-//         {suitMaterial}
-//       </mesh>
-//       {/* Chest Control Box */}
-//       <mesh position={[0, 0.2, 0.45]}>
-//         <boxGeometry args={[0.6, 0.4, 0.2]} />
-//         <meshStandardMaterial color="#dddddd" roughness={0.4} metalness={0.3} />
-//       </mesh>
-      
-//       {/* --- Head --- */}
-//       <group position={[0, 1.1, 0]}>
-//         <mesh>
-//           <sphereGeometry args={[0.6, 32, 32]} />
-//           {suitMaterial}
-//         </mesh>
-//         {/* Visor (Gold Reflection) */}
-//         <mesh position={[0, 0.05, 0.35]}>
-//           <sphereGeometry args={[0.45, 32, 32]} />
-//           <meshStandardMaterial 
-//             color="#ffd700" 
-//             roughness={0.1} 
-//             metalness={1.0} 
-//             envMapIntensity={2}
-//           />
-//         </mesh>
-//       </group>
-
-//       {/* --- Backpack (PLSS) --- */}
-//       <group position={[0, 0.2, -0.6]}>
-//         <mesh>
-//           <boxGeometry args={[1.2, 1.8, 0.5]} />
-//           {suitMaterial}
-//         </mesh>
-//         {/* Details */}
-//         <mesh position={[0.4, 0.5, 0.3]}>
-//            <cylinderGeometry args={[0.1, 0.1, 0.6]} />
-//            <meshStandardMaterial color="#999" />
-//         </mesh>
-//       </group>
-
-//       {/* --- Left Arm --- */}
-//       <group ref={leftArm} position={[-0.6, 0.6, 0]}>
-//         <mesh position={[0, 0, 0]}>
-//           <sphereGeometry args={[0.25]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[-0.2, -0.3, 0]} rotation={[0, 0, 0.5]}>
-//           <cylinderGeometry args={[0.15, 0.15, 0.6]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[-0.35, -0.7, 0]}>
-//           <sphereGeometry args={[0.2]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[-0.4, -1.0, 0]} rotation={[0, 0, 0.5]}>
-//           <cylinderGeometry args={[0.12, 0.12, 0.6]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[-0.45, -1.4, 0]}>
-//            <boxGeometry args={[0.2, 0.3, 0.2]} />
-//            <meshStandardMaterial color="#aaaaaa" roughness={0.5} />
-//         </mesh>
-//       </group>
-
-//       {/* --- Right Arm --- */}
-//       <group ref={rightArm} position={[0.6, 0.6, 0]}>
-//         <mesh position={[0, 0, 0]}>
-//           <sphereGeometry args={[0.25]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[0.2, -0.3, 0]} rotation={[0, 0, -0.5]}>
-//           <cylinderGeometry args={[0.15, 0.15, 0.6]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[0.35, -0.7, 0]}>
-//           <sphereGeometry args={[0.2]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[0.4, -1.0, 0]} rotation={[0, 0, -0.5]}>
-//           <cylinderGeometry args={[0.12, 0.12, 0.6]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[0.45, -1.4, 0]}>
-//            <boxGeometry args={[0.2, 0.3, 0.2]} />
-//            <meshStandardMaterial color="#aaaaaa" roughness={0.5} />
-//         </mesh>
-//       </group>
-
-//       {/* --- Left Leg --- */}
-//       <group ref={leftLeg} position={[-0.3, -0.8, 0]}>
-//          <mesh position={[0, 0, 0]}>
-//           <sphereGeometry args={[0.25]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[0, -0.4, 0]}>
-//           <cylinderGeometry args={[0.2, 0.2, 0.8]} />
-//           {suitMaterial}
-//         </mesh>
-//          <mesh position={[0, -0.9, 0]}>
-//           <sphereGeometry args={[0.22]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[0, -1.4, 0]}>
-//           <cylinderGeometry args={[0.18, 0.18, 0.8]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[0, -1.9, 0.1]}>
-//            <boxGeometry args={[0.25, 0.2, 0.4]} />
-//            <meshStandardMaterial color="#aaaaaa" roughness={0.5} />
-//         </mesh>
-//       </group>
-
-//       {/* --- Right Leg --- */}
-//       <group ref={rightLeg} position={[0.3, -0.8, 0]}>
-//          <mesh position={[0, 0, 0]}>
-//           <sphereGeometry args={[0.25]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[0, -0.4, 0]}>
-//           <cylinderGeometry args={[0.2, 0.2, 0.8]} />
-//           {suitMaterial}
-//         </mesh>
-//          <mesh position={[0, -0.9, 0]}>
-//           <sphereGeometry args={[0.22]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[0, -1.4, 0]}>
-//           <cylinderGeometry args={[0.18, 0.18, 0.8]} />
-//           {suitMaterial}
-//         </mesh>
-//         <mesh position={[0, -1.9, 0.1]}>
-//            <boxGeometry args={[0.25, 0.2, 0.4]} />
-//            <meshStandardMaterial color="#aaaaaa" roughness={0.5} />
-//         </mesh>
-//       </group>
-
-//     </group>
-//   );
-// }
 
 // Shooting Star
 function ShootingStar() {
@@ -525,24 +367,7 @@ function Earth({ textures, hasError }: { textures: any, hasError: boolean }) {
 
   return (
     <group rotation={[0, 0, Math.PI / 6]}>
-      {/* 1. Atmosphere Glow (Removed) */}
-      {/* <Sphere args={[2.35, 64, 64]}>
-        <meshPhongMaterial 
-          color="#ff4500" 
-          transparent 
-          opacity={0.1} 
-          side={THREE.BackSide}
-          blending={THREE.AdditiveBlending}
-        />
-      </Sphere> */}
-
-      {/* Impact Shockwave Ring (Removed) */}
-      {/* <mesh rotation={[Math.PI / 4, 0, 0]}>
-        <torusGeometry args={[3.0, 0.05, 16, 100]} />
-        <meshBasicMaterial color="#ff4500" transparent opacity={0.4} />
-      </mesh> */}
-
-      {/* 2. Main Earth Body - Realistic Style */}
+      {/* Main Earth Body - Realistic Style */}
       <Sphere ref={earthRef} args={[2.2, 64, 64]}>
         <meshStandardMaterial
           map={textures.map!} 
@@ -553,7 +378,7 @@ function Earth({ textures, hasError }: { textures: any, hasError: boolean }) {
         />
       </Sphere>
 
-      {/* 3. Clouds Layer - Realistic */}
+      {/* Clouds Layer - Realistic */}
       {textures.clouds && (
         <Sphere ref={cloudsRef} args={[2.23, 64, 64]}>
           <meshPhongMaterial
@@ -575,7 +400,7 @@ function StarField() {
   return <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={0.5} />;
 }
 
-// Realistic Sun Component - Volumetric Sphere
+// Realistic Sun Component - Volumetric Billboard
 function RealisticSun() {
   const sunMatRef = useRef<any>(null);
   
@@ -587,15 +412,17 @@ function RealisticSun() {
 
   return (
     <group position={[15, 8, -20]}> {/* Further away to reduce perspective distortion */}
-      {/* 1. Core - Solid 3D Sphere with Volumetric Shader */}
-      <Sphere args={[5, 64, 64]}> 
-        {/* @ts-ignore */}
-        <sunMaterial 
-          ref={sunMatRef}
-        />
-      </Sphere>
-      
-      {/* 2. Outer Glow (Removed as requested) */}
+      {/* Billboard ensures the plane always faces the camera */}
+      <Billboard follow={true} lockX={false} lockY={false} lockZ={false}>
+        {/* Plane Geometry serves as the canvas for the 2D shader that simulates a sphere */}
+        <Plane args={[10, 10]}> 
+          {/* @ts-ignore */}
+          <sunMaterial 
+            ref={sunMatRef} 
+            transparent={true} 
+          />
+        </Plane>
+      </Billboard>
     </group>
   );
 }
@@ -625,6 +452,7 @@ export default function WorldGlobe() {
         
         <Earth textures={textures} hasError={hasError} />
         <RealisticSun />
+        {/* Astronaut removed */}
         
         <Particles count={10000} />
         <ShootingStar />

@@ -39,21 +39,64 @@ export const Hero = ({ title, subtitle, categories = [] }: HeroProps) => {
 
   // JSDoc: Helper for typewriter effect
   const [displayedSubtitle, setDisplayedSubtitle] = useState("");
+  const [displayedTitle, setDisplayedTitle] = useState(""); // For title typewriter effect
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
-    let i = 0;
-    // Delay subtitle start until title is mostly done
+    // Looping Title Typewriter Effect
+    let tIndex = 0;
+    let isDeleting = false;
+    let pauseCounter = 0;
+    const pauseDuration = 20; // 2 seconds pause at full text (100ms * 20)
+    const pauseDurationEmpty = 5; // 0.5 seconds pause at empty (100ms * 5)
+    
+    const titleInterval = setInterval(() => {
+      if (!isDeleting) {
+        // Typing phase
+        if (tIndex <= rawTitle.length) {
+          setDisplayedTitle(rawTitle.slice(0, tIndex));
+          tIndex++;
+        } else {
+          // Finished typing, start pause
+          pauseCounter++;
+          if (pauseCounter > pauseDuration) {
+            isDeleting = true;
+            pauseCounter = 0;
+          }
+        }
+      } else {
+        // Deleting phase
+        if (tIndex >= 0) {
+          setDisplayedTitle(rawTitle.slice(0, tIndex));
+          tIndex--;
+        } else {
+          // Finished deleting, start pause
+          pauseCounter++;
+          if (pauseCounter > pauseDurationEmpty) {
+            isDeleting = false;
+            pauseCounter = 0;
+            tIndex = 0;
+          }
+        }
+      }
+    }, 100);
+
+    // Subtitle Typewriter Effect (starts after title)
+    let sIndex = 0;
     const startDelay = setTimeout(() => {
-      const interval = setInterval(() => {
-        setDisplayedSubtitle(subtitle.slice(0, i));
-        i++;
-        if (i > subtitle.length) clearInterval(interval);
+      const subInterval = setInterval(() => {
+        setDisplayedSubtitle(subtitle.slice(0, sIndex));
+        sIndex++;
+        if (sIndex > subtitle.length) clearInterval(subInterval);
       }, 30);
-      return () => clearInterval(interval);
-    }, 1500);
-    return () => clearTimeout(startDelay);
-  }, [subtitle]);
+      return () => clearInterval(subInterval);
+    }, 1000); 
+
+    return () => {
+      clearInterval(titleInterval);
+      clearTimeout(startDelay);
+    };
+  }, [subtitle, rawTitle]);
 
   return (
     <>
@@ -130,40 +173,32 @@ export const Hero = ({ title, subtitle, categories = [] }: HeroProps) => {
               <span className="w-2 h-4 bg-indigo-500 animate-pulse ml-2" />
             </motion.div>
             
-            <h1 className="archive-title text-3xl md:text-5xl text-white leading-tight tracking-tighter relative group mix-blend-overlay whitespace-nowrap z-10 font-mono">
+            <h1 className="archive-title text-3xl md:text-5xl text-white leading-tight tracking-tighter relative group whitespace-nowrap z-10 font-mono min-h-[1.2em]">
               {/* Glitch Shadow Effect - Enhanced */}
               <span className="absolute inset-0 text-green-500/30 -translate-x-1 translate-y-1 blur-[1px] pointer-events-none select-none opacity-0 group-hover:opacity-100 transition-opacity duration-100">
-                 {rawTitle}
+                 {displayedTitle}
               </span>
               <span className="absolute inset-0 text-indigo-500/30 translate-x-1 -translate-y-1 blur-[1px] pointer-events-none select-none opacity-0 group-hover:opacity-100 transition-opacity duration-100">
-                 {rawTitle}
+                 {displayedTitle}
               </span>
               
-              {words.map((word, wordIdx) => (
-                <span key={wordIdx} className="inline-block mx-[0.15em] overflow-hidden py-[0.1em]">
-                  {word.split("").map((char, charIdx) => (
-                    <motion.span
-                      key={charIdx}
-                      initial={{ y: "120%" }}
-                      animate={{ y: 0 }}
-                      whileHover={{ 
-                        y: -15, 
-                        scale: 1.1,
-                        color: "#818cf8",
-                        textShadow: "0 0 50px rgba(99,102,241,0.8)",
-                        transition: { duration: 0.1, type: "spring", stiffness: 300 } 
-                      }}
-                      transition={{ 
-                        duration: 1.2, 
-                        ease: [0.16, 1, 0.3, 1], 
-                        delay: 0.1 + (wordIdx * 5 + charIdx) * 0.04 
-                      }}
-                      className="inline-block origin-bottom transition-all duration-300 cursor-default pointer-events-auto"
-                    >
-                      {char}
-                    </motion.span>
-                  ))}
-                </span>
+              {displayedTitle.split("").map((char, charIdx) => (
+                <motion.span
+                  key={charIdx}
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.1 }}
+                  whileHover={{ 
+                    y: -2, 
+                    scale: 1.05,
+                    color: "#a5f3fc", // Cyan 200 - brighter and cleaner
+                    textShadow: "0 0 15px rgba(165, 243, 252, 0.5)",
+                    transition: { duration: 0.2, ease: "easeOut" } 
+                  }}
+                  className="inline-block mx-[0.05em] origin-bottom transition-all duration-300 cursor-default pointer-events-auto bg-clip-text text-transparent bg-gradient-to-b from-white via-gray-200 to-gray-400 drop-shadow-lg"
+                >
+                  {char}
+                </motion.span>
               ))}
             </h1>
             

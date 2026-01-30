@@ -7,6 +7,7 @@ import { GlobalSpotlight } from "@/components/GlobalSpotlight";
 import { ParticleWave } from "@/components/ParticleWave";
 import { StarFieldTransition } from "@/components/StarFieldTransition";
 import { AnimatedSectionHeader } from "@/components/AnimatedSectionHeader";
+import { LogoCarousel } from "@/components/LogoCarousel";
 
 export default async function Home() {
   const [categories, galleryImages, aboutContent, siteConfigs] = await Promise.all([
@@ -44,6 +45,13 @@ export default async function Home() {
         <div id="directory" className="space-y-32">
           {categories.map((category, idx) => (
             <div key={category.id} className="relative group">
+              {/* Special Carousel for AI Section */}
+              {(category.name.includes("AI") || category.name.includes("智能")) && (
+                 <div className="mb-2 -mt-10">
+                   <LogoCarousel links={category.links} />
+                 </div>
+              )}
+
               {/* Vertical Archive Line */}
               <div className="absolute -left-12 top-0 bottom-0 w-[1px] bg-gradient-to-b from-indigo-500/20 via-transparent to-transparent hidden xl:block transition-all duration-1000 group-hover:from-indigo-500/50" />
               
