@@ -72,7 +72,7 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="h-screen bg-[#fdfdfd] dark:bg-[#080808] text-gray-900 dark:text-white transition-colors duration-1000 flex overflow-hidden font-sans relative">
+    <div className="min-h-screen bg-[#fdfdfd] dark:bg-[#080808] text-gray-900 dark:text-white transition-colors duration-1000 flex overflow-hidden font-sans relative">
       {/* Background Decorative Grid */}
       <div className="absolute inset-0 admin-grid opacity-20 pointer-events-none" />
       <div className="absolute inset-0 ink-flow-bg opacity-30 pointer-events-none" />
@@ -89,8 +89,8 @@ export default function AdminPage() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden bg-transparent relative z-10">
-        <div className="flex-shrink-0 p-6 md:p-10 pb-0">
+      <main className="flex-1 overflow-y-auto bg-transparent relative z-10 scroll-smooth">
+        <div className="p-6 md:p-10">
           <div className="max-w-7xl mx-auto space-y-10">
             {/* Page Title & Quick Actions */}
             <div className="flex justify-between items-start">
@@ -117,19 +117,13 @@ export default function AdminPage() {
                 </a>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="flex-1 min-h-0 p-6 md:p-10 pt-6 overflow-hidden">
-          <div className="max-w-7xl mx-auto h-full flex flex-col">
-            {activeTab === "links" && <LinksTab />}
-            {activeTab !== "links" && (
-              <div className="h-full overflow-y-auto pr-2">
-                {activeTab === "gallery" && <GalleryTab />}
-                {activeTab === "about" && <AboutTab />}
-                {activeTab === "config" && <ConfigTab />}
-              </div>
-            )}
+            <div className="min-h-[60vh]">
+              {activeTab === "links" && <LinksTab />}
+              {activeTab === "gallery" && <GalleryTab />}
+              {activeTab === "about" && <AboutTab />}
+              {activeTab === "config" && <ConfigTab />}
+            </div>
           </div>
         </div>
       </main>

@@ -198,7 +198,7 @@ export function LinksTab() {
   };
 
   return (
-    <div className="space-y-8 h-full flex flex-col">
+    <div className="space-y-8">
       <DeleteConfirmModal 
         isOpen={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
@@ -206,7 +206,7 @@ export function LinksTab() {
         type={deleteConfirm?.type}
       />
 
-      <div className="nm-inset p-3 rounded-[32px] bg-white/50 dark:bg-black/20 backdrop-blur-md border border-white/5 flex-shrink-0">
+      <div className="nm-inset p-3 rounded-[32px] bg-white/50 dark:bg-black/20 backdrop-blur-md border border-white/5">
         <div className="relative w-full group">
           <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#6ee7b7] transition-colors" size={20} strokeWidth={1.5} />
           <input
@@ -225,9 +225,9 @@ export function LinksTab() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start h-full min-h-0">
-        {/* Left Column: Forms - Sticky & Scrollable if needed */}
-        <div className="lg:col-span-5 space-y-6 h-full overflow-y-auto pr-2 scrollbar-hide">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Column: Forms */}
+        <div className="lg:col-span-5 space-y-6 sticky top-6 self-start">
           {/* Category Form */}
           <section className="nm-flat p-8 rounded-[40px] border border-gray-100/50 dark:border-white/[0.03] slant-decor group relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#6ee7b7]/10 to-transparent blur-3xl pointer-events-none" />
@@ -357,8 +357,8 @@ export function LinksTab() {
           </section>
         </div>
 
-        {/* Right Column: List - Fixed Height & Internal Scroll */}
-        <div className="lg:col-span-7 h-full flex flex-col">
+        {/* Right Column: List */}
+        <div className="lg:col-span-7">
           <AnimatePresence mode="popLayout">
             {(() => {
               let displayCategories = [...categories];
@@ -383,8 +383,7 @@ export function LinksTab() {
               const paginatedCategories = displayCategories.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
               return (
-                <div className="flex-1 flex flex-col min-h-0">
-                  <div className="flex-1 overflow-y-auto pr-2 space-y-6 pb-4">
+                <div className="space-y-6">
                   {paginatedCategories.map((cat: any, catIndex: number) => {
                     const globalIndex = startIndex + catIndex;
                     const isFirst = globalIndex === 0;
@@ -497,7 +496,6 @@ export function LinksTab() {
                       </motion.div>
                     );
                   })}
-                  </div>
 
                   {totalPages > 1 && (
                     <div className="flex items-center justify-center gap-8 mt-4 shrink-0 pt-4 border-t border-gray-100 dark:border-white/5">
