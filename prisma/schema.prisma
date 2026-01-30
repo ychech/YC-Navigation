@@ -8,9 +8,10 @@ datasource db {
 }
 
 model Category {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  links Link[]
+  id        Int    @id @default(autoincrement())
+  name      String @unique
+  sortOrder Int    @default(0)
+  links     Link[]
 }
 
 model Link {
@@ -22,6 +23,7 @@ model Link {
   description String?  @db.Text
   clicks      Int      @default(0)
   categoryId  Int
+  sortOrder   Int      @default(0)
   category    Category @relation(fields: [categoryId], references: [id])
 }
 
@@ -33,14 +35,14 @@ model GalleryImage {
 }
 
 model AboutContent {
-  id          Int    @id @default(autoincrement())
-  title       String @db.Text
-  description String @db.Text
+  id          Int      @id @default(autoincrement())
+  title       String   @db.Text
+  description String   @db.Text
   updatedAt   DateTime @updatedAt
 }
 
 model SiteConfig {
-  id        Int    @id @default(autoincrement())
-  key       String @unique
-  value     String @db.Text
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String @db.Text
 }
