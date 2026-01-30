@@ -198,7 +198,7 @@ export function LinksTab() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 h-full flex flex-col">
       <DeleteConfirmModal 
         isOpen={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
@@ -206,7 +206,7 @@ export function LinksTab() {
         type={deleteConfirm?.type}
       />
 
-      <div className="nm-inset p-3 rounded-[32px] bg-white/50 dark:bg-black/20 backdrop-blur-md border border-white/5">
+      <div className="nm-inset p-3 rounded-[32px] bg-white/50 dark:bg-black/20 backdrop-blur-md border border-white/5 flex-shrink-0">
         <div className="relative w-full group">
           <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#6ee7b7] transition-colors" size={20} strokeWidth={1.5} />
           <input
@@ -225,7 +225,7 @@ export function LinksTab() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start h-[calc(100vh-240px)]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start h-full min-h-0">
         {/* Left Column: Forms - Sticky & Scrollable if needed */}
         <div className="lg:col-span-5 space-y-6 h-full overflow-y-auto pr-2 scrollbar-hide">
           {/* Category Form */}

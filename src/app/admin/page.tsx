@@ -72,7 +72,7 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#fdfdfd] dark:bg-[#080808] text-gray-900 dark:text-white transition-colors duration-1000 flex overflow-hidden font-sans relative">
+    <div className="h-screen bg-[#fdfdfd] dark:bg-[#080808] text-gray-900 dark:text-white transition-colors duration-1000 flex overflow-hidden font-sans relative">
       {/* Background Decorative Grid */}
       <div className="absolute inset-0 admin-grid opacity-20 pointer-events-none" />
       <div className="absolute inset-0 ink-flow-bg opacity-30 pointer-events-none" />
@@ -89,39 +89,47 @@ export default function AdminPage() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto bg-transparent p-6 md:p-10 relative z-10 scroll-smooth">
-        <div className="max-w-7xl mx-auto space-y-10">
-          {/* Page Title & Quick Actions */}
-          <div className="flex justify-between items-start">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 text-[#6ee7b7] text-[10px] font-black uppercase tracking-[0.5em]">
-                <Fingerprint size={14} />
-                <span>验证访问</span>
+      <main className="flex-1 flex flex-col h-full overflow-hidden bg-transparent relative z-10">
+        <div className="flex-shrink-0 p-6 md:p-10 pb-0">
+          <div className="max-w-7xl mx-auto space-y-10">
+            {/* Page Title & Quick Actions */}
+            <div className="flex justify-between items-start">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 text-[#6ee7b7] text-[10px] font-black uppercase tracking-[0.5em]">
+                  <Fingerprint size={14} />
+                  <span>验证访问</span>
+                </div>
+                <h2 className="text-5xl font-black tracking-tighter text-gray-900 dark:text-white archive-title">
+                  {activeTab === "links" && "档案索引"}
+                  {activeTab === "gallery" && "视觉陈列"}
+                  {activeTab === "about" && "馆主自传"}
+                  {activeTab === "config" && "系统核心"}
+                </h2>
+                <div className="flex items-center gap-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest opacity-60">
+                  <span className="px-3 py-1 bg-gray-100 dark:bg-white/5 rounded-full">v2.0.4-稳定版</span>
+                  <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> 节点在线</span>
+                </div>
               </div>
-              <h2 className="text-5xl font-black tracking-tighter text-gray-900 dark:text-white archive-title">
-                {activeTab === "links" && "档案索引"}
-                {activeTab === "gallery" && "视觉陈列"}
-                {activeTab === "about" && "馆主自传"}
-                {activeTab === "config" && "系统核心"}
-              </h2>
-              <div className="flex items-center gap-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest opacity-60">
-                <span className="px-3 py-1 bg-gray-100 dark:bg-white/5 rounded-full">v2.0.4-稳定版</span>
-                <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> 节点在线</span>
+              <div className="flex gap-4 pt-2">
+                <a href="/" className="group flex items-center gap-4 px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-black rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#6ee7b7] dark:hover:bg-[#6ee7b7] hover:text-white dark:hover:text-white transition-all shadow-xl hover:shadow-[#6ee7b7]/20 active:scale-95">
+                  <Globe size={16} className="group-hover:rotate-12 transition-transform" strokeWidth={2.5} /> 
+                  返回前台
+                </a>
               </div>
-            </div>
-            <div className="flex gap-4 pt-2">
-              <a href="/" className="group flex items-center gap-4 px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-black rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#6ee7b7] dark:hover:bg-[#6ee7b7] hover:text-white dark:hover:text-white transition-all shadow-xl hover:shadow-[#6ee7b7]/20 active:scale-95">
-                <Globe size={16} className="group-hover:rotate-12 transition-transform" strokeWidth={2.5} /> 
-                返回前台
-              </a>
             </div>
           </div>
+        </div>
 
-          <div className="min-h-[60vh]">
+        <div className="flex-1 min-h-0 p-6 md:p-10 pt-6 overflow-hidden">
+          <div className="max-w-7xl mx-auto h-full flex flex-col">
             {activeTab === "links" && <LinksTab />}
-            {activeTab === "gallery" && <GalleryTab />}
-            {activeTab === "about" && <AboutTab />}
-            {activeTab === "config" && <ConfigTab />}
+            {activeTab !== "links" && (
+              <div className="h-full overflow-y-auto pr-2">
+                {activeTab === "gallery" && <GalleryTab />}
+                {activeTab === "about" && <AboutTab />}
+                {activeTab === "config" && <ConfigTab />}
+              </div>
+            )}
           </div>
         </div>
       </main>
