@@ -3,11 +3,11 @@
 import { 
   LogOut, Info, Settings, Sun, Moon,
   ChevronLeft, ChevronRight,
-  Image as ImageIcon, List as ListTree
+  Image as ImageIcon, List as ListTree, Terminal
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-type Tab = "links" | "gallery" | "about" | "config";
+type Tab = "links" | "gallery" | "about" | "config" | "hero";
 
 interface DashboardSidebarProps {
   activeTab: Tab;
@@ -64,7 +64,7 @@ export function DashboardSidebar({
       </div>
 
       <nav className="space-y-3 relative mb-auto">
-        {(["links", "gallery", "about", "config"] as Tab[]).map((tab) => (
+        {(["links", "gallery", "hero", "about", "config"] as Tab[]).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -86,6 +86,7 @@ export function DashboardSidebar({
             <span className={`relative z-10 transition-all duration-500 ${activeTab === tab ? "scale-110 text-[#6ee7b7]" : "opacity-60 group-hover:opacity-100 group-hover:scale-105"}`}>
               {tab === "links" && <ListTree size={20} strokeWidth={1.5} />}
               {tab === "gallery" && <ImageIcon size={20} strokeWidth={1.5} />}
+              {tab === "hero" && <Terminal size={20} strokeWidth={1.5} />}
               {tab === "about" && <Info size={20} strokeWidth={1.5} />}
               {tab === "config" && <Settings size={20} strokeWidth={1.5} />}
             </span>
@@ -94,6 +95,7 @@ export function DashboardSidebar({
               <span className="relative z-10 flex-1 text-left whitespace-nowrap font-black">
                 {tab === "links" && "档案索引"}
                 {tab === "gallery" && "视觉陈列"}
+                {tab === "hero" && "Hero 轮播"}
                 {tab === "about" && "馆主自传"}
                 {tab === "config" && "系统核心"}
               </span>

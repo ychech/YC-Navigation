@@ -4,13 +4,15 @@ import { useState, useEffect } from "react";
 import { Loader2, Globe, Fingerprint } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { motion } from "framer-motion";
 import { DashboardSidebar } from "@/components/admin/DashboardSidebar";
 import { LinksTab } from "@/components/admin/LinksTab";
 import { GalleryTab } from "@/components/admin/GalleryTab";
 import { AboutTab } from "@/components/admin/AboutTab";
 import { ConfigTab } from "@/components/admin/ConfigTab";
+import { HeroTab } from "@/components/admin/HeroTab";
 
-type Tab = "links" | "gallery" | "about" | "config";
+type Tab = "links" | "gallery" | "about" | "config" | "hero";
 
 export default function AdminPage() {
   const { theme, setTheme } = useTheme();
@@ -119,10 +121,19 @@ export default function AdminPage() {
             </div>
 
             <div className="min-h-[60vh]">
-              {activeTab === "links" && <LinksTab />}
-              {activeTab === "gallery" && <GalleryTab />}
-              {activeTab === "about" && <AboutTab />}
-              {activeTab === "config" && <ConfigTab />}
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {activeTab === "links" && <LinksTab />}
+                {activeTab === "gallery" && <GalleryTab />}
+                {activeTab === "about" && <AboutTab />}
+                {activeTab === "config" && <ConfigTab />}
+                {activeTab === "hero" && <HeroTab />}
+              </motion.div>
             </div>
           </div>
         </div>

@@ -16,11 +16,12 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function Home() {
-  const [categories, galleryImages, aboutContent, siteConfigs] = await Promise.all([
+  const [categories, galleryImages, aboutContent, siteConfigs, heroSlides] = await Promise.all([
     prisma.category.findMany({ include: { links: true } }),
     prisma.galleryImage.findMany({ orderBy: { createdAt: 'desc' } }),
     prisma.aboutContent.findFirst(),
     prisma.siteConfig.findMany(),
+    prisma.heroSlide.findMany({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }),
   ]);
 
   const configMap = Object.fromEntries(siteConfigs.map(c => [c.key, c.value]));
@@ -84,7 +85,7 @@ export default async function Home() {
 
         {aboutContent && (
           <div id="about" className="mt-32 pt-16 border-t border-gray-500/10">
-            <About content={aboutContent} />
+            <About content={aboutContent} slides={heroSlides} />
           </div>
         )}
       </div>
@@ -92,21 +93,19 @@ export default async function Home() {
       <footer className="relative border-t border-white/5 bg-[#020617] text-gray-500 overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#6366f1_1px,transparent_1px),linear-gradient(to_bottom,#6366f1_1px,transparent_1px)] bg-[size:40px_40px]" />
         
-        <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 xl:px-24 py-12 relative z-10 flex flex-col xl:flex-row items-center justify-between gap-8 xl:gap-20">
-          <div className="flex items-center gap-6 xl:flex-1">
+        <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 xl:px-24 py-12 relative z-10 flex flex-nowrap items-center justify-between gap-8 xl:gap-20 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-6 shrink-0 whitespace-nowrap">
             <div className="flex items-center gap-2 shrink-0">
               <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]" />
               <span className="text-xs font-mono tracking-widest text-emerald-500/80 uppercase">Online</span>
             </div>
             <div className="h-4 w-[1px] bg-white/10" />
-            <p className="text-xl font-black tracking-tighter text-white bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500 shrink-0">艺术导航</p>
-            <div className="h-4 w-[1px] bg-white/10 hidden md:block" />
-            <p className="text-xs text-gray-400 font-light hidden md:block max-w-md truncate">
-              {configMap.footer_copyright || "探索设计与技术的边界。代码是新时代的画笔。"}
+            <p className="text-sm text-gray-400 font-light hidden md:block max-w-md truncate">
+              {configMap.footer_copyright || "© 2026 艺术导航"}
             </p>
           </div>
 
-          <div className="flex items-center gap-8 xl:gap-16 shrink-0 text-xs font-mono text-gray-400">
+          <div className="flex items-center gap-8 xl:gap-16 shrink-0 text-xs font-mono text-gray-400 whitespace-nowrap">
              {/* Contact Group */}
              <div className="flex items-center gap-6">
                 <span className="text-[10px] uppercase tracking-widest text-indigo-500/40 font-bold hidden md:block">Contact</span>
