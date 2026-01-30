@@ -75,107 +75,87 @@ const TiltCard = ({ link, index, isActive, onActivate }: { link: Link; index: nu
         ease: [0.16, 1, 0.3, 1],
         delay: index * 0.05 
       }}
-      className={`group relative p-8 bg-[#0a0a0a]/80 backdrop-blur-2xl border overflow-hidden block transition-all duration-700 hover:scale-[1.01] perspective-1000 min-h-[220px] rounded-[24px] shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.4),0_0_20px_rgba(99,102,241,0.08)] active:scale-[0.99] ${
+      className={`group relative bg-[#0a0a0a]/80 backdrop-blur-2xl border overflow-hidden block transition-all duration-500 hover:scale-[1.02] rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.5),0_0_20px_rgba(99,102,241,0.1)] active:scale-[0.99] flex flex-col ${
         isActive 
-          ? "border-indigo-500/50 shadow-[0_0_30px_rgba(99,102,241,0.15)]" 
+          ? "border-indigo-500/50" 
           : "border-white/5 hover:border-white/10"
       }`}
     >
-      {/* Tech Corner Accents */}
-      <div className={`absolute top-4 left-4 w-2 h-2 border-t border-l transition-colors duration-500 ${isActive ? "border-indigo-500" : "border-indigo-500/10"}`} />
-      <div className={`absolute top-4 right-4 w-2 h-2 border-t border-r transition-colors duration-500 ${isActive ? "border-indigo-500" : "border-indigo-500/10"}`} />
-      <div className={`absolute bottom-4 left-4 w-2 h-2 border-b border-l transition-colors duration-500 ${isActive ? "border-indigo-500" : "border-indigo-500/10"}`} />
-      <div className={`absolute bottom-4 right-4 w-2 h-2 border-b border-r transition-colors duration-500 ${isActive ? "border-indigo-500" : "border-indigo-500/10"}`} />
-
-      {/* Ink Bleed Effect on Hover - REMOVED per user request for simpler lighting */}
-      
-      {/* Subtle Border Glow */}
-      <div className={`absolute inset-0 rounded-[24px] border transition-colors duration-500 ${isActive ? "border-indigo-500/30" : "border-white/5"}`} />
-
-      {/* Holographic Scanline */}
-      <motion.div 
-        animate={{ y: ["-100%", "200%"] }}
-        transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-        className="absolute left-0 right-0 h-12 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent pointer-events-none"
-      />
-
-      {/* Snapshot Preview Overaly (On Hover) */}
-      <AnimatePresence>
-        {isHovered && link.snapshotUrl && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.12 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-0 pointer-events-none"
-          >
-            <img 
-              src={link.snapshotUrl} 
-              alt={`${link.title} 预览`} 
-              className="w-full h-full object-cover grayscale transition-all duration-1000" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-          </motion.div>
+      {/* 1. Cover Image Section (AspectRatio 16:9 like Bilibili) */}
+      <div className="relative w-full aspect-video bg-black/40 overflow-hidden group-hover:brightness-110 transition-all duration-500">
+        {link.snapshotUrl ? (
+           <img 
+             src={link.snapshotUrl} 
+             alt={link.title} 
+             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+           />
+        ) : (
+           // Placeholder pattern when no snapshot
+           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-black relative">
+              <div className="absolute inset-0 opacity-20" 
+                   style={{ backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center backdrop-blur-sm border border-white/10">
+                 {link.icon ? (
+                    <img src={link.icon} alt="" className="w-6 h-6 object-contain opacity-50 grayscale" />
+                 ) : (
+                    <span className="text-xl font-bold text-white/20">{link.title[0]}</span>
+                 )}
+              </div>
+           </div>
         )}
-      </AnimatePresence>
-      
-      <div style={{ transform: "translateZ(20px)" }} className="relative z-10 flex flex-col h-full">
-        <div className="flex justify-between items-start mb-6 shrink-0">
-          <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center bg-white/5 border shadow-lg transition-all duration-500 overflow-hidden relative ${isActive ? "border-indigo-500/30" : "border-white/10"}`}>
-              {link.icon ? (
-                <img src={link.icon} alt="" className="w-6 h-6 object-contain relative z-10" />
-              ) : getFaviconUrl(link.url) ? (
-                <img src={getFaviconUrl(link.url)} alt="" className="w-6 h-6 object-contain relative z-10" />
-              ) : (
-                <div className="w-6 h-6 bg-indigo-500/10 rounded-md flex items-center justify-center relative z-10">
-                  <span className="text-xs font-medium text-indigo-500">{link.title[0]}</span>
-                </div>
-              )}
-              {/* Inner Icon Glow */}
-              <div className={`absolute inset-0 bg-indigo-500/5 transition-opacity ${isActive ? "opacity-100" : "opacity-0"}`} />
-            </div>
-            <div>
-              <h3 className={`text-base font-bold tracking-tight transition-colors duration-500 ${isActive ? "text-indigo-400" : "text-white"}`}>
-                {link.title}
-              </h3>
-              <p className="text-[9px] text-gray-500 mt-0.5 font-mono tracking-widest uppercase opacity-60">
-                {new URL(link.url.startsWith('http') ? link.url : `https://${link.url}`).hostname}
-              </p>
-            </div>
-          </div>
-          <div className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-all duration-500 border ${isActive ? "text-indigo-400 bg-indigo-500/5 border-indigo-500/20" : "text-gray-500 border-transparent"}`}>
-            <ArrowUpRight size={14} strokeWidth={1.5} />
-          </div>
-        </div>
         
-        <p className={`text-xs font-normal line-clamp-2 leading-relaxed transition-colors duration-500 mb-6 pl-3 border-l ${isActive ? "text-gray-300 border-indigo-500/20" : "text-gray-400 border-transparent"}`}>
-          {link.description || "探索艺术与设计的数字边界。"}
-        </p>
-
-        <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
-          <div className="flex-1 mr-4">
-            <div className="flex items-center justify-between mb-1.5">
-               <span className={`text-[8px] uppercase tracking-[0.2em] font-bold transition-colors ${isActive ? "text-indigo-500/60" : "text-gray-600"}`}>Stats</span>
-               <div className="flex items-center gap-1.5">
-                  <Activity size={8} className="text-indigo-500/40" />
-                  <span className={`text-[8px] font-mono font-bold transition-colors ${isActive ? "text-indigo-500" : "text-gray-600"}`}>{link.clicks || 0}</span>
-               </div>
-            </div>
-            <div className="h-[1.5px] w-full bg-white/5 rounded-full overflow-hidden relative">
-               <motion.div 
-                 initial={{ width: 0 }}
-                 whileInView={{ width: "100%" }}
-                 transition={{ duration: 1.5, ease: "circOut" }}
-                 className="h-full bg-gradient-to-r from-indigo-500/40 to-purple-500/40"
-               />
-            </div>
-          </div>
-          
-          <div className={`text-[7px] font-mono uppercase tracking-[0.2em] border px-1.5 py-0.5 rounded transition-all ${isActive ? "opacity-100 border-indigo-500/20 text-indigo-500/60" : "opacity-40 border-white/5 text-gray-700"}`}>
-            #{link.id}
-          </div>
+        {/* Hover Overlay */}
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        {/* Stats Badge (Bottom Right of Cover) */}
+        <div className="absolute bottom-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/60 backdrop-blur-md border border-white/10 text-[9px] text-white/80">
+           <Activity size={10} />
+           <span className="font-mono">{link.clicks || 0}</span>
         </div>
       </div>
+
+      {/* 2. Info Section (Bottom) */}
+      <div className="p-3 flex gap-3 flex-1 relative z-10 bg-[#0a0a0a]">
+         {/* Avatar / Icon (Left) */}
+         <div className="shrink-0 mt-0.5">
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center bg-[#1a1a1a] border transition-all duration-500 overflow-hidden relative group-hover:border-indigo-500/30 ${isActive ? "border-indigo-500/50" : "border-white/10"}`}>
+               {link.icon ? (
+                 <img src={link.icon} alt="" className="w-5 h-5 object-contain relative z-10" />
+               ) : getFaviconUrl(link.url) ? (
+                 <img src={getFaviconUrl(link.url)} alt="" className="w-5 h-5 object-contain relative z-10" />
+               ) : (
+                 <span className="text-xs font-bold text-indigo-500">{link.title[0]}</span>
+               )}
+            </div>
+         </div>
+
+         {/* Text Content (Right) */}
+         <div className="flex flex-col min-w-0 flex-1">
+            <h3 className={`text-sm font-medium leading-tight mb-1 truncate transition-colors duration-300 ${isActive ? "text-indigo-400" : "text-gray-200 group-hover:text-white"}`}>
+               {link.title}
+            </h3>
+            
+            <p className="text-[10px] text-gray-500 leading-relaxed line-clamp-2 h-8">
+               {link.description || "探索数字边界。"}
+            </p>
+            
+            <div className="mt-auto pt-2 flex items-center justify-between">
+               <span className="text-[9px] text-gray-600 font-mono group-hover:text-indigo-400/60 transition-colors truncate max-w-[80px]">
+                 {new URL(link.url.startsWith('http') ? link.url : `https://${link.url}`).hostname}
+               </span>
+               <ArrowUpRight size={12} className="text-gray-600 group-hover:text-indigo-400 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all duration-300" />
+            </div>
+         </div>
+      </div>
+
+      {/* Tech Corner Accents - Minimal */}
+      {isActive && (
+        <>
+          <div className="absolute top-0 left-0 w-full h-[2px] bg-indigo-500/50" />
+          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-indigo-500/30" />
+        </>
+      )}
     </motion.a>
   );
 };
@@ -184,7 +164,7 @@ export const LinkGrid = ({ links }: LinkGridProps) => {
   const [activeId, setActiveId] = useState<number | null>(null);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
       {links.map((link, i) => (
         <TiltCard 
           key={link.id} 

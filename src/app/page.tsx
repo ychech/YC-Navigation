@@ -47,7 +47,7 @@ export default async function Home() {
             <div key={category.id} className="relative group">
               {/* Special Carousel for AI Section */}
               {(category.name.includes("AI") || category.name.includes("智能")) && (
-                 <div className="mb-2 -mt-10">
+                 <div className="mb-16 -mt-8">
                    <LogoCarousel links={category.links} />
                  </div>
               )}
