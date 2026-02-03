@@ -91,14 +91,15 @@ export const About = ({ content, slides = [] }: AboutProps) => {
 
   return (
     <div 
-      className="relative py-32 overflow-hidden bg-[#080808] border-t border-white/5"
+      className="relative py-32 overflow-hidden bg-[#080808] dark:bg-[#080808] bg-white dark:text-white text-black border-t border-gray-200 dark:border-white/5 transition-colors duration-300"
       onMouseMove={handleMouseMove}
     >
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white via-white/50 to-transparent dark:from-[#020617] dark:via-[#020617]/50 pointer-events-none z-20" />
       <DigitalRain />
 
       <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
         <div className="absolute top-0 left-0 w-full h-[1px] bg-indigo-500/50 animate-[scan_8s_linear_infinite]" />
-        <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(to_right,#6366f1_1px,transparent_1px),linear-gradient(to_bottom,#6366f1_1px,transparent_1px)] bg-[size:60px_60px]" />
+        <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(to_right,#6366f1_1px,transparent_1px),linear-gradient(to_bottom,#6366f1_1px,transparent_1px)] bg-[size:60px_60px] dark:opacity-[0.05] opacity-10" />
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(99,102,241,0.15),transparent_40%)]" 
              style={{ 
                "--mouse-x": `${springX.get() + 500}px`, 
@@ -131,11 +132,11 @@ export const About = ({ content, slides = [] }: AboutProps) => {
                   <Cpu size={14} className="text-indigo-500 animate-pulse opacity-60" />
                </div>
                
-               <h2 className="archive-title text-6xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/10 leading-[0.85] tracking-tighter mix-blend-overlay relative z-10">
+               <h2 className="archive-title text-6xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-b from-black via-black to-black/10 dark:from-white dark:via-white dark:to-white/10 leading-[0.85] tracking-tighter mix-blend-overlay dark:mix-blend-overlay mix-blend-normal relative z-10">
                   <ScrambleText text={activeSlide.title} />
                </h2>
 
-               <div className="text-gray-400 text-lg md:text-2xl leading-relaxed font-light max-w-3xl mx-auto space-y-8 relative z-10">
+               <div className="text-gray-500 dark:text-gray-400 text-lg md:text-2xl leading-relaxed font-light max-w-3xl mx-auto space-y-8 relative z-10">
                   <p className="drop-shadow-lg whitespace-pre-wrap">
                     {activeSlide.subtitle}
                   </p>

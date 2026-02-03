@@ -79,13 +79,13 @@ export function HeroTab() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-black tracking-tight text-white flex items-center gap-3">
-          <Terminal className="text-[#6ee7b7]" />
+        <h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
+          <Terminal className="text-indigo-600 dark:text-[#6ee7b7]" />
           HERO 轮播管理
         </h2>
         <button
           onClick={() => { setEditingSlide(null); setIsModalOpen(true); }}
-          className="flex items-center gap-2 px-6 py-3 bg-white text-black rounded-xl font-bold hover:bg-[#6ee7b7] transition-colors"
+          className="flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl font-bold hover:bg-indigo-600 dark:hover:bg-[#6ee7b7] transition-colors"
         >
           <Plus size={18} /> 新增 Slide
         </button>
@@ -98,18 +98,18 @@ export function HeroTab() {
             layout
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="group relative bg-[#0f0f0f] border border-white/5 rounded-3xl p-6 overflow-hidden hover:border-[#6ee7b7]/30 transition-colors"
+            className="group relative bg-white dark:bg-[#0f0f0f] border border-gray-100 dark:border-white/5 rounded-3xl p-6 overflow-hidden hover:border-indigo-500/30 dark:hover:border-[#6ee7b7]/30 transition-colors shadow-sm dark:shadow-none"
           >
             <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
               <button
                 onClick={() => { setEditingSlide(slide); setIsModalOpen(true); }}
-                className="p-2 bg-white/10 rounded-lg hover:bg-white text-white hover:text-black transition-colors"
+                className="p-2 bg-gray-100 dark:bg-white/10 rounded-lg hover:bg-indigo-600 dark:hover:bg-white text-gray-500 dark:text-white hover:text-white dark:hover:text-black transition-colors"
               >
                 <Edit2 size={16} />
               </button>
               <button
                 onClick={() => setDeleteConfirm(slide.id)}
-                className="p-2 bg-white/10 rounded-lg hover:bg-red-500 text-white transition-colors"
+                className="p-2 bg-gray-100 dark:bg-white/10 rounded-lg hover:bg-red-500 text-gray-500 dark:text-white hover:text-white transition-colors"
               >
                 <Trash2 size={16} />
               </button>
@@ -117,14 +117,14 @@ export function HeroTab() {
 
             <div className="space-y-4">
               <div className="space-y-1">
-                <div className="text-[10px] text-[#6ee7b7] font-mono tracking-widest uppercase">Slide #{slide.id}</div>
-                <h3 className="text-xl font-bold text-white line-clamp-1">{slide.title}</h3>
+                <div className="text-[10px] text-indigo-600 dark:text-[#6ee7b7] font-mono tracking-widest uppercase">Slide #{slide.id}</div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-1">{slide.title}</h3>
               </div>
               
-              <p className="text-gray-400 text-sm line-clamp-2 min-h-[40px]">{slide.subtitle}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 min-h-[40px]">{slide.subtitle}</p>
               
               {slide.codeSnippet && (
-                <div className="bg-black/50 rounded-xl p-3 border border-white/5 font-mono text-[10px] text-gray-500 truncate">
+                <div className="bg-gray-50 dark:bg-black/50 rounded-xl p-3 border border-gray-100 dark:border-white/5 font-mono text-[10px] text-gray-500 truncate">
                   <Code size={12} className="inline mr-2" />
                   {slide.codeSnippet}
                 </div>
@@ -135,11 +135,11 @@ export function HeroTab() {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <section className="bg-[#0f0f0f] border border-white/10 rounded-3xl p-8 w-full max-w-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#6ee7b7]/10 blur-3xl pointer-events-none" />
+        <section className="bg-white dark:bg-[#0f0f0f] border border-gray-100 dark:border-white/10 rounded-3xl p-8 w-full max-w-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 dark:bg-[#6ee7b7]/10 blur-3xl pointer-events-none" />
           
-          <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
-            <Sparkles size={18} className="text-[#6ee7b7]" />
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+            <Sparkles size={18} className="text-indigo-600 dark:text-[#6ee7b7]" />
             {editingSlide ? "编辑 Slide" : "新建 Slide"}
           </h2>
 
@@ -153,7 +153,7 @@ export function HeroTab() {
                   ? setEditingSlide({ ...editingSlide, title: e.target.value })
                   : setNewSlide({ ...newSlide, title: e.target.value })
                 }
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#6ee7b7]/50 transition-colors"
+                className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors"
                 placeholder="例如: FUTURE & ART"
                 required
               />
@@ -167,7 +167,7 @@ export function HeroTab() {
                   ? setEditingSlide({ ...editingSlide, subtitle: e.target.value })
                   : setNewSlide({ ...newSlide, subtitle: e.target.value })
                 }
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#6ee7b7]/50 transition-colors min-h-[100px]"
+                className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors min-h-[100px]"
                 placeholder="主要描述文本..."
                 required
               />
@@ -181,7 +181,7 @@ export function HeroTab() {
                   ? setEditingSlide({ ...editingSlide, codeSnippet: e.target.value })
                   : setNewSlide({ ...newSlide, codeSnippet: e.target.value })
                 }
-                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-[#6ee7b7] font-mono text-sm focus:outline-none focus:border-[#6ee7b7]/50 transition-colors min-h-[120px]"
+                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-indigo-600 dark:text-[#6ee7b7] font-mono text-sm focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors min-h-[120px]"
                 placeholder="const future = new Art();"
               />
             </div>
@@ -190,13 +190,13 @@ export function HeroTab() {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="px-6 py-3 rounded-xl bg-white/5 text-gray-400 hover:text-white transition-colors"
+                className="px-6 py-3 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 取消
               </button>
               <button
                 type="submit"
-                className="flex-1 px-6 py-3 rounded-xl bg-[#6ee7b7] text-black font-bold hover:bg-[#5cdcae] transition-colors"
+                className="flex-1 px-6 py-3 rounded-xl bg-gray-900 dark:bg-[#6ee7b7] text-white dark:text-black font-bold hover:bg-indigo-600 dark:hover:bg-[#5cdcae] transition-colors"
               >
                 保存
               </button>

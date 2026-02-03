@@ -107,11 +107,11 @@ export const ParticleWave = () => {
 
   return (
     <div className="relative w-full h-[300px] overflow-hidden -mt-32 z-10 pointer-events-none">
-       {/* Fade masks */}
-       <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-[#020617] to-transparent z-10" />
-       <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#020617] to-transparent z-10" />
+       {/* Fade masks - Adapted for Light/Dark Mode */}
+       <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-slate-50 dark:from-[#020617] to-transparent z-10" />
+       <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-slate-50 dark:from-[#020617] to-transparent z-10" />
        
-       <canvas ref={canvasRef} className="w-full h-full opacity-60" />
+       <canvas ref={canvasRef} className="w-full h-full opacity-60 dark:opacity-60" />
     </div>
   );
 };

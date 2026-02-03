@@ -272,7 +272,7 @@ function useEarthTextures() {
 // --- Components ---
 
 // Optimized Particles - Floating Stardust
-const Particles = memo(({ count = 10000 }: { count?: number }) => {
+const Particles = memo(({ count = 10000, isDark = true }: { count?: number, isDark?: boolean }) => {
   const points = useRef<THREE.Points>(null);
 
   const particlesPosition = useMemo(() => {
@@ -308,11 +308,11 @@ const Particles = memo(({ count = 10000 }: { count?: number }) => {
         />
       </bufferGeometry>
       <pointsMaterial
-        color="#ffffff" 
+        color={isDark ? "#ffffff" : "#64748b"} 
         size={0.03}
         sizeAttenuation
         transparent
-        opacity={0.8}
+        opacity={isDark ? 0.8 : 0.6}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
       />
@@ -349,12 +349,14 @@ function FallbackEarth() {
 }
 
 // Real Earth Component
-function Earth({ textures, hasError }: { textures: any, hasError: boolean }) {
+function Earth({ textures, hasError, isDark = true }: { textures: any, hasError: boolean, isDark?: boolean }) {
   const earthRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
+  const wireframeRef = useRef<THREE.Mesh>(null);
 
   useFrame(() => {
     if (earthRef.current) earthRef.current.rotation.y += 0.0005; 
+    if (wireframeRef.current) wireframeRef.current.rotation.y += 0.0005;
     if (cloudsRef.current) {
       cloudsRef.current.rotation.y += 0.0007;
       cloudsRef.current.rotation.z += 0.0001;
@@ -366,6 +368,34 @@ function Earth({ textures, hasError }: { textures: any, hasError: boolean }) {
     return <FallbackEarth />;
   }
 
+  // Light Mode: Wireframe Tech Style
+  if (!isDark) {
+    return (
+      <group rotation={[0, 0, Math.PI / 6]}>
+        {/* Inner Solid Core (Hides stars behind) */}
+        <Sphere args={[2.18, 64, 64]}>
+          <meshBasicMaterial color="#f8fafc" /> {/* Slate-50 to match background */}
+        </Sphere>
+        
+        {/* Wireframe Grid */}
+        <Sphere ref={wireframeRef} args={[2.2, 32, 32]}>
+          <meshStandardMaterial 
+            color="#6366f1" // Indigo-500
+            wireframe 
+            transparent
+            opacity={0.15}
+          />
+        </Sphere>
+        
+        {/* Outer Glow Halo */}
+        <Sphere args={[2.2, 64, 64]}>
+           <meshBasicMaterial color="#818cf8" transparent opacity={0.05} side={THREE.BackSide} />
+        </Sphere>
+      </group>
+    );
+  }
+
+  // Dark Mode: Realistic Style
   return (
     <group rotation={[0, 0, Math.PI / 6]}>
       {/* Main Earth Body - Realistic Style */}
@@ -428,7 +458,7 @@ function RealisticSun() {
   );
 }
 
-export default function WorldGlobe() {
+export default function WorldGlobe({ isDark = true }: { isDark?: boolean }) {
   const { textures, hasError } = useEarthTextures();
 
   return (
@@ -438,7 +468,7 @@ export default function WorldGlobe() {
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
       >
-        <ambientLight intensity={0.05} /> {/* Very dark space ambient */}
+        <ambientLight intensity={isDark ? 0.05 : 0.5} /> {/* Very dark space ambient in dark mode, brighter in light */}
         
         {/* Main Light Source (Sun) - Warm Sunlight */}
         <directionalLight 
@@ -451,13 +481,13 @@ export default function WorldGlobe() {
         {/* Subtle Fill Light from bottom left (Earth reflection) */}
         <pointLight position={[-10, -10, -5]} intensity={0.1} color="#1e3a8a" /> 
         
-        <Earth textures={textures} hasError={hasError} />
-        <RealisticSun />
+        <Earth textures={textures} hasError={hasError} isDark={isDark} />
+        {isDark && <RealisticSun />}
         {/* Astronaut removed */}
         
-        <Particles count={10000} />
+        <Particles count={10000} isDark={isDark} />
         <ShootingStar />
-        <DeepSpace />
+        {isDark && <DeepSpace />}
         
         <OrbitControls 
           enableZoom={true}

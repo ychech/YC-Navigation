@@ -32,10 +32,10 @@ export const LogoCarousel = ({ links }: LogoCarouselProps) => {
   };
 
   return (
-    <div className="w-full overflow-hidden py-12 relative border-b border-white/5 bg-[#020617]">
+    <div className="w-full overflow-hidden py-12 relative border-b border-gray-200 dark:border-white/5 bg-white dark:bg-[#020617] transition-colors duration-300">
       {/* Gradient Masks for fading edges */}
-      <div className="absolute left-0 top-0 bottom-0 w-40 bg-gradient-to-r from-[#020617] via-[#020617]/80 to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-40 bg-gradient-to-l from-[#020617] via-[#020617]/80 to-transparent z-10 pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-40 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-[#020617] dark:via-[#020617]/80 z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-40 bg-gradient-to-l from-white via-white/80 to-transparent dark:from-[#020617] dark:via-[#020617]/80 z-10 pointer-events-none" />
       
       {/* Framer Motion Infinite Scroll */}
       <motion.div 
@@ -68,14 +68,16 @@ export const LogoCarousel = ({ links }: LogoCarouselProps) => {
                     <img 
                       src={link.icon} 
                       alt={link.title} 
-                      className="object-contain w-full h-full filter drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]"
+                      className="object-contain w-full h-full filter drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]"
                       onError={() => handleImageError(idx)}
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
                     />
                   </div>
                 )}
                 
                 {/* Title */}
-                <span className="text-xl font-black font-mono tracking-tighter text-white/80 group-hover:text-white group-hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
+                <span className="text-xl font-black font-mono tracking-tighter text-gray-400 dark:text-white/80 group-hover:text-black dark:group-hover:text-white group-hover:drop-shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:group-hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
                   {link.title}
                 </span>
             </a>

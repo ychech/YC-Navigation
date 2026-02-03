@@ -5,6 +5,7 @@ import { useRef, useEffect, useState } from "react";
 import WorldGlobe from "./WorldGlobe";
 import { Shield, Search, Command } from "lucide-react";
 import { SearchModal } from "./SearchModal";
+import { useTheme } from "next-themes";
 
 import { Category, Link } from "@prisma/client";
 
@@ -16,6 +17,9 @@ interface HeroProps {
 
 export const Hero = ({ title, subtitle, categories = [] }: HeroProps) => {
   const containerRef = useRef(null);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -100,12 +104,26 @@ export const Hero = ({ title, subtitle, categories = [] }: HeroProps) => {
 
   return (
     <>
-      <section ref={containerRef} className="relative h-auto min-h-[50vh] py-20 w-full flex flex-col justify-center items-center overflow-hidden bg-[#020617]">
-        {/* Hacker Matrix Background Effect */}
-        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none" style={{ 
-          backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(32, 255, 77, .1) 25%, rgba(32, 255, 77, .1) 26%, transparent 27%, transparent 74%, rgba(32, 255, 77, .1) 75%, rgba(32, 255, 77, .1) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(32, 255, 77, .1) 25%, rgba(32, 255, 77, .1) 26%, transparent 27%, transparent 74%, rgba(32, 255, 77, .1) 75%, rgba(32, 255, 77, .1) 76%, transparent 77%, transparent)',
-          backgroundSize: '50px 50px'
-        }}/>
+      <section ref={containerRef} className="relative h-auto min-h-[50vh] py-20 w-full flex flex-col justify-center items-center overflow-hidden bg-slate-50 dark:bg-[#020617] transition-colors duration-300">
+        {/* Hacker Matrix Background Effect - Adapted for Light/Dark */}
+        <motion.div 
+          className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-10 pointer-events-none mix-blend-multiply dark:mix-blend-normal" 
+          animate={{
+            scale: isDark ? 1 : [1, 1.1, 1], // Gentle zoom loop in light mode
+            opacity: isDark ? 0.1 : [0.03, 0.05, 0.03], // Gentle pulse in light mode
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          style={{ 
+            backgroundImage: isDark 
+              ? 'linear-gradient(0deg, transparent 24%, rgba(32, 255, 77, .1) 25%, rgba(32, 255, 77, .1) 26%, transparent 27%, transparent 74%, rgba(32, 255, 77, .1) 75%, rgba(32, 255, 77, .1) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(32, 255, 77, .1) 25%, rgba(32, 255, 77, .1) 26%, transparent 27%, transparent 74%, rgba(32, 255, 77, .1) 75%, rgba(32, 255, 77, .1) 76%, transparent 77%, transparent)'
+              : 'linear-gradient(0deg, transparent 24%, rgba(99, 102, 241, .3) 25%, rgba(99, 102, 241, .3) 26%, transparent 27%, transparent 74%, rgba(99, 102, 241, .3) 75%, rgba(99, 102, 241, .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(99, 102, 241, .3) 25%, rgba(99, 102, 241, .3) 26%, transparent 27%, transparent 74%, rgba(99, 102, 241, .3) 75%, rgba(99, 102, 241, .3) 76%, transparent 77%, transparent)',
+            backgroundSize: '50px 50px'
+          }}
+        />
 
         {/* Left Side HUD Data */}
         <div className="absolute left-6 md:left-12 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-8 z-20 pointer-events-none opacity-40 mix-blend-screen">
@@ -151,8 +169,8 @@ export const Hero = ({ title, subtitle, categories = [] }: HeroProps) => {
         <div className="absolute inset-0 z-0">
           <motion.div style={{ y, opacity, scale, filter: `blur(${blur})` }} className="w-full h-full">
             {/* Subtle Background Glow - Enhanced for depth */}
-            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.1),transparent_60%)]" />
-            <WorldGlobe />
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.05),transparent_60%)] dark:bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.1),transparent_60%)]" />
+            <WorldGlobe isDark={isDark} />
           </motion.div>
         </div>
 
@@ -173,7 +191,7 @@ export const Hero = ({ title, subtitle, categories = [] }: HeroProps) => {
               <span className="w-2 h-4 bg-indigo-500 animate-pulse ml-2" />
             </motion.div>
             
-            <h1 className="archive-title text-3xl md:text-5xl text-white leading-tight tracking-tighter relative group whitespace-nowrap z-10 font-mono min-h-[1.2em]">
+            <h1 className="archive-title text-3xl md:text-5xl text-slate-900 dark:text-white leading-tight tracking-tighter relative group whitespace-nowrap z-10 font-mono min-h-[1.2em]">
               {/* Glitch Shadow Effect - Enhanced */}
               <span className="absolute inset-0 text-green-500/30 -translate-x-1 translate-y-1 blur-[1px] pointer-events-none select-none opacity-0 group-hover:opacity-100 transition-opacity duration-100">
                  {displayedTitle}
@@ -195,7 +213,7 @@ export const Hero = ({ title, subtitle, categories = [] }: HeroProps) => {
                     textShadow: "0 0 15px rgba(165, 243, 252, 0.5)",
                     transition: { duration: 0.2, ease: "easeOut" } 
                   }}
-                  className="inline-block mx-[0.05em] origin-bottom transition-all duration-300 cursor-default pointer-events-auto bg-clip-text text-transparent bg-gradient-to-b from-white via-gray-200 to-gray-400 drop-shadow-lg"
+                  className="inline-block mx-[0.05em] origin-bottom transition-all duration-300 cursor-default pointer-events-auto bg-clip-text text-transparent bg-gradient-to-b from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-gray-200 dark:to-gray-400 drop-shadow-sm dark:drop-shadow-lg"
                 >
                   {char}
                 </motion.span>
@@ -208,9 +226,9 @@ export const Hero = ({ title, subtitle, categories = [] }: HeroProps) => {
               transition={{ duration: 1.5, delay: 0.8 }}
               className="space-y-8 min-h-[40px]"
             >
-              <p className="text-indigo-200/60 text-sm md:text-base font-light tracking-wide max-w-2xl mx-auto leading-relaxed px-12">
+              <p className="text-slate-600 font-medium dark:text-indigo-200/60 text-sm md:text-base tracking-wide max-w-2xl mx-auto leading-relaxed px-12">
                 {displayedSubtitle}
-                <span className="animate-pulse text-indigo-400">_</span>
+                <span className="animate-pulse text-indigo-500 dark:text-indigo-400">_</span>
               </p>
             </motion.div>
 
@@ -223,11 +241,11 @@ export const Hero = ({ title, subtitle, categories = [] }: HeroProps) => {
             >
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="group relative flex items-center gap-4 px-6 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 backdrop-blur-md w-full max-w-md mx-auto"
+                className="group relative flex items-center gap-4 px-6 py-3 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 backdrop-blur-md w-full max-w-md mx-auto"
               >
-                <Search size={16} className="text-gray-500 group-hover:text-indigo-400 transition-colors" />
-                <span className="text-sm text-gray-500 font-light group-hover:text-gray-300 transition-colors">Type to search...</span>
-                <div className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded bg-black/20 border border-white/5 text-[10px] text-gray-600 font-mono">
+                <Search size={16} className="text-gray-500 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors" />
+                <span className="text-sm text-gray-500 font-light group-hover:text-gray-900 dark:group-hover:text-gray-300 transition-colors">Type to search...</span>
+                <div className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 text-[10px] text-gray-600 font-mono">
                   <Command size={10} /> K
                 </div>
                 

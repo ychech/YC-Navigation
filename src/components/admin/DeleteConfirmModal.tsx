@@ -9,7 +9,7 @@ interface DeleteConfirmModalProps {
   message?: string;
   onClose: () => void;
   onConfirm: () => void;
-  type?: 'link' | 'category' | 'gallery';
+  type?: 'link' | 'category' | 'gallery' | 'slide';
 }
 
 export function DeleteConfirmModal({ 
@@ -23,7 +23,8 @@ export function DeleteConfirmModal({
   const defaultMessage = `此操作将永久移除该${
     type === 'link' ? '链接' : 
     type === 'category' ? '分类及其所有链接' : 
-    type === 'gallery' ? '画廊图片' : '项目'
+    type === 'gallery' ? '画廊图片' : 
+    type === 'slide' ? 'Hero 幻灯片' : '项目'
   }，且无法撤销。`;
 
   return (

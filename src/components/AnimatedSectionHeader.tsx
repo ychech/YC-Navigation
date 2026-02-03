@@ -14,7 +14,7 @@ export const AnimatedSectionHeader = ({ index, title, count }: AnimatedSectionHe
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <div ref={ref} className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/5 pb-8">
+    <div ref={ref} className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-gray-200 dark:border-white/5 pb-8">
       <div>
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
@@ -31,9 +31,9 @@ export const AnimatedSectionHeader = ({ index, title, count }: AnimatedSectionHe
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="text-3xl md:text-4xl font-black tracking-tighter text-white"
+          className="text-3xl md:text-4xl font-black tracking-tighter text-gray-900 dark:text-white"
         >
-          <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-gray-500">
+          <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-600 to-gray-400 dark:from-white dark:via-white dark:to-gray-500">
             {title}
           </span>
         </motion.h2>
@@ -46,10 +46,10 @@ export const AnimatedSectionHeader = ({ index, title, count }: AnimatedSectionHe
         className="flex items-center gap-4"
       >
         <div className="flex flex-col items-end">
-           <span className="text-[10px] uppercase tracking-widest text-indigo-500/40 font-bold">Assets</span>
-           <span className="text-xl font-mono text-indigo-400 font-bold leading-none">{count.toString().padStart(2, '0')}</span>
+           <span className="text-[10px] uppercase tracking-widest text-indigo-500/60 dark:text-indigo-500/40 font-bold">Assets</span>
+           <span className="text-xl font-mono text-indigo-600 dark:text-indigo-400 font-bold leading-none">{count.toString().padStart(2, '0')}</span>
         </div>
-        <div className="w-[1px] h-8 bg-white/10" />
+        <div className="w-[1px] h-8 bg-gray-200 dark:bg-white/10" />
       </motion.div>
     </div>
   );

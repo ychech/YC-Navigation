@@ -76,23 +76,23 @@ export const SearchModal = ({ isOpen, onClose, categories = [] }: SearchModalPro
             initial={{ opacity: 0, scale: 0.95, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            className="relative w-full max-w-2xl bg-[#0a0a0a]/90 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-2xl rounded-2xl"
+            className="relative w-full max-w-2xl bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-3xl border border-gray-200 dark:border-white/10 overflow-hidden shadow-2xl rounded-2xl"
           >
-            <div className="flex items-center p-6 border-b border-white/5">
-              <SearchIcon size={20} className="text-gray-500 mr-4" />
+            <div className="flex items-center p-6 border-b border-gray-200 dark:border-white/5">
+              <SearchIcon size={20} className="text-gray-400 dark:text-gray-500 mr-4" />
               <input
                 id="search-input"
                 type="text"
                 placeholder="搜索链接、描述或分类..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="flex-1 bg-transparent text-lg font-extralight focus:outline-none placeholder:text-gray-700"
+                className="flex-1 bg-transparent text-lg font-extralight focus:outline-none placeholder:text-gray-400 dark:placeholder:text-gray-700 text-gray-900 dark:text-gray-100"
               />
               <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-1 px-2 py-1 bg-white/5 border border-white/10 rounded text-[10px] text-gray-500">
+                <div className="hidden sm:flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded text-[10px] text-gray-500">
                   <Command size={10} /> ESC
                 </div>
-                <button onClick={onClose} className="p-2 hover:bg-white/5 transition-colors rounded-full">
+                <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors rounded-full">
                   <X size={18} className="text-gray-500" />
                 </button>
               </div>
@@ -107,22 +107,26 @@ export const SearchModal = ({ isOpen, onClose, categories = [] }: SearchModalPro
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 hover:bg-white/[0.03] group transition-all"
+                      className="group flex items-center gap-4 p-4 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                     >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-1">
-                          <span className="text-sm font-light text-white group-hover:text-white transition-colors">
-                            {link.title}
-                          </span>
-                          <span className="text-[9px] uppercase tracking-widest text-gray-600 px-2 py-0.5 border border-white/5">
-                            {link.categoryName}
-                          </span>
+                      {link.icon ? (
+                        <img src={link.icon} alt={link.title} className="w-8 h-8 object-contain rounded-lg bg-white p-1 shadow-sm" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-500 font-bold">
+                          {link.title[0]}
                         </div>
-                        <p className="text-[11px] text-gray-500 font-extralight truncate">
-                          {link.description || link.url}
-                        </p>
+                      )}
+                      
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
+                          {link.title}
+                        </h4>
+                        {link.description && (
+                          <p className="text-xs text-gray-500 dark:text-gray-500 truncate mt-0.5">{link.description}</p>
+                        )}
                       </div>
-                      <ArrowUpRight size={14} className="text-gray-700 group-hover:text-white transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                      
+                      <ArrowUpRight size={16} className="text-gray-400 dark:text-gray-600 group-hover:text-indigo-500 transition-colors opacity-0 group-hover:opacity-100" />
                     </a>
                   ))}
                 </div>
@@ -137,7 +141,7 @@ export const SearchModal = ({ isOpen, onClose, categories = [] }: SearchModalPro
               )}
             </div>
             
-            <div className="p-4 border-t border-white/5 bg-black/20 flex justify-between items-center text-[9px] uppercase tracking-[0.2em] text-gray-600">
+            <div className="p-4 border-t border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-black/20 flex justify-between items-center text-[9px] uppercase tracking-[0.2em] text-gray-500 dark:text-gray-600">
               <p>{results.length} results found</p>
               <p>Press ESC to close</p>
             </div>

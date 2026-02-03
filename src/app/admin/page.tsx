@@ -68,16 +68,16 @@ export default function AdminPage() {
   };
 
   if (!authenticated || !mounted) return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
-      <Loader2 className="animate-spin text-[#6ee7b7]/20" size={40} />
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] flex items-center justify-center">
+      <Loader2 className="animate-spin text-gray-400 dark:text-[#6ee7b7]/20" size={40} />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#fdfdfd] dark:bg-[#080808] text-gray-900 dark:text-white transition-colors duration-1000 flex overflow-hidden font-sans relative">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#080808] text-gray-900 dark:text-white transition-colors duration-300 flex overflow-hidden font-sans relative">
       {/* Background Decorative Grid */}
-      <div className="absolute inset-0 admin-grid opacity-20 pointer-events-none" />
-      <div className="absolute inset-0 ink-flow-bg opacity-30 pointer-events-none" />
+      <div className="absolute inset-0 admin-grid opacity-5 dark:opacity-20 pointer-events-none" />
+      <div className="absolute inset-0 ink-flow-bg opacity-10 dark:opacity-30 pointer-events-none" />
       
       <DashboardSidebar 
         activeTab={activeTab}
@@ -97,7 +97,7 @@ export default function AdminPage() {
             {/* Page Title & Quick Actions */}
             <div className="flex justify-between items-start">
               <div className="space-y-2">
-                <div className="flex items-center gap-3 text-[#6ee7b7] text-[10px] font-black uppercase tracking-[0.5em]">
+                <div className="flex items-center gap-3 text-indigo-600 dark:text-[#6ee7b7] text-[10px] font-black uppercase tracking-[0.5em]">
                   <Fingerprint size={14} />
                   <span>验证访问</span>
                 </div>
@@ -106,14 +106,15 @@ export default function AdminPage() {
                   {activeTab === "gallery" && "视觉陈列"}
                   {activeTab === "about" && "馆主自传"}
                   {activeTab === "config" && "系统核心"}
+                  {activeTab === "hero" && "首页展示"}
                 </h2>
-                <div className="flex items-center gap-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest opacity-60">
-                  <span className="px-3 py-1 bg-gray-100 dark:bg-white/5 rounded-full">v2.0.4-稳定版</span>
-                  <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> 节点在线</span>
+                <div className="flex items-center gap-4 text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest opacity-60">
+                  <span className="px-3 py-1 bg-gray-200 dark:bg-white/5 rounded-full text-gray-600 dark:text-gray-300">v2.0.4-稳定版</span>
+                  <span className="flex items-center gap-2 text-gray-600 dark:text-gray-300"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 节点在线</span>
                 </div>
               </div>
               <div className="flex gap-4 pt-2">
-                <a href="/" className="group flex items-center gap-4 px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-black rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#6ee7b7] dark:hover:bg-[#6ee7b7] hover:text-white dark:hover:text-white transition-all shadow-xl hover:shadow-[#6ee7b7]/20 active:scale-95">
+                <a href="/" className="group flex items-center gap-4 px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-black rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-600 dark:hover:bg-[#6ee7b7] hover:text-white dark:hover:text-white transition-all shadow-xl hover:shadow-indigo-500/20 dark:hover:shadow-[#6ee7b7]/20 active:scale-95">
                   <Globe size={16} className="group-hover:rotate-12 transition-transform" strokeWidth={2.5} /> 
                   返回前台
                 </a>

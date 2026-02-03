@@ -27,7 +27,7 @@ export default async function Home() {
   const configMap = Object.fromEntries(siteConfigs.map(c => [c.key, c.value]));
 
   return (
-    <main className="min-h-screen bg-[#020617] transition-colors duration-300 relative">
+    <main className="min-h-screen bg-[#020617] dark:bg-[#020617] bg-slate-50 dark:text-white text-slate-900 transition-colors duration-300 relative selection:bg-indigo-500/30">
       <GlobalSpotlight />
       <Navbar categories={categories} />
       
@@ -41,11 +41,11 @@ export default async function Home() {
       {/* Visual Transition Zone - Overlapping with Hero */}
       <div className="relative w-full h-[300px] -mt-[150px] z-10 pointer-events-none">
         <StarFieldTransition />
-        <div className="absolute inset-0 flex items-center justify-center opacity-50">
+        <div className="absolute inset-0 flex items-center justify-center opacity-50 dark:opacity-50 opacity-20">
           <ParticleWave />
         </div>
-        {/* Gradient Mask for Seamless Blend */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/80 to-[#020617]" />
+        {/* Gradient Mask for Seamless Blend - Almost transparent in light mode to remove 'dirty' look */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/5 to-slate-50 dark:via-[#020617]/80 dark:to-[#020617]" />
       </div>
 
       <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 xl:px-24 pb-20 relative z-10 -mt-20">
@@ -90,42 +90,42 @@ export default async function Home() {
         )}
       </div>
       
-      <footer className="relative border-t border-white/5 bg-[#020617] text-gray-500 overflow-hidden">
+      <footer className="relative border-t border-gray-200 dark:border-white/5 bg-white dark:bg-[#020617] text-gray-500 dark:text-gray-500 overflow-hidden transition-colors duration-300">
         <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#6366f1_1px,transparent_1px),linear-gradient(to_bottom,#6366f1_1px,transparent_1px)] bg-[size:40px_40px]" />
         
         <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 xl:px-24 py-12 relative z-10 flex flex-nowrap items-center justify-between gap-8 xl:gap-20 overflow-x-auto scrollbar-hide">
           <div className="flex items-center gap-6 shrink-0 whitespace-nowrap">
             <div className="flex items-center gap-2 shrink-0">
               <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]" />
-              <span className="text-xs font-mono tracking-widest text-emerald-500/80 uppercase">Online</span>
+              <span className="text-xs font-mono tracking-widest text-emerald-600 dark:text-emerald-500/80 uppercase">Online</span>
             </div>
-            <div className="h-4 w-[1px] bg-white/10" />
-            <p className="text-sm text-gray-400 font-light hidden md:block max-w-md truncate">
+            <div className="h-4 w-[1px] bg-gray-300 dark:bg-white/10" />
+            <p className="text-sm text-gray-600 dark:text-gray-400 font-light hidden md:block max-w-md truncate">
               {configMap.footer_copyright || "© 2026 艺术导航"}
             </p>
           </div>
 
-          <div className="flex items-center gap-8 xl:gap-16 shrink-0 text-xs font-mono text-gray-400 whitespace-nowrap">
+          <div className="flex items-center gap-8 xl:gap-16 shrink-0 text-xs font-mono text-gray-500 dark:text-gray-400 whitespace-nowrap">
              {/* Contact Group */}
              <div className="flex items-center gap-6">
-                <span className="text-[10px] uppercase tracking-widest text-indigo-500/40 font-bold hidden md:block">Contact</span>
-                <a href={`mailto:${configMap.contact_email}`} className="hover:text-indigo-400 transition-colors flex items-center gap-2">
-                  <span className="w-1 h-1 bg-gray-600 rounded-full" />
+                <span className="text-[10px] uppercase tracking-widest text-indigo-500/60 dark:text-indigo-500/40 font-bold hidden md:block">Contact</span>
+                <a href={`mailto:${configMap.contact_email}`} className="hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors flex items-center gap-2">
+                  <span className="w-1 h-1 bg-gray-400 dark:bg-gray-600 rounded-full" />
                   {configMap.contact_email || "hello@artistic-nav.com"}
                 </a>
                 <span className="flex items-center gap-2">
-                   <span className="w-1 h-1 bg-gray-600 rounded-full" />
+                   <span className="w-1 h-1 bg-gray-400 dark:bg-gray-600 rounded-full" />
                    Beijing, CN
                 </span>
              </div>
 
-             <div className="h-4 w-[1px] bg-white/10" />
+             <div className="h-4 w-[1px] bg-gray-300 dark:bg-white/10" />
 
              {/* Social Group */}
              <div className="flex items-center gap-6">
-                <span className="text-[10px] uppercase tracking-widest text-indigo-500/40 font-bold hidden md:block">Social</span>
-                <a href="#" className="hover:text-indigo-400 transition-colors">Twitter</a>
-                <a href="#" className="hover:text-indigo-400 transition-colors">Instagram</a>
+                <span className="text-[10px] uppercase tracking-widest text-indigo-500/60 dark:text-indigo-500/40 font-bold hidden md:block">Social</span>
+                <a href="#" className="hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">Twitter</a>
+                <a href="#" className="hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">Instagram</a>
              </div>
           </div>
         </div>

@@ -20,12 +20,12 @@ const NavBrand = () => {
           {["艺", "术", "导", "航"].map((char, i) => (
             <motion.span
               key={i}
-              className="inline-block bg-clip-text text-transparent bg-gradient-to-b from-white via-gray-300 to-gray-500 drop-shadow-sm"
+              className="inline-block bg-clip-text text-transparent bg-gradient-to-b from-slate-900 via-slate-600 to-slate-400 dark:from-white dark:via-gray-300 dark:to-gray-500 drop-shadow-sm"
               whileHover={{ 
                 y: -3, 
                 scale: 1.1,
-                textShadow: "0 0 10px rgba(255,255,255,0.8)",
-                backgroundImage: "linear-gradient(to bottom, #ffffff, #a5f3fc, #22d3ee)"
+                textShadow: "0 0 10px rgba(99,102,241,0.5)",
+                backgroundImage: "linear-gradient(to bottom, #6366f1, #a5f3fc, #22d3ee)"
               }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
@@ -33,7 +33,7 @@ const NavBrand = () => {
             </motion.span>
           ))}
         </h1>
-        <span className="text-[10px] font-mono text-gray-500 tracking-[0.2em] uppercase group-hover:text-gray-300 transition-colors flex items-center gap-1">
+        <span className="text-[10px] font-mono text-gray-500 tracking-[0.2em] uppercase group-hover:text-indigo-600 dark:group-hover:text-gray-300 transition-colors flex items-center gap-1">
           ARTISTIC NAV
         </span>
       </div>
@@ -81,7 +81,7 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
     [0, 100],
     [
       "rgba(var(--background), 0)",
-      theme === "dark" ? "rgba(2, 6, 23, 0.8)" : "rgba(253, 253, 253, 0.8)"
+      theme === "dark" ? "rgba(2, 6, 23, 0.8)" : "rgba(255, 255, 255, 0.8)"
     ]
   );
 
@@ -100,7 +100,7 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-6 flex justify-between items-center transition-all duration-500 border-b border-white/5 dark:border-white/5"
+      className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-6 flex justify-between items-center transition-all duration-500 border-b border-gray-200 dark:border-white/5"
     >
       <motion.div 
         style={{ scaleX: scrollYProgress }}
@@ -117,21 +117,32 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
       </div>
       
       <div className="flex gap-12 items-center">
-        <div className="hidden md:flex gap-10 text-[11px] uppercase tracking-[0.4em] text-gray-500 dark:text-gray-300 font-black">
+        <div className="hidden md:flex gap-12 text-sm uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300 font-bold">
           {[
             { name: "目录", href: "/#directory" },
             { name: "画廊", href: "/gallery" },
             { name: "关于", href: "/#about" }
           ].map((item) => (
-            <MotionLink 
+            <Link 
               key={item.name}
               href={item.href} 
-              whileHover={{ color: "#6366f1", y: -1 }}
-              className="transition-colors relative group"
+              className="relative group block overflow-hidden"
             >
-              {item.name}
-              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-indigo-500 rounded-full opacity-0 transition-all duration-500 group-hover:opacity-100" />
-            </MotionLink>
+              <div className="relative transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-y-full">
+                {/* Original Text */}
+                <span className="block text-gray-500 dark:text-gray-300 transition-colors duration-500">
+                  {item.name}
+                </span>
+                
+                {/* Hover Text (Coming from bottom) */}
+                <span className="absolute top-full left-0 block text-indigo-600 dark:text-white font-black">
+                  {item.name}
+                </span>
+              </div>
+              
+              {/* Subtle underline indicator */}
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-indigo-500 rounded-full transition-all duration-500 group-hover:w-full opacity-0 group-hover:opacity-100" />
+            </Link>
           ))}
         </div>
         

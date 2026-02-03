@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 
 export const StarFieldTransition = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -47,7 +50,10 @@ export const StarFieldTransition = () => {
         if (!ctx) return;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+        // Use dark gray for stars in light mode, white for dark mode
+        ctx.fillStyle = isDark 
+          ? `rgba(255, 255, 255, ${this.opacity})`
+          : `rgba(71, 85, 105, ${this.opacity * 0.6})`; // slate-600
         ctx.fill();
       }
     }
@@ -90,8 +96,8 @@ export const StarFieldTransition = () => {
         if (!ctx) return;
         ctx.beginPath();
         const gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.length, this.y - this.length / 2);
-        gradient.addColorStop(0, "rgba(255, 255, 255, 0)");
-        gradient.addColorStop(1, `rgba(99, 102, 241, ${this.opacity})`);
+        gradient.addColorStop(0, isDark ? "rgba(255, 255, 255, 0)" : "rgba(71, 85, 105, 0)");
+        gradient.addColorStop(1, isDark ? `rgba(99, 102, 241, ${this.opacity})` : `rgba(99, 102, 241, ${this.opacity * 0.8})`);
         
         ctx.strokeStyle = gradient;
         ctx.lineWidth = 2;
