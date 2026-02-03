@@ -110,18 +110,18 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
       <div className="flex items-center gap-12">
         <NavBrand />
         
-        <div className="hidden lg:flex items-center gap-3 text-[10px] text-gray-400 font-black tracking-widest">
+        <div className="hidden lg:flex items-center gap-3 text-[10px] text-gray-400 font-black tracking-widest font-mono">
           <Clock size={10} />
           <span>{time} / EST_2026</span>
         </div>
       </div>
       
       <div className="flex gap-12 items-center">
-        <div className="hidden md:flex gap-12 text-sm uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300 font-bold">
+        <div className="hidden md:flex gap-12 text-sm uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300 font-bold font-serif">
           {[
-            { name: "目录", href: "/#directory" },
-            { name: "画廊", href: "/gallery" },
-            { name: "关于", href: "/#about" }
+            { name: "Directory", label: "目录", href: "/#directory" },
+            { name: "Gallery", label: "画廊", href: "/gallery" },
+            { name: "About", label: "关于", href: "/#about" }
           ].map((item) => (
             <Link 
               key={item.name}
@@ -129,14 +129,14 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
               className="relative group block overflow-hidden"
             >
               <div className="relative transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-y-full">
-                {/* Original Text */}
-                <span className="block text-gray-500 dark:text-gray-300 transition-colors duration-500">
-                  {item.name}
+                {/* Original Text - Serif */}
+                <span className="block text-gray-500 dark:text-gray-300 transition-colors duration-500 group-hover:italic">
+                  {item.label}
                 </span>
                 
-                {/* Hover Text (Coming from bottom) */}
-                <span className="absolute top-full left-0 block text-indigo-600 dark:text-white font-black">
-                  {item.name}
+                {/* Hover Text - Serif Italic */}
+                <span className="absolute top-full left-0 block text-indigo-600 dark:text-white font-black italic">
+                  {item.label}
                 </span>
               </div>
               

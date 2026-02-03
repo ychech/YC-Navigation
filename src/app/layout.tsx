@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Playfair_Display, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { CustomCursor } from "@/components/CustomCursor";
 import { Toaster } from "sonner";
 
 import { ThemeProvider } from "@/components/ThemeProvider";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
   title: "艺术导航 | 大师级数字档案馆",
@@ -21,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased overflow-x-hidden transition-colors duration-300`}>
+      <body className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} font-sans antialiased overflow-x-hidden transition-colors duration-300`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

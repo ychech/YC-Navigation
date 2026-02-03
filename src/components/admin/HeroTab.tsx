@@ -124,8 +124,8 @@ export function HeroTab() {
               <p className="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 min-h-[40px]">{slide.subtitle}</p>
               
               {slide.codeSnippet && (
-                <div className="bg-gray-50 dark:bg-black/50 rounded-xl p-3 border border-gray-100 dark:border-white/5 font-mono text-[10px] text-gray-500 truncate">
-                  <Code size={12} className="inline mr-2" />
+                <div className="bg-slate-100 dark:bg-black/50 rounded-xl p-3 border border-gray-200 dark:border-white/5 font-mono text-[10px] text-slate-700 dark:text-gray-500 truncate transition-colors duration-300">
+                  <Code size={12} className="inline mr-2 text-indigo-500 dark:text-gray-600" />
                   {slide.codeSnippet}
                 </div>
               )}
@@ -181,7 +181,7 @@ export function HeroTab() {
                   ? setEditingSlide({ ...editingSlide, codeSnippet: e.target.value })
                   : setNewSlide({ ...newSlide, codeSnippet: e.target.value })
                 }
-                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-indigo-600 dark:text-[#6ee7b7] font-mono text-sm focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors min-h-[120px]"
+                className="w-full bg-slate-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-indigo-600 dark:text-[#6ee7b7] font-mono text-sm focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors min-h-[120px]"
                 placeholder="const future = new Art();"
               />
             </div>

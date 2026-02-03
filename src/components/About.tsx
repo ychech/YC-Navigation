@@ -144,22 +144,22 @@ export const About = ({ content, slides = [] }: AboutProps) => {
 
                {activeSlide.codeSnippet ? (
                  <div className="pt-12 flex justify-center w-full">
-                   <div className="relative group w-full max-w-2xl mx-auto text-left">
+                   <div className="relative group w-full max-w-lg mx-auto text-left">
                      <div className="absolute inset-0 bg-indigo-500/10 blur-2xl group-hover:bg-indigo-500/20 transition-all duration-500 rounded-3xl" />
-                     <div className="relative rounded-2xl bg-black/80 border border-indigo-500/30 backdrop-blur-xl overflow-hidden shadow-2xl">
-                       <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-white/5">
+                     <div className="relative rounded-2xl bg-white dark:bg-black/80 border border-gray-200 dark:border-indigo-500/30 backdrop-blur-xl overflow-hidden shadow-2xl dark:shadow-none">
+                       <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5">
                          <div className="flex gap-1.5">
                            <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
                            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
                            <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
                          </div>
-                         <div className="ml-2 text-[10px] text-gray-500 font-mono flex items-center gap-1">
+                         <div className="ml-2 text-[10px] text-gray-400 dark:text-gray-500 font-mono flex items-center gap-1">
                            <TerminalIcon size={10} />
                            <span>protocol.ts</span>
                          </div>
                        </div>
                        <div className="p-6 overflow-x-auto">
-                         <pre className="text-xs md:text-sm font-mono text-indigo-300 leading-relaxed">
+                         <pre className="text-xs md:text-sm font-mono text-slate-700 dark:text-indigo-300 leading-relaxed">
                            <code>{activeSlide.codeSnippet}</code>
                          </pre>
                        </div>
