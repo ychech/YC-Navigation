@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Search, Menu, Clock, Sun, Moon, Lock, Bot } from "lucide-react";
+import { Search, Menu, Clock, Sun, Moon, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SearchModal } from "./SearchModal";
 import { useTheme } from "next-themes";
@@ -169,10 +169,13 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
 
           <Link 
             href="/admin" 
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-transparent text-gray-300/20 hover:text-indigo-500/50 hover:bg-indigo-500/5 transition-all"
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.05] text-gray-500 hover:text-indigo-500 transition-all shadow-sm group/admin relative"
             aria-label="Admin Access"
           >
-            <Lock size={14} strokeWidth={2.5} />
+            <LayoutDashboard size={16} strokeWidth={2.5} />
+            <span className="absolute top-full mt-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black text-[9px] font-bold uppercase tracking-widest rounded-md opacity-0 group-hover/admin:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+              Admin
+            </span>
           </Link>
         </div>
       </div>

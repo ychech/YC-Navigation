@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { StorageFactory } from "@/lib/storage";
 
 export async function POST(req: Request) {
   try {
@@ -11,26 +10,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // Use the storage factory to get the configured provider
+    const storage = StorageFactory.getProvider();
+    const result = await storage.upload(file);
 
-    // Ensure uploads directory exists
-    const uploadDir = join(process.cwd(), "public/uploads");
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (e) {
-      // Ignore if exists
+    if (result.error) {
+      return NextResponse.json({ error: result.error }, { status: 500 });
     }
-
-    // Generate unique filename
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = file.name.split('.').pop() || 'jpg';
-    const filename = `image-${uniqueSuffix}.${ext}`;
-    const path = join(uploadDir, filename);
-
-    await writeFile(path, buffer);
     
-    return NextResponse.json({ url: `/uploads/${filename}` });
+    return NextResponse.json({ url: result.url });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });

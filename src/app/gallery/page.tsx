@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { Navbar } from "@/components/Navbar";
 import { Gallery } from "@/components/Gallery";
-import { SectionTitle } from "@/components/SectionTitle";
+import { AnimatedSectionHeader } from "@/components/AnimatedSectionHeader";
 
 export default async function GalleryPage() {
   const galleryImages = await prisma.galleryImage.findMany({
@@ -20,7 +20,11 @@ export default async function GalleryPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 pt-48 pb-24 relative z-10">
-        <SectionTitle number="02" title="沉浸画廊" subtitle="IMMERSIVE GALLERY" />
+        <AnimatedSectionHeader 
+          index={1} 
+          title="沉浸画廊" 
+          count={galleryImages.length} 
+        />
         
         <div className="mt-12 mb-24 max-w-2xl">
           <p className="text-gray-500 dark:text-gray-400 text-xl font-extralight leading-relaxed">

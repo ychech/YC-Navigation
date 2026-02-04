@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  artistic-nav:
+    container_name: artistic-nav
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # Database
+      # For SQLite (default), use a file path.
+      # For production, consider using a real database container (Postgres/MySQL) or a managed DB.
+      - DATABASE_URL=file:/app/prisma/dev.db
+      
+      # App Secrets
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123} # Change this!
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-changeme}
+      
+      # Storage Configuration
+      # Options: 'local' | 'oss'
+      - STORAGE_TYPE=${STORAGE_TYPE:-local}
+      
+      # Aliyun OSS Config (Required if STORAGE_TYPE=oss)
+      - OSS_REGION=${OSS_REGION}
+      - OSS_ACCESS_KEY_ID=${OSS_ACCESS_KEY_ID}
+      - OSS_ACCESS_KEY_SECRET=${OSS_ACCESS_KEY_SECRET}
+      - OSS_BUCKET=${OSS_BUCKET}
+      - OSS_DOMAIN=${OSS_DOMAIN} # Optional custom domain
+      
+    volumes:
+      # Persist SQLite database
+      - ./prisma/dev.db:/app/prisma/dev.db
+      # Persist local uploads if using local storage
+      - ./public/uploads:/app/public/uploads
