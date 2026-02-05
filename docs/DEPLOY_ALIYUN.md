@@ -25,6 +25,32 @@ git --version
 *   AccessKey Secret
 *   Bucket Name
 
+### 1.3 内存配置 (关键！针对 2C2G 等小配置服务器)
+Next.js 的构建过程非常消耗内存。如果你的服务器只有 2G 内存，直接构建可能会因为内存不足而失败 (OOM Killed)。
+**强烈建议**在部署前先开启虚拟内存 (Swap)，将硬盘空间临时充当内存使用。
+
+**执行以下命令开启 4G Swap：**
+```bash
+# 1. 创建 4G 的 Swap 文件
+sudo fallocate -l 4G /swapfile
+
+# 2. 设置安全权限
+sudo chmod 600 /swapfile
+
+# 3. 格式化为 Swap 分区
+sudo mkswap /swapfile
+
+# 4. 启用 Swap
+sudo swapon /swapfile
+
+# 5. 设置永久生效 (防止重启后失效)
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+# 6. 验证是否开启成功 (看 Swap 一栏是否显示 4096)
+free -m
+```
+*做完这一步，2C2G 的服务器就能稳稳地跑起来了！*
+
 ---
 
 ## 2. 部署步骤
