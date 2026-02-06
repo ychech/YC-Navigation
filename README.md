@@ -1,49 +1,47 @@
-# 🎨 艺术导航 (Artistic Nav) - 使用手册
+# 🎨 艺术导航 (Artistic Nav)
 
-这是一个专为追求审美和实用性的创意人士打造的高级导航网站。采用 Next.js + Tailwind CSS + Framer Motion 构建，具备极简的设计风格和流畅的交互体验。
+> 专为设计师和创意工作者打造的极简导航网站
 
----
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-6.x-2D3748)](https://www.prisma.io/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC)](https://tailwindcss.com/)
 
-## 🚀 快速启动
+## ✨ 特性
 
-### 1. 环境依赖
-- **Node.js**: v18.0.0 或更高版本
-- **数据库**: SQLite (默认，零配置) 或 MySQL 8.0+
+- 🎯 **极简设计** - 深色主题，优雅动画
+- 🔍 **全局搜索** - 支持快捷键快速搜索
+- 📱 **响应式** - 完美适配移动端和桌面端
+- 🛠️ **后台管理** - 完整的分类和链接管理
+- 📊 **访问统计** - 链接点击数据分析
+- 🖼️ **画廊展示** - 支持图片展示功能
+- 🌓 **深色模式** - 自动/手动切换
 
-### 2. 数据库配置
+## 🚀 快速开始
 
-本项目支持 **SQLite** 和 **MySQL** 两种数据库模式，根据你的部署环境选择：
+### 环境要求
 
-#### 方式一：SQLite 模式（推荐个人/小内存服务器）
-编辑 `.env` 文件：
-```env
-DB_PROVIDER=sqlite
-DATABASE_URL="file:./dev.db"
-```
+- Node.js 18+
+- SQLite (默认) 或 MySQL 8.0+
 
-#### 方式二：MySQL 模式（适合生产高并发）
-编辑 `.env` 文件：
-```env
-DB_PROVIDER=mysql
-DATABASE_URL="mysql://用户名:密码@127.0.0.1:3306/artistic_nav"
-```
+### 本地开发
 
-### 3. 安装与运行
 ```bash
-# 进入项目目录
-cd artistic-nav
+# 克隆项目
+git clone https://github.com/ychech/YC-Navigation.git
+cd YC-Navigation
 
 # 安装依赖
 npm install
 
-# 生成 Prisma Client（根据 DB_PROVIDER 生成对应引擎）
+# 配置环境变量
+cp .env.example .env
+# 编辑 .env 设置数据库和管理员密码
+
+# 初始化数据库
 npx prisma generate
-
-# 初始化数据库结构
 npx prisma db push
-
-# (可选) 导入初始数据
-npx tsx prisma/seed.ts
+npx prisma db seed
 
 # 启动开发服务器
 npm run dev
@@ -51,63 +49,35 @@ npm run dev
 
 访问 http://localhost:3000
 
----
+后台管理：http://localhost:3000/admin  
+默认账号：`admin` / `admin123456`
 
-## 🛠 功能模块
+## 📦 部署
 
-### 1. 艺术化首页 (`/`)
-- **视觉动画**: 进入页面时，标题会有逐字浮现的流式动画。
-- **分类展示**: 导航链接按分类排列，采用非对称网格布局。
-- **高级动效**: 鼠标悬停在链接卡片上时，会有位移和光影变化，增强交互感。
+详见 [DEPLOY.md](./DEPLOY.md)
 
-### 2. 管理控制面板 (`/admin`)
-- **安全认证**:
-  - 进入后台需要身份验证。默认密码为 `admin123`（可在 `.env` 中修改 `ADMIN_PASSWORD`）。
-- **分类管理**: 
-  - 在左侧"添加分类"表单中输入名称即可创建新的分类。
-  - 支持对现有分类进行重命名或删除（包含级联删除链接）。
-- **链接管理**:
-  - 选择所属分类，输入标题、URL 和描述，点击"添加链接"即可实时更新到首页。
-  - 支持对链接进行二次编辑或删除。
-- **数据统计**: 顶部实时展示当前数据库中的分类总数和链接总数。
+- **推荐**: Node.js + PM2 (适合 2C2G 服务器)
+- **可选**: Docker (需要 4G+ 内存)
 
-### 3. 全局搜索
-- 点击导航栏右侧的搜索图标，或按下搜索快捷键。
-- 支持按标题、描述或所属分类进行实时模糊匹配，搜索结果支持直接点击跳转。
+## 🗂️ 项目结构
 
----
+```
+├── src/
+│   ├── app/           # Next.js 页面和 API
+│   ├── components/    # UI 组件
+│   └── lib/           # 工具库
+├── prisma/            # 数据库模型和种子数据
+├── public/            # 静态资源
+└── deploy/            # 部署配置文件
+```
 
-## 📁 项目结构
+## 🔧 技术栈
 
-- `src/app`: Next.js 页面和 API 路由
-- `src/components`: UI 组件 (Hero, Navbar, LinkGrid)
-- `src/lib`: 工具类 (Prisma 客户端等)
-- `prisma/`: 数据库模型定义及种子数据脚本
-- `tailwind.config.ts`: 视觉主题和动画配置
+- **框架**: Next.js 15 + React 19
+- **样式**: Tailwind CSS + Framer Motion
+- **数据库**: Prisma + SQLite/MySQL
+- **部署**: PM2 / Docker
 
----
+## 📄 许可证
 
-## 🎨 设计规范
-
-- **背景**: 采用 `#0a0a0a` 深黑色背景，叠加微弱的 SVG 噪点纹理以模拟纸质感。
-- **字体**: 优先使用系统默认无衬线字体，保持现代感。
-- **配色**: 以前景白 (`#ededed`) 和灰色 (`#555`) 为主，减少色彩干扰，突出内容本身。
-
----
-
-## 💡 常见问题 (FAQ)
-
-**Q: 为什么后台添加了链接首页没更新？**
-A: 首页采用的是 Next.js 的服务端渲染，请确保 API 请求成功。通常刷新页面即可看到最新结果。
-
-**Q: 如何更换背景纹理？**
-A: 在 `src/app/globals.css` 中的 `body::before` 选择器里修改背景图片 URL 即可。
-
-**Q: SQLite 和 MySQL 如何选择？**
-A: 
-- **SQLite**: 适合个人使用、小内存服务器（2C2G）、快速部署。单文件存储，零配置。
-- **MySQL**: 适合高并发、多实例部署、需要远程备份的场景。
-
----
-
-© 2024 艺术导航 | 大师级设计与工艺
+MIT
