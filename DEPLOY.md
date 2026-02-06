@@ -1,183 +1,174 @@
-# 阿里云 ECS 部署指南
+# 艺术导航 - 阿里云 ECS 部署指南
 
 > **服务器**: 阿里云 ECS 2核2G, Ubuntu 22.04 LTS  
 > **公网IP**: 39.102.80.128  
-> **仓库**: https://github.com/ychech/YC-Navigation
+> **GitHub**: https://github.com/ychech/YC-Navigation.git
 
 ---
 
-## 🚀 一键部署 (5分钟完成)
+## 🚀 快速部署
+
+### 1. SSH 登录服务器
 
 ```bash
-# 1. SSH 登录服务器
-ssh root@39.102.80.128
-
-# 2. 下载并运行部署脚本
-curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy/deploy.sh -o deploy.sh
-sudo bash deploy.sh
+ssh -i "你的密钥路径" root@39.102.80.128
 ```
 
-部署脚本会自动处理所有配置，包括：
-- 安装 Docker、Nginx、SSL 工具
-- 配置防火墙 (开放 22/80/443)
-- 拉取最新代码
-- 生成配置文件
-- 构建并启动应用
-- 配置反向代理
-
----
-
-## 📁 部署文件说明
-
-```
-deploy/
-├── deploy.sh              # 一键部署脚本
-├── docker-compose.yml     # Docker 生产配置
-├── Dockerfile             # 生产镜像构建
-├── nginx/
-│   └── artistic-nav.conf  # Nginx 配置模板
-├── .env.example           # 环境变量模板
-└── README.md              # 详细部署文档
-```
-
----
-
-## ⚡ 快速命令
-
-部署完成后，使用以下命令管理应用：
+### 2. 一键部署脚本
 
 ```bash
-# 查看状态
-artistic-nav status
+cd /opt
+git clone https://github.com/ychech/YC-Navigation.git artistic-nav
+cd artistic-nav
 
-# 查看日志
-artistic-nav logs
+# 安装依赖
+npm ci
 
-# 重启应用
-artistic-nav restart
+# 生成 Prisma Client
+npx prisma generate
 
-# 备份数据
-artistic-nav backup
+# 创建环境配置
+cat > .env << 'EOF'
+DB_PROVIDER=sqlite
+DATABASE_URL=file:./prisma/dev.db
+NEXTAUTH_SECRET=$(openssl rand -base64 32)
+NEXTAUTH_URL=http://39.102.80.128
+ADMIN_PASSWORD=admin123456
+STORAGE_TYPE=local
+UPLOAD_DIR=./public/uploads
+NEXT_TELEMETRY_DISABLED=1
+PORT=3000
+EOF
 
-# 更新代码
-artistic-nav update
+# 初始化数据库
+npx prisma db push --accept-data-loss
+npx prisma db seed
 
-# 显示管理员密码
-artistic-nav admin
+# 构建
+npm run build
+
+# 安装 PM2
+npm install -g pm2
+
+# 启动
+pm2 start npm --name "artistic-nav" -- run start
+
+# 配置 Nginx
+apt-get update && apt-get install -y nginx
+
+cat > /etc/nginx/sites-available/artistic-nav << 'NGINX'
+server {
+    listen 80;
+    server_name 39.102.80.128;
+    
+    client_max_body_size 50M;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+NGINX
+
+ln -sf /etc/nginx/sites-available/artistic-nav /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
+nginx -t && systemctl reload nginx
+
+echo "✅ 部署完成!"
+echo "前台: http://39.102.80.128"
+echo "后台: http://39.102.80.128/admin"
+echo "账号: admin / admin123456"
 ```
 
 ---
 
-## 🔧 配置说明
-
-### 数据库选择
-
-| 类型 | 内存占用 | 适用场景 |
-|------|---------|---------|
-| **SQLite** (推荐) | ~180MB | 2C2G 服务器，个人/小团队 |
-| MySQL | ~700MB | 高并发，多用户 |
-
-> 💡 **建议**: 2C2G 配置请使用 SQLite，性能足够且省内存。
-
-### 存储选择
-
-| 类型 | 说明 |
-|------|------|
-| **本地存储** (推荐) | 文件存在服务器，简单免费 |
-| 阿里云 OSS | 高可靠，适合大规模，按量付费 |
-
----
-
-## 🔐 安全配置
-
-首次部署后，请立即：
-
-1. **修改管理员密码**
-   - 访问: http://39.102.80.128/admin
-   - 默认账号: `admin`
-   - 密码查看: `artistic-nav admin`
-
-2. **配置 HTTPS** (如果有域名)
-```bash
-# 安装 SSL 证书 (替换为你的域名)
-sudo certbot --nginx -d your-domain.com
-```
-
----
-
-## 📊 目录结构
-
-部署后服务器上的文件结构：
+## 📁 目录结构
 
 ```
 /opt/artistic-nav/
-├── data/              # SQLite 数据库
-├── uploads/           # 上传的文件
-├── logs/              # 应用日志
-├── backups/           # 自动备份
-├── .env               # 环境配置 (保密)
-├── .admin_password    # 初始密码 (保密)
-└── ...                # 源代码
+├── prisma/
+│   ├── dev.db          # SQLite 数据库
+│   ├── schema.prisma   # 数据库模型
+│   └── seed.ts         # 初始数据
+├── public/uploads/     # 上传文件
+├── .env                # 环境变量
+└── ...                 # 源代码
+```
+
+---
+
+## 🔧 管理命令
+
+```bash
+# 查看状态
+pm2 status
+
+# 查看日志
+pm2 logs
+
+# 重启
+pm2 restart artistic-nav
+
+# 停止
+pm2 stop artistic-nav
+
+# 更新代码
+cd /opt/artistic-nav
+git pull
+npm ci
+npm run build
+pm2 restart artistic-nav
 ```
 
 ---
 
 ## 🐛 常见问题
 
-### 应用无法访问
+### 1. 数据库错误
 
 ```bash
-# 检查服务状态
-artistic-nav status
-
-# 检查 Nginx
-curl http://localhost:3000
-sudo nginx -t
+# 重新初始化数据库
+cd /opt/artistic-nav
+npx prisma db push --accept-data-loss
+npx prisma db seed
 ```
 
-### 内存不足
+### 2. 端口被占用
 
 ```bash
-# 添加 2G Swap
-sudo fallocate -l 2G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
+# 查看占用 3000 端口的进程
+lsof -i :3000
+
+# 结束进程
+kill $(lsof -t -i:3000)
 ```
 
-### 数据库错误
+### 3. 权限错误
 
 ```bash
-# 检查数据库权限
-sudo chown -R 1001:1001 /opt/artistic-nav/data/
-
-# 重新初始化
-docker-compose exec -T nextjs npx prisma db push
+chmod -R 755 /opt/artistic-nav
+chmod 644 /opt/artistic-nav/prisma/dev.db
 ```
 
 ---
 
-## 🔄 自动更新 (GitHub Actions)
+## 🔒 安全建议
 
-已配置 GitHub Actions 自动部署，需要设置 Secrets：
-
-1. 打开仓库 Settings → Secrets and variables → Actions
-2. 添加以下 secrets:
-   - `ECS_HOST`: 39.102.80.128
-   - `ECS_USER`: root
-   - `ECS_SSH_KEY`: 你的 SSH 私钥
-
-推送代码到 main 分支会自动部署到服务器。
+1. **修改默认密码**: 登录后台后立即修改 `admin123456`
+2. **配置防火墙**: 只开放 22, 80, 443 端口
+3. **定期备份**: 备份 `prisma/dev.db` 和 `public/uploads`
 
 ---
 
-## 📚 详细文档
+## 📞 支持
 
-查看完整部署文档: [deploy/README.md](deploy/README.md)
+遇到问题?
 
-包含：
-- 手动部署步骤
-- SSL 详细配置
-- 故障排查
-- 安全加固
-- 数据备份恢复
+1. 查看日志: `pm2 logs`
+2. 检查 Nginx: `nginx -t`
+3. 测试本地: `curl http://localhost:3000`
