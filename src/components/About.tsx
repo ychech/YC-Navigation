@@ -108,8 +108,8 @@ export const About = ({ content, slides = [] }: AboutProps) => {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
-        <div className="flex flex-col items-center justify-center text-center max-w-5xl mx-auto space-y-20 min-h-[600px]">
+      <div className="max-w-4xl mx-auto px-6 md:px-12 relative z-10">
+        <div className="flex flex-col items-center justify-center text-center max-w-3xl mx-auto space-y-10 min-h-[400px]">
           
           <AnimatePresence mode="wait">
             <motion.div
@@ -125,25 +125,25 @@ export const About = ({ content, slides = [] }: AboutProps) => {
               transition={{ duration: 0.6, ease: "easeInOut" }}
               className="space-y-12 relative w-full perspective-1000 select-none"
             >
-               <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[1px] h-20 bg-gradient-to-b from-transparent to-indigo-500/50" />
+               <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[1px] h-10 bg-gradient-to-b from-transparent to-indigo-500/50" />
                <div className="flex items-center justify-center gap-6">
                   <Globe size={14} className="text-indigo-500 animate-spin-slow opacity-60" />
                   <p className="text-[10px] uppercase tracking-[0.5em] text-indigo-500 font-black">Archive.OS // SLIDE_{currentSlide + 1}</p>
                   <Cpu size={14} className="text-indigo-500 animate-pulse opacity-60" />
                </div>
                
-               <h2 className="archive-title text-6xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-b from-black via-black to-black/10 dark:from-white dark:via-white dark:to-white/10 leading-[0.85] tracking-tighter mix-blend-overlay dark:mix-blend-overlay mix-blend-normal relative z-10">
+               <h2 className="archive-title text-4xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-black via-black to-black/10 dark:from-white dark:via-white dark:to-white/10 leading-[0.9] tracking-tighter mix-blend-overlay dark:mix-blend-overlay mix-blend-normal relative z-10">
                   <ScrambleText text={activeSlide.title} />
                </h2>
 
-               <div className="text-gray-500 dark:text-gray-400 text-lg md:text-2xl leading-relaxed font-light max-w-3xl mx-auto space-y-8 relative z-10">
+               <div className="text-gray-500 dark:text-gray-400 text-base md:text-lg leading-relaxed font-light max-w-2xl mx-auto space-y-6 relative z-10">
                   <p className="drop-shadow-lg whitespace-pre-wrap">
                     {activeSlide.subtitle}
                   </p>
                </div>
 
                {activeSlide.codeSnippet ? (
-                 <div className="pt-12 flex justify-center w-full">
+                 <div className="pt-8 flex justify-center w-full">
                    <div className="relative group w-full max-w-lg mx-auto text-left">
                      <div className="absolute inset-0 bg-indigo-500/10 blur-2xl group-hover:bg-indigo-500/20 transition-all duration-500 rounded-3xl" />
                      <div className="relative rounded-2xl bg-white dark:bg-black/80 border border-gray-200 dark:border-indigo-500/30 backdrop-blur-xl overflow-hidden shadow-2xl dark:shadow-none">
@@ -167,16 +167,16 @@ export const About = ({ content, slides = [] }: AboutProps) => {
                    </div>
                  </div>
                ) : (
-                 <div className="pt-12 flex justify-center">
+                 <div className="pt-8 flex justify-center">
                     <div className="relative group cursor-pointer">
                        <div className="absolute inset-0 bg-indigo-500/20 blur-xl group-hover:bg-indigo-500/40 transition-all duration-500 rounded-full" />
-                       <div className="relative px-10 py-5 rounded-full bg-black/40 border border-indigo-500/30 backdrop-blur-xl flex items-center gap-4 hover:scale-105 transition-transform duration-300">
+                       <div className="relative px-8 py-3 rounded-full bg-black/40 border border-indigo-500/30 backdrop-blur-xl flex items-center gap-3 hover:scale-105 transition-transform duration-300">
                           <div className="flex gap-1">
                              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '0ms' }} />
                              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
                              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '300ms' }} />
                           </div>
-                          <span className="text-xs font-mono text-indigo-300 tracking-widest uppercase">Initializing Art Sequence...</span>
+                          <span className="text-[10px] font-mono text-indigo-300 tracking-widest uppercase">Initializing Art Sequence...</span>
                        </div>
                     </div>
                  </div>
@@ -186,8 +186,8 @@ export const About = ({ content, slides = [] }: AboutProps) => {
 
           {/* Drag Hint & Navigation Controls */}
           {displaySlides.length > 1 && (
-            <div className="flex flex-col items-center gap-4 pt-12 relative z-20">
-              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-indigo-500/40 font-bold animate-pulse">
+            <div className="flex flex-col items-center gap-2 pt-6 relative z-20">
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-indigo-500/40 font-bold">
                 <ChevronLeft size={12} />
                 <span>Drag to Navigate</span>
                 <ChevronRight size={12} />

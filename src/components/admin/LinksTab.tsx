@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { 
   Trash2, Edit2, X, Search, 
   ChevronLeft, ChevronRight, 
   Image as ImageIcon,
   Command, Sparkles, Camera,
-  ArrowUp, ArrowDown
+  ArrowUp, ArrowDown, TrendingUp, Eye
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ interface Link {
   categoryId: string;
   snapshotUrl?: string;
   order?: number;
+  clicks?: number;
 }
 
 interface Category {
@@ -59,6 +60,24 @@ export function LinksTab() {
     const data = await res.json();
     setCategories(data);
   };
+
+  // 计算热门链接（按点击量排序）
+  const topLinks = useMemo(() => {
+    const allLinks = categories.flatMap(cat => 
+      (cat.links || []).map(link => ({ ...link, categoryName: cat.name }))
+    );
+    return allLinks
+      .filter(link => (link.clicks || 0) > 0)
+      .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
+      .slice(0, 5);
+  }, [categories]);
+
+  // 计算总点击量
+  const totalClicks = useMemo(() => {
+    return categories.reduce((sum, cat) => 
+      sum + (cat.links || []).reduce((linkSum, link) => linkSum + (link.clicks || 0), 0), 0
+    );
+  }, [categories]);
 
   // --- Sorting Handlers ---
   const moveCategory = async (index: number, direction: 'up' | 'down') => {
@@ -288,31 +307,32 @@ export function LinksTab() {
           </h2>
           <form onSubmit={editingLink ? handleUpdateLink : handleAddLink} className="space-y-6">
             <div className="space-y-3">
-              <label className="text-[9px] uppercase tracking-[0.5em] text-gray-400 font-black ml-1 opacity-50">节点归属</label>
+              <label className="text-[9px] uppercase tracking-[0.5em] text-gray-400 font-black ml-1 opacity-50">所属分类</label>
               <select
                 value={editingLink ? editingLink.categoryId : newLink.categoryId}
                 onChange={(e) => editingLink ? setEditingLink({...editingLink, categoryId: e.target.value}) : setNewLink({ ...newLink, categoryId: e.target.value })}
-                className="w-full bg-gray-50/50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 rounded-2xl px-6 py-5 text-xs font-black tracking-widest focus:outline-none glow-border transition-all text-gray-900 dark:text-gray-300 appearance-none cursor-pointer"
+                className="w-full bg-gray-50/50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 rounded-2xl px-6 py-5 text-sm font-bold focus:outline-none glow-border transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
                 required
               >
-                <option value="">选择目标分类</option>
-                {categories.map(c => <option key={c.id} value={c.id}>{c.name.toUpperCase()}</option>)}
+                <option value="">请选择分类...</option>
+                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
             <div className="space-y-4">
               <div className="space-y-3">
-                <label className="text-[9px] uppercase tracking-[0.5em] text-gray-400 font-black ml-1 opacity-50">元数据</label>
+                <label className="text-[9px] uppercase tracking-[0.5em] text-gray-400 font-black ml-1 opacity-50">导航名称</label>
                 <input
                   type="text"
-                  placeholder="链接标题"
+                  placeholder="输入网站名称（如：Dribbble）"
                   value={editingLink ? editingLink.title : newLink.title}
                   onChange={(e) => editingLink ? setEditingLink({...editingLink, title: e.target.value}) : setNewLink({ ...newLink, title: e.target.value })}
                   className="w-full bg-gray-50/50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 rounded-2xl px-6 py-5 text-sm font-bold focus:outline-none glow-border transition-all text-gray-900 dark:text-white"
                   required
                 />
+                <label className="text-[9px] uppercase tracking-[0.5em] text-gray-400 font-black ml-1 opacity-50 block mt-4">网址</label>
                 <input
                   type="text"
-                  placeholder="访问地址 (HTTPS://...)"
+                  placeholder="输入网址（如：https://dribbble.com）"
                   value={editingLink ? editingLink.url : newLink.url}
                   onChange={(e) => editingLink ? setEditingLink({...editingLink, url: e.target.value}) : setNewLink({ ...newLink, url: e.target.value })}
                   onBlur={(e) => fetchLinkTitle(e.target.value)}
@@ -373,6 +393,54 @@ export function LinksTab() {
           </form>
         </section>
       </Modal>
+
+      {/* 统计面板 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-shrink-0">
+        <div className="nm-flat p-4 rounded-[20px] bg-white dark:bg-[#0f0f0f] border border-gray-100 dark:border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center">
+              <Eye size={18} className="text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div>
+              <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">总点击量</p>
+              <p className="text-xl font-black text-gray-900 dark:text-white">{totalClicks.toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="nm-flat p-4 rounded-[20px] bg-white dark:bg-[#0f0f0f] border border-gray-100 dark:border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+              <Command size={18} className="text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">链接总数</p>
+              <p className="text-xl font-black text-gray-900 dark:text-white">
+                {categories.reduce((sum, cat) => sum + (cat.links?.length || 0), 0)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="nm-flat p-4 rounded-[20px] bg-white dark:bg-[#0f0f0f] border border-gray-100 dark:border-white/5 col-span-2">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp size={14} className="text-indigo-600 dark:text-indigo-400" />
+            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">热门链接 Top 3</p>
+          </div>
+          <div className="flex gap-2">
+            {topLinks.slice(0, 3).map((link, idx) => (
+              <div key={link.id} className="flex-1 flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5">
+                <span className="text-[10px] font-black text-indigo-500 w-4">{idx + 1}</span>
+                <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate flex-1">{link.title}</span>
+                <span className="text-[10px] font-bold text-gray-400">{link.clicks}</span>
+              </div>
+            ))}
+            {topLinks.length === 0 && (
+              <span className="text-xs text-gray-400 italic">暂无点击数据</span>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="flex items-center gap-4 flex-shrink-0">
         <div className="nm-inset p-3 rounded-[32px] bg-white/50 dark:bg-black/20 backdrop-blur-md border border-gray-200 dark:border-white/5 flex-1">
@@ -467,7 +535,14 @@ export function LinksTab() {
 
                           <div className="w-1.5 h-10 bg-indigo-500 dark:bg-[#6ee7b7] rounded-full shadow-[0_0_15px_rgba(79,70,229,0.5)] dark:shadow-[0_0_15px_rgba(110,231,183,0.5)]" />
                           <h3 className="text-xl font-black tracking-tight text-gray-900 dark:text-white uppercase">{cat.name}</h3>
-                          <span className="text-xs font-bold text-gray-400 bg-gray-100 dark:bg-white/5 px-3 py-1 rounded-full">{(cat.links || []).length} items</span>
+                          <span className="text-xs font-bold text-gray-400 bg-gray-100 dark:bg-white/5 px-3 py-1 rounded-full">{(cat.links || []).length} 个链接</span>
+                          {/* 在当前分类添加链接 */}
+                          <button 
+                            onClick={() => { setNewLink({ ...newLink, categoryId: String(cat.id) }); setEditingLink(null); setIsLinkModalOpen(true); }}
+                            className="ml-4 flex items-center gap-2 px-4 py-2 bg-indigo-500/10 dark:bg-[#6ee7b7]/10 text-indigo-600 dark:text-[#6ee7b7] text-xs font-bold rounded-xl hover:bg-indigo-500/20 dark:hover:bg-[#6ee7b7]/20 transition-colors"
+                          >
+                            <Command size={14} /> 添加链接
+                          </button>
                         </div>
                         <div className="flex gap-4 opacity-0 group-hover/category:opacity-100 transition-all duration-500 translate-x-4 group-hover/category:translate-x-0">
                           <button onClick={() => openEditCategory(cat)} className="w-12 h-12 nm-inset flex items-center justify-center text-gray-400 hover:text-indigo-600 dark:hover:text-[#6ee7b7] transition-all rounded-2xl bg-white dark:bg-[#0f0f0f]"><Edit2 size={16} /></button>
@@ -478,7 +553,13 @@ export function LinksTab() {
                       {(!cat.links || cat.links.length === 0) && (
                         <div className="flex flex-col items-center justify-center py-12 text-gray-400 border border-dashed border-gray-200 dark:border-white/10 rounded-[28px]">
                           <Sparkles size={24} className="mb-4 opacity-50" />
-                          <p className="text-xs font-bold uppercase tracking-widest opacity-60">暂无内容</p>
+                          <p className="text-xs font-bold uppercase tracking-widest opacity-60 mb-4">暂无链接</p>
+                          <button 
+                            onClick={() => { setNewLink({ ...newLink, categoryId: String(cat.id) }); setEditingLink(null); setIsLinkModalOpen(true); }}
+                            className="flex items-center gap-2 px-6 py-3 bg-indigo-500 text-white text-xs font-bold rounded-xl hover:bg-indigo-600 transition-colors"
+                          >
+                            <Command size={14} /> 添加第一个链接
+                          </button>
                         </div>
                       )}
 
@@ -510,31 +591,55 @@ export function LinksTab() {
                                 </div>
                               )}
 
-                              <div className="flex-1 flex items-center gap-6 min-w-0 relative z-10">
-                                <div className="w-16 h-16 nm-flat flex items-center justify-center shrink-0 rounded-[20px] bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 group-hover:scale-110 transition-transform duration-500">
+                              <div className="flex-1 flex items-center gap-4 min-w-0 relative z-10">
+                                {/* 图标 */}
+                                <div className="w-14 h-14 nm-flat flex items-center justify-center shrink-0 rounded-2xl bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 group-hover:scale-110 transition-transform duration-300">
                                   {link.icon ? (
-                                    <img src={link.icon} className="w-9 h-9 object-contain" alt="" />
+                                    <img src={link.icon} className="w-8 h-8 object-contain" alt="" />
                                   ) : getFaviconUrl(link.url) ? (
-                                    <img src={getFaviconUrl(link.url)} className="w-9 h-9 object-contain" alt="" />
+                                    <img src={getFaviconUrl(link.url)} className="w-8 h-8 object-contain" alt="" />
                                   ) : (
-                                    <div className="w-9 h-9 bg-indigo-500/10 dark:bg-[#6ee7b7]/10 rounded-xl flex items-center justify-center">
-                                      <span className="text-sm font-black text-indigo-600 dark:text-[#6ee7b7]">{link.title[0].toUpperCase()}</span>
+                                    <div className="w-8 h-8 bg-indigo-500/10 dark:bg-[#6ee7b7]/10 rounded-lg flex items-center justify-center">
+                                      <span className="text-sm font-bold text-indigo-600 dark:text-[#6ee7b7]">{link.title[0].toUpperCase()}</span>
                                     </div>
                                   )}
                                 </div>
-                                <div className="flex-1 min-w-0 pr-4">
-                                  <div className="flex items-center gap-3 mb-1">
-                                    <p className="text-lg font-black text-gray-900 dark:text-white truncate tracking-tight">{link.title}</p>
+                                
+                                {/* 内容区域 */}
+                                <div className="flex-1 min-w-0">
+                                  {/* 标题行 */}
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <p className="text-base font-bold text-gray-900 dark:text-white truncate">{link.title}</p>
                                     {link.snapshotUrl && (
-                                      <span className="flex items-center gap-1 px-2 py-0.5 bg-indigo-500/10 dark:bg-[#6ee7b7]/10 text-indigo-600 dark:text-[#6ee7b7] text-[8px] font-black rounded-full uppercase tracking-widest">
-                                        <Camera size={10} /> 快照
+                                      <span className="flex items-center gap-1 px-2 py-0.5 bg-indigo-500/10 dark:bg-[#6ee7b7]/10 text-indigo-600 dark:text-[#6ee7b7] text-[10px] font-medium rounded-full shrink-0">
+                                        <Camera size={10} />
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] truncate font-black mb-2 opacity-60 group-hover:opacity-100 transition-opacity">{new URL(link.url.startsWith('http') ? link.url : `https://${link.url}`).hostname}</p>
+                                  
+                                  {/* URL行 */}
+                                  <p className="text-xs text-indigo-500 dark:text-indigo-400 truncate mb-1 font-mono">
+                                    {(() => {
+                                      try {
+                                        if (!link.url || link.url.startsWith('#') || link.url === '') return '未设置URL';
+                                        const url = link.url.startsWith('http') ? link.url : `https://${link.url}`;
+                                        return new URL(url).hostname.replace(/^www\./, '');
+                                      } catch {
+                                        return link.url || '未设置URL';
+                                      }
+                                    })()}
+                                  </p>
+                                  
+                                  {/* 描述行 */}
                                   {link.description && (
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 opacity-40 group-hover:opacity-100 transition-all italic leading-relaxed">{link.description}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{link.description}</p>
                                   )}
+                                </div>
+                                
+                                {/* 点击数 */}
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 shrink-0">
+                                  <Eye size={12} />
+                                  <span className="text-xs font-mono font-medium">{link.clicks || 0}</span>
                                 </div>
                               </div>
                               <div className="flex gap-3 shrink-0 items-center opacity-0 group-hover:opacity-100 transition-all duration-500 ml-auto pl-6 border-l border-gray-100 dark:border-white/5 relative z-10">

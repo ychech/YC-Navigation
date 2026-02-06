@@ -16,9 +16,11 @@ async function main() {
       name: '设计灵感',
       links: {
         create: [
-          { title: 'Awwwards', url: '#', description: '全球顶尖数字设计奖项，寻找创意与创新的边界。' },
-          { title: 'Behance', url: '#', description: 'Adobe 旗下的创意作品展示平台，汇聚全球设计师。' },
-          { title: 'Dribbble', url: '#', description: '设计师的社交网络，分享微小设计细节的乐园。' },
+          { title: 'Awwwards', url: 'https://www.awwwards.com', icon: 'https://icons.duckduckgo.com/ip3/www.awwwards.com.ico', description: '全球顶尖数字设计奖项，寻找创意与创新的边界。' },
+          { title: 'Behance', url: 'https://www.behance.net', icon: 'https://icons.duckduckgo.com/ip3/www.behance.net.ico', description: 'Adobe 旗下的创意作品展示平台，汇聚全球设计师。' },
+          { title: 'Dribbble', url: 'https://dribbble.com', icon: 'https://icons.duckduckgo.com/ip3/dribbble.com.ico', description: '设计师的社交网络，分享微小设计细节的乐园。' },
+          { title: 'Pinterest', url: 'https://www.pinterest.com', icon: 'https://icons.duckduckgo.com/ip3/www.pinterest.com.ico', description: '全球创意灵感图库，发现美好生活灵感。' },
+          { title: 'Mobbin', url: 'https://mobbin.com', icon: 'https://icons.duckduckgo.com/ip3/mobbin.com.ico', description: '移动应用设计参考库，精选优秀 App 界面。' },
         ]
       }
     }
@@ -31,9 +33,11 @@ async function main() {
       name: '生产力工具',
       links: {
         create: [
-          { title: 'Framer', url: '#', description: 'AI 驱动的网页设计与构建工具，实现极致动效。' },
-          { title: 'Figma', url: '#', description: '协同设计的行业标准，让创意无缝衔接。' },
-          { title: 'Next.js', url: '#', description: '为 React 而生的 Web 框架，兼顾性能与体验。' },
+          { title: 'Framer', url: 'https://www.framer.com', icon: 'https://icons.duckduckgo.com/ip3/www.framer.com.ico', description: 'AI 驱动的网页设计与构建工具，实现极致动效。' },
+          { title: 'Figma', url: 'https://www.figma.com', icon: 'https://icons.duckduckgo.com/ip3/www.figma.com.ico', description: '协同设计的行业标准，让创意无缝衔接。' },
+          { title: 'Notion', url: 'https://www.notion.so', icon: 'https://icons.duckduckgo.com/ip3/www.notion.so.ico', description: '全能工作空间，笔记、数据库、项目管理一体。' },
+          { title: 'Vercel', url: 'https://vercel.com', icon: 'https://icons.duckduckgo.com/ip3/vercel.com.ico', description: '前端部署平台，让开发者的创意快速上线。' },
+          { title: 'GitHub', url: 'https://github.com', icon: 'https://icons.duckduckgo.com/ip3/github.com.ico', description: '代码托管与协作平台，开发者的家园。' },
         ]
       }
     }
@@ -57,7 +61,7 @@ async function main() {
     }
   });
 
-  // 4. 站点配置 (联系信息 & Hero)
+  // 4. 站点配置 (联系信息 & Hero & 系统名称)
   await prisma.siteConfig.createMany({
     data: [
       { key: "contact_email", value: "hello@artistic-nav.com" },
@@ -66,6 +70,8 @@ async function main() {
       { key: "footer_copyright", value: "© 2024 艺术导航" },
       { key: "hero_title", value: "灵感与设计的边界" },
       { key: "hero_subtitle", value: "超越常规的数字导航体验。探索极致的设计语言与未来交互。" },
+      { key: "site_name", value: "艺术导航" },
+      { key: "site_slogan", value: "ARCHIVE.OS" },
     ]
   });
 

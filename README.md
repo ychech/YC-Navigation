@@ -8,11 +8,23 @@
 
 ### 1. 环境依赖
 - **Node.js**: v18.0.0 或更高版本
-- **MySQL**: v8.0 或更高版本
+- **数据库**: SQLite (默认，零配置) 或 MySQL 8.0+
 
 ### 2. 数据库配置
-在项目根目录下找到 `.env` 文件，确保 `DATABASE_URL` 指向你的 MySQL 数据库：
+
+本项目支持 **SQLite** 和 **MySQL** 两种数据库模式，根据你的部署环境选择：
+
+#### 方式一：SQLite 模式（推荐个人/小内存服务器）
+编辑 `.env` 文件：
 ```env
+DB_PROVIDER=sqlite
+DATABASE_URL="file:./dev.db"
+```
+
+#### 方式二：MySQL 模式（适合生产高并发）
+编辑 `.env` 文件：
+```env
+DB_PROVIDER=mysql
 DATABASE_URL="mysql://用户名:密码@127.0.0.1:3306/artistic_nav"
 ```
 
@@ -24,6 +36,9 @@ cd artistic-nav
 # 安装依赖
 npm install
 
+# 生成 Prisma Client（根据 DB_PROVIDER 生成对应引擎）
+npx prisma generate
+
 # 初始化数据库结构
 npx prisma db push
 
@@ -33,6 +48,8 @@ npx tsx prisma/seed.ts
 # 启动开发服务器
 npm run dev
 ```
+
+访问 http://localhost:3000
 
 ---
 
@@ -45,12 +62,12 @@ npm run dev
 
 ### 2. 管理控制面板 (`/admin`)
 - **安全认证**:
-  - 进入后台需要身份验证。默认密码为 `admin123`。
+  - 进入后台需要身份验证。默认密码为 `admin123`（可在 `.env` 中修改 `ADMIN_PASSWORD`）。
 - **分类管理**: 
-  - 在左侧“添加分类”表单中输入名称即可创建新的分类。
+  - 在左侧"添加分类"表单中输入名称即可创建新的分类。
   - 支持对现有分类进行重命名或删除（包含级联删除链接）。
 - **链接管理**:
-  - 选择所属分类，输入标题、URL 和描述，点击“添加链接”即可实时更新到首页。
+  - 选择所属分类，输入标题、URL 和描述，点击"添加链接"即可实时更新到首页。
   - 支持对链接进行二次编辑或删除。
 - **数据统计**: 顶部实时展示当前数据库中的分类总数和链接总数。
 
@@ -86,7 +103,11 @@ A: 首页采用的是 Next.js 的服务端渲染，请确保 API 请求成功。
 **Q: 如何更换背景纹理？**
 A: 在 `src/app/globals.css` 中的 `body::before` 选择器里修改背景图片 URL 即可。
 
+**Q: SQLite 和 MySQL 如何选择？**
+A: 
+- **SQLite**: 适合个人使用、小内存服务器（2C2G）、快速部署。单文件存储，零配置。
+- **MySQL**: 适合高并发、多实例部署、需要远程备份的场景。
+
 ---
 
 © 2024 艺术导航 | 大师级设计与工艺
-# YC-Navigation

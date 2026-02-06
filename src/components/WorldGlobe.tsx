@@ -271,8 +271,8 @@ function useEarthTextures() {
 
 // --- Components ---
 
-// Optimized Particles - Floating Stardust
-const Particles = memo(({ count = 10000, isDark = true }: { count?: number, isDark?: boolean }) => {
+// Optimized Particles - Floating Stardust (Reduced count for performance)
+const Particles = memo(({ count = 3000 }: { count?: number }) => {
   const points = useRef<THREE.Points>(null);
 
   const particlesPosition = useMemo(() => {
@@ -308,11 +308,11 @@ const Particles = memo(({ count = 10000, isDark = true }: { count?: number, isDa
         />
       </bufferGeometry>
       <pointsMaterial
-        color={isDark ? "#ffffff" : "#64748b"} 
+        color="#ffffff"
         size={0.03}
         sizeAttenuation
         transparent
-        opacity={isDark ? 0.8 : 0.6}
+        opacity={0.8}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
       />
@@ -349,7 +349,7 @@ function FallbackEarth() {
 }
 
 // Real Earth Component
-function Earth({ textures, hasError, isDark = true }: { textures: any, hasError: boolean, isDark?: boolean }) {
+function Earth({ textures, hasError }: { textures: any, hasError: boolean }) {
   const earthRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
   const wireframeRef = useRef<THREE.Mesh>(null);
@@ -366,33 +366,6 @@ function Earth({ textures, hasError, isDark = true }: { textures: any, hasError:
   // Render fallback if error or still loading
   if (hasError || !textures) {
     return <FallbackEarth />;
-  }
-
-  // Light Mode: Wireframe Tech Style
-  if (!isDark) {
-    return (
-      <group rotation={[0, 0, Math.PI / 6]}>
-        {/* Inner Solid Core (Hides stars behind) */}
-        <Sphere args={[2.18, 64, 64]}>
-          <meshBasicMaterial color="#f8fafc" /> {/* Slate-50 to match background */}
-        </Sphere>
-        
-        {/* Wireframe Grid */}
-        <Sphere ref={wireframeRef} args={[2.2, 32, 32]}>
-          <meshStandardMaterial 
-            color="#6366f1" // Indigo-500
-            wireframe 
-            transparent
-            opacity={0.15}
-          />
-        </Sphere>
-        
-        {/* Outer Glow Halo */}
-        <Sphere args={[2.2, 64, 64]}>
-           <meshBasicMaterial color="#818cf8" transparent opacity={0.05} side={THREE.BackSide} />
-        </Sphere>
-      </group>
-    );
   }
 
   // Dark Mode: Realistic Style
@@ -458,8 +431,37 @@ function RealisticSun() {
   );
 }
 
-export default function WorldGlobe({ isDark = true }: { isDark?: boolean }) {
+export default function WorldGlobe() {
   const { textures, hasError } = useEarthTextures();
+  const [mounted, setMounted] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // 延迟加载 3D 场景，等页面其他内容渲染完成
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // 避免 SSR 渲染 Three.js Canvas
+  if (!mounted) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 blur-2xl" />
+      </div>
+    );
+  }
+
+  // 延迟显示 3D 场景
+  if (!isVisible) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="w-40 h-40 rounded-full bg-gradient-to-br from-indigo-500/30 via-purple-500/20 to-cyan-500/30 blur-3xl animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full cursor-move">
@@ -468,26 +470,23 @@ export default function WorldGlobe({ isDark = true }: { isDark?: boolean }) {
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
       >
-        <ambientLight intensity={isDark ? 0.05 : 0.5} /> {/* Very dark space ambient in dark mode, brighter in light */}
+        <ambientLight intensity={0.05} />
         
-        {/* Main Light Source (Sun) - Warm Sunlight */}
         <directionalLight 
-          position={[12, 6, -5]} // Matches sun direction but closer for lighting calculation
+          position={[12, 6, -5]}
           intensity={2.5} 
-          color="#fff7ed" // Warm white (Orange-50)
+          color="#fff7ed"
           castShadow 
         />
         
-        {/* Subtle Fill Light from bottom left (Earth reflection) */}
         <pointLight position={[-10, -10, -5]} intensity={0.1} color="#1e3a8a" /> 
         
-        <Earth textures={textures} hasError={hasError} isDark={isDark} />
-        {isDark && <RealisticSun />}
-        {/* Astronaut removed */}
+        <Earth textures={textures} hasError={hasError} />
+        <RealisticSun />
         
-        <Particles count={10000} isDark={isDark} />
+        <Particles count={3000} />
         <ShootingStar />
-        {isDark && <DeepSpace />}
+        <DeepSpace />
         
         <OrbitControls 
           enableZoom={true}

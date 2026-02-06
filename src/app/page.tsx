@@ -12,8 +12,9 @@ import { LogoCarousel } from "@/components/LogoCarousel";
 
 import { CategoryNav } from "@/components/CategoryNav";
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// 使用静态生成，避免 hydration 问题
+export const dynamic = 'auto';
+export const revalidate = 60;
 
 export default async function Home() {
   const [categories, galleryImages, aboutContent, siteConfigs, heroSlides] = await Promise.all([
@@ -36,6 +37,7 @@ export default async function Home() {
         title={configMap.hero_title || "灵感与设计的边界"} 
         subtitle={configMap.hero_subtitle || "一个精心策划的数字档案馆，收集最纯粹的设计工具与艺术灵感。"} 
         categories={categories}
+        systemCode={configMap.site_slogan || "ARCHIVE.OS"}
       />
 
       {/* Visual Transition Zone - Overlapping with Hero */}
@@ -53,8 +55,8 @@ export default async function Home() {
         <div id="directory" className="space-y-32">
           {categories.map((category, idx) => (
             <div key={category.id} id={`category-${category.id}`} className="relative group scroll-mt-32">
-              {/* Special Carousel for AI Section */}
-              {(category.name.includes("AI") || category.name.includes("智能")) && (
+              {/* Special Carousel for first category */}
+              {idx === 0 && category.links && category.links.length > 0 && (
                  <div className="mb-16 -mt-8">
                    <LogoCarousel links={category.links} />
                  </div>
@@ -78,7 +80,7 @@ export default async function Home() {
                 count={category.links?.length || 0} 
               />
               
-              <LinkGrid links={category.links} />
+              <LinkGrid links={category.links} categoryIndex={idx} />
             </div>
           ))}
         </div>

@@ -1,199 +1,314 @@
 "use client";
 
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, Activity } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowUpRight, Activity, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Link } from "@prisma/client";
-import React, { useState } from "react";
+import React, { useState, memo, useMemo } from "react";
+import { useTheme } from "next-themes";
 
 interface LinkGridProps {
   links: Link[];
+  categoryIndex?: number;
 }
 
-const TiltCard = ({ link, index, isActive, onActivate }: { link: Link; index: number; isActive: boolean; onActivate: () => void }) => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const mouseXSpring = useSpring(x, { stiffness: 150, damping: 20 });
-  const mouseYSpring = useSpring(y, { stiffness: 150, damping: 20 });
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
-  
-  // Dynamic glow position
-  const glowX = useTransform(mouseXSpring, [-0.5, 0.5], ["0%", "100%"]);
-  const glowY = useTransform(mouseYSpring, [-0.5, 0.5], ["0%", "100%"]);
-
-  const getFaviconUrl = (url: string) => {
-    try {
-      if (url.startsWith('#') || !url.includes('.')) return '';
-      const hostname = new URL(url.startsWith('http') ? url : `https://${url}`).hostname;
-      return `https://icons.duckduckgo.com/ip3/${hostname}.ico`;
-    } catch (e) {
-      return '';
-    }
+// 为每个卡片生成独特颜色
+const getCardColors = (index: number) => {
+  const hue = (index * 137.5) % 360;
+  return {
+    accent: `hsl(${hue}, 70%, 55%)`,
+    lightAccent: `hsl(${hue}, 60%, 45%)`,
+    glow: `hsla(${hue}, 70%, 50%, 0.2)`,
+    soft: `hsla(${hue}, 60%, 50%, 0.1)`,
   };
+};
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+const LinkCard = memo(({ 
+  link, 
+  index,
+  isDark 
+}: { 
+  link: Link; 
+  index: number;
+  isDark: boolean;
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const colors = getCardColors(index);
 
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-
-    x.set(xPct);
-    y.set(yPct);
+  const handleClick = async () => {
+    try {
+      await fetch("/api/links/click", {
+        method: "POST",
+        body: JSON.stringify({ id: link.id }),
+      });
+    } catch {}
+    window.open(link.url, '_blank', 'noopener,noreferrer');
   };
 
   return (
-    <motion.a
-      href={link.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`访问 ${link.title}`}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false);
-        x.set(0);
-        y.set(0);
-      }}
-      onClick={onActivate}
-      style={{
-        rotateY,
-        rotateX,
-        transformStyle: "preserve-3d",
-      }}
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ 
-        duration: 0.8, 
-        ease: [0.16, 1, 0.3, 1],
-        delay: index * 0.05 
+        duration: 0.4, 
+        ease: "easeOut",
+        delay: Math.min(index * 0.02, 0.15)
       }}
-      className={`group relative bg-white dark:bg-[#0a0a0a]/80 backdrop-blur-2xl border overflow-hidden block transition-all duration-500 hover:scale-[1.02] rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1),0_0_20px_rgba(99,102,241,0.05)] dark:hover:shadow-[0_12px_40px_rgba(0,0,0,0.5),0_0_20px_rgba(99,102,241,0.1)] active:scale-[0.99] flex flex-col ${
-        isActive 
-          ? "border-indigo-500/30 dark:border-white/10" 
-          : "border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10"
-      }`}
+      className="relative cursor-pointer"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={handleClick}
     >
-      {/* 1. Cover Image Section (AspectRatio 16:9 like Bilibili) */}
-      <div className="relative w-full aspect-video bg-gray-100 dark:bg-black/40 overflow-hidden group-hover:brightness-110 transition-all duration-500">
-        {/* If we had multiple images, we would implement a carousel here. 
-            For now, let's simulate a "flip" effect by panning the image slightly on hover 
-            to hint at interactivity, or we can cross-fade to a secondary image if available.
-        */}
-        {link.snapshotUrl ? (
-           <div className="w-full h-full relative">
-             <img 
-               src={link.snapshotUrl} 
-               alt={link.title} 
-               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:-translate-x-2"
-             />
-             {/* Simulated second slide sliding in (Visual Polish) 
-                 In a real app, this would be `link.images[1]`
-             */}
-           </div>
-        ) : (
-           // Placeholder pattern when no snapshot
-           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black relative">
-              <div className="absolute inset-0 opacity-20 dark:opacity-20 opacity-5" 
-                   style={{ backgroundImage: 'radial-gradient(circle, #000000 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+      {/* 卡片主体 */}
+      <div 
+        className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${
+          isDark 
+            ? 'bg-[#141414]' 
+            : 'bg-white'
+        }`}
+        style={{
+          border: `1px solid ${
+            isHovered 
+              ? (isDark ? colors.accent : colors.lightAccent) 
+              : (isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)')
+          }`,
+          boxShadow: isHovered 
+            ? `0 8px 30px ${colors.glow}` 
+            : 'none',
+          transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
+        }}
+      >
+        {/* 渐变光晕背景 */}
+        <div 
+          className="absolute inset-0 transition-opacity duration-500"
+          style={{
+            background: `radial-gradient(circle at 50% 0%, ${colors.soft} 0%, transparent 70%)`,
+            opacity: isHovered ? 1 : 0.5,
+          }}
+        />
+
+        {/* 封面区域 */}
+        <div className="relative w-full aspect-[16/10] overflow-hidden">
+          {link.snapshotUrl ? (
+            <div className="w-full h-full relative">
+              <img 
+                src={link.snapshotUrl} 
+                alt="" 
+                className="w-full h-full object-cover"
+                style={{
+                  opacity: isHovered ? 1 : 0.85,
+                  transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+                  transition: 'all 0.5s ease-out',
+                }}
+                loading="lazy"
+                decoding="async"
+              />
+              <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-[#141414]' : 'from-gray-100'} via-transparent to-transparent opacity-80`} />
+            </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center relative">
+              {/* 彩色光晕 */}
+              <div 
+                className="absolute w-24 h-24 rounded-full blur-2xl transition-opacity duration-500"
+                style={{
+                  background: colors.accent,
+                  opacity: isHovered ? 0.3 : 0.15,
+                }}
+              />
+              <div 
+                className="relative w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-300"
+                style={{
+                  background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+                  border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+                  transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+                }}
+              >
+                {link.icon ? (
+                  <img src={link.icon} alt="" className="w-6 h-6 object-contain" />
+                ) : (
+                  <span 
+                    className="text-xl font-medium"
+                    style={{ color: colors.accent }}
+                  >
+                    {link.title[0]}
+                  </span>
+                )}
               </div>
-              <div className="w-12 h-12 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center backdrop-blur-sm border border-gray-200 dark:border-white/10 shadow-sm">
-                 {link.icon ? (
-                    <img src={link.icon} alt="" className="w-6 h-6 object-contain opacity-50 grayscale" />
-                 ) : (
-                    <span className="text-xl font-bold text-gray-300 dark:text-white/20">{link.title[0]}</span>
-                 )}
-              </div>
-           </div>
-        )}
-        
-        {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        {/* Stats Badge (Bottom Right of Cover) */}
-        <div className="absolute bottom-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/60 backdrop-blur-md border border-white/10 text-[9px] text-white/80">
-           <Activity size={10} />
-           <span className="font-mono">{link.clicks || 0}</span>
+            </div>
+          )}
+          
+          {/* 点击数 */}
+          <div 
+            className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full text-xs backdrop-blur-sm"
+            style={{
+              background: isDark ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)',
+              color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)',
+            }}
+          >
+            <Activity size={10} style={{ color: colors.accent }} />
+            <span className="font-mono">{(link.clicks || 0).toLocaleString()}</span>
+          </div>
+        </div>
+
+        {/* 信息区域 */}
+        <div className="p-3 relative">
+          <h3 className={`text-sm font-bold mb-1 truncate ${
+            isDark ? 'text-white' : 'text-gray-900'
+          }`} style={{ textShadow: isDark ? '0 1px 2px rgba(0,0,0,0.5)' : 'none' }}>
+            {link.title}
+          </h3>
+          
+          <p className={`text-xs line-clamp-1 mb-2 ${
+            isDark ? 'text-white/60' : 'text-gray-500'
+          }`}>
+            {link.description || "探索数字边界"}
+          </p>
+          
+          <div className={`flex items-center justify-between pt-2 border-t ${
+            isDark ? 'border-white/5' : 'border-black/5'
+          }`}>
+            <span className={`text-[10px] font-mono truncate max-w-[100px] ${
+              isDark ? 'text-white/40' : 'text-gray-400'
+            }`}>
+              {(() => {
+                try {
+                  if (!link.url || link.url.startsWith('#')) return '-';
+                  const url = link.url.startsWith('http') ? link.url : `https://${link.url}`;
+                  return new URL(url).hostname.replace(/^www\./, '');
+                } catch {
+                  return '-';
+                }
+              })()}
+            </span>
+            <ArrowUpRight 
+              size={14} 
+              style={{ 
+                color: colors.accent,
+                opacity: isHovered ? 1 : 0.6,
+                transform: isHovered ? 'translate(2px, -2px)' : 'none',
+                transition: 'all 0.3s',
+              }}
+            />
+          </div>
         </div>
       </div>
+    </motion.div>
+  );
+});
 
-      {/* 2. Info Section (Bottom) */}
-      <div className="p-3 flex gap-3 flex-1 relative z-10 bg-white dark:bg-[#0a0a0a]">
-         {/* Avatar / Icon (Left) */}
-         <div className="shrink-0 mt-0.5">
-            <div className={`w-9 h-9 rounded-full flex items-center justify-center bg-gray-50 dark:bg-[#1a1a1a] border transition-all duration-500 overflow-hidden relative group-hover:border-indigo-500/30 ${isActive ? "border-indigo-500/50" : "border-gray-200 dark:border-white/10"}`}>
-               {link.icon ? (
-                 <img src={link.icon} alt="" className="w-5 h-5 object-contain relative z-10" />
-               ) : getFaviconUrl(link.url) ? (
-                 <img src={getFaviconUrl(link.url)} alt="" className="w-5 h-5 object-contain relative z-10" />
-               ) : (
-                 <span className="text-xs font-bold text-indigo-500">{link.title[0]}</span>
-               )}
-            </div>
-         </div>
+LinkCard.displayName = "LinkCard";
 
-         {/* Text Content (Right) */}
-         <div className="flex flex-col min-w-0 flex-1">
-            <h3 className={`text-sm font-medium leading-tight mb-1 truncate transition-colors duration-300 ${isActive ? "text-indigo-600 dark:text-indigo-400" : "text-gray-900 dark:text-gray-200 group-hover:text-black dark:group-hover:text-white"}`}>
-               {link.title}
-            </h3>
-            
-            <p className="text-[10px] text-gray-500 leading-relaxed line-clamp-2 h-8">
-               {link.description || "探索数字边界。"}
-            </p>
-            
-            <div className="mt-auto pt-2 flex items-center justify-between">
-               <span className="text-[9px] text-gray-400 dark:text-gray-600 font-mono group-hover:text-indigo-500/60 dark:group-hover:text-indigo-400/60 transition-colors truncate max-w-[80px]">
-                 {new URL(link.url.startsWith('http') ? link.url : `https://${link.url}`).hostname}
-               </span>
-               <ArrowUpRight size={12} className="text-gray-400 dark:text-gray-600 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all duration-300" />
-            </div>
-         </div>
-      </div>
+// 分页组件
+const Pagination = ({ 
+  currentPage, 
+  totalPages, 
+  onPageChange 
+}: { 
+  currentPage: number; 
+  totalPages: number; 
+  onPageChange: (page: number) => void;
+}) => {
+  if (totalPages <= 1) return null;
 
-      {/* Tech Corner Accents - Minimal */}
-      {isActive && (
-        <>
-          <div className="absolute top-0 left-0 w-full h-[1px] bg-indigo-500/20 dark:bg-white/10" />
-          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-indigo-500/10 dark:bg-white/5" />
-        </>
-      )}
-    </motion.a>
+  return (
+    <div className="flex items-center justify-center gap-2 mt-6">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="w-8 h-8 rounded-lg flex items-center justify-center disabled:opacity-30 transition-colors hover:bg-white/5"
+      >
+        <ChevronLeft size={16} className="text-gray-400" />
+      </button>
+      
+      <span className="text-sm text-gray-400">
+        {currentPage} / {totalPages}
+      </span>
+      
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="w-8 h-8 rounded-lg flex items-center justify-center disabled:opacity-30 transition-colors hover:bg-white/5"
+      >
+        <ChevronRight size={16} className="text-gray-400" />
+      </button>
+    </div>
   );
 };
 
-export const LinkGrid = ({ links }: LinkGridProps) => {
-  const [activeId, setActiveId] = useState<number | null>(null);
+// 单个分类的链接网格（带分页）
+const CategoryLinkGrid = ({ 
+  links, 
+  categoryIndex,
+  isDark 
+}: { 
+  links: Link[]; 
+  categoryIndex: number;
+  isDark: boolean;
+}) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  const { paginatedLinks, totalPages } = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    return {
+      paginatedLinks: links.slice(start, end),
+      totalPages: Math.ceil(links.length / ITEMS_PER_PAGE),
+    };
+  }, [links, currentPage]);
+
+  return (
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {paginatedLinks.map((link, i) => (
+          <LinkCard 
+            key={link.id} 
+            link={link} 
+            index={categoryIndex * 100 + i}
+            isDark={isDark}
+          />
+        ))}
+      </div>
+      <Pagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
+    </>
+  );
+};
+
+CategoryLinkGrid.displayName = "CategoryLinkGrid";
+
+// 导出给 page.tsx 使用
+export const LinkGrid = ({ links, categoryIndex = 0 }: LinkGridProps) => {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? resolvedTheme === "dark" : true;
 
   if (!links || links.length === 0) {
     return (
-      <div className="w-full h-40 flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.02]">
-        <div className="w-12 h-12 rounded-full bg-white dark:bg-white/5 flex items-center justify-center mb-4 border border-gray-100 dark:border-transparent">
-          <Activity size={20} className="text-gray-400 dark:text-gray-600" />
-        </div>
-        <p className="text-sm text-gray-400 dark:text-gray-500 font-mono tracking-widest uppercase">暂无收录内容</p>
+      <div className={`w-full h-32 flex flex-col items-center justify-center rounded-2xl border border-dashed ${
+        isDark ? 'border-white/10 bg-white/[0.02]' : 'border-gray-200 bg-gray-50'
+      }`}>
+        <Activity size={20} className={isDark ? 'text-white/20' : 'text-gray-300'} />
+        <p className={`text-sm mt-2 ${isDark ? 'text-white/30' : 'text-gray-400'}`}>暂无链接</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-      {links.map((link, i) => (
-        <TiltCard 
-          key={link.id} 
-          link={link} 
-          index={i} 
-          isActive={activeId === link.id}
-          onActivate={() => setActiveId(link.id)}
-        />
-      ))}
-    </div>
+    <CategoryLinkGrid 
+      links={links} 
+      categoryIndex={categoryIndex}
+      isDark={isDark}
+    />
   );
 };
+
+LinkGrid.displayName = "LinkGrid";

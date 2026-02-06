@@ -1,9 +1,10 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -19,12 +20,12 @@ model Link {
   title       String
   url         String
   icon        String?
-  snapshotUrl String?  @db.Text
-  description String?  @db.Text
+  snapshotUrl String?
+  description String?
   clicks      Int      @default(0)
   categoryId  Int
   sortOrder   Int      @default(0)
-  category    Category @relation(fields: [categoryId], references: [id])
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }
 
 model GalleryImage {
@@ -36,22 +37,22 @@ model GalleryImage {
 
 model AboutContent {
   id          Int      @id @default(autoincrement())
-  title       String   @db.Text
-  description String   @db.Text
+  title       String
+  description String
   updatedAt   DateTime @updatedAt
 }
 
 model SiteConfig {
   id    Int    @id @default(autoincrement())
   key   String @unique
-  value String @db.Text
+  value String
 }
 
 model HeroSlide {
   id          Int      @id @default(autoincrement())
   title       String
-  subtitle    String   @db.Text
-  codeSnippet String?  @db.Text
+  subtitle    String
+  codeSnippet String?
   isActive    Boolean  @default(true)
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())

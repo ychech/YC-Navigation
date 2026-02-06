@@ -21,6 +21,7 @@ interface DashboardSidebarProps {
     totalLinks: number;
     totalGallery: number;
   };
+  siteSlogan?: string;
 }
 
 export function DashboardSidebar({
@@ -31,7 +32,8 @@ export function DashboardSidebar({
   theme,
   setTheme,
   handleLogout,
-  currentStats
+  currentStats,
+  siteSlogan = "ARCHIVE.OS"
 }: DashboardSidebarProps) {
   return (
     <aside className={`${isSidebarCollapsed ? "w-24" : "w-80"} border-r border-gray-100 dark:border-white/[0.03] bg-white/40 dark:bg-[#0a0a0a]/40 backdrop-blur-3xl flex flex-col p-8 z-20 shrink-0 relative overflow-hidden transition-all duration-700 ease-out`}>
@@ -51,7 +53,7 @@ export function DashboardSidebar({
           </div>
           {!isSidebarCollapsed && (
             <span className="bg-clip-text text-transparent bg-gradient-to-br from-gray-900 via-gray-700 to-gray-500 dark:from-white dark:via-gray-300 dark:to-gray-500 whitespace-nowrap tracking-tight">
-              ARCHIVE.OS
+              {siteSlogan}
             </span>
           )}
         </h1>

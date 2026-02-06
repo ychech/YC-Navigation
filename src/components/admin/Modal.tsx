@@ -18,7 +18,7 @@ export function Modal({ isOpen, onClose, children }: ModalProps) {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto scrollbar-hide"
           >
             {children}
           </motion.div>

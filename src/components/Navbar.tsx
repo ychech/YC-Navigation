@@ -47,7 +47,7 @@ interface NavbarProps {
 
 export const Navbar = ({ categories = [] }: NavbarProps) => {
   const { scrollY, scrollYProgress } = useScroll();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [time, setTime] = useState("");
@@ -76,12 +76,15 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
     };
   }, []);
 
+  // 使用 resolvedTheme 确保挂载后有正确的主题值
+  const isDark = mounted ? resolvedTheme === "dark" : true;
+
   const backgroundColor = useTransform(
     scrollY,
     [0, 100],
     [
-      "rgba(var(--background), 0)",
-      theme === "dark" ? "rgba(2, 6, 23, 0.8)" : "rgba(255, 255, 255, 0.8)"
+      isDark ? "rgba(2, 6, 23, 0)" : "rgba(248, 250, 252, 0)",
+      isDark ? "rgba(2, 6, 23, 0.8)" : "rgba(248, 250, 252, 0.8)"
     ]
   );
 

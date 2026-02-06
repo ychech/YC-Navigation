@@ -14,6 +14,11 @@ import { HeroTab } from "@/components/admin/HeroTab";
 
 type Tab = "links" | "gallery" | "about" | "config" | "hero";
 
+interface SiteConfig {
+  key: string;
+  value: string;
+}
+
 export default function AdminPage() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -21,6 +26,7 @@ export default function AdminPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [stats, setStats] = useState({ totalLinks: 0, totalGallery: 0 });
+  const [siteSlogan, setSiteSlogan] = useState("ARCHIVE.OS");
   const router = useRouter();
 
   useEffect(() => {
@@ -34,6 +40,7 @@ export default function AdminPage() {
     } else {
       setAuthenticated(true);
       fetchStats();
+      fetchConfig();
     }
   }, []);
 
@@ -67,6 +74,19 @@ export default function AdminPage() {
     router.push("/admin/login");
   };
 
+  const fetchConfig = async () => {
+    try {
+      const res = await fetch("/api/config");
+      if (res.ok) {
+        const configs: SiteConfig[] = await res.json();
+        const slogan = configs.find(c => c.key === "site_slogan")?.value;
+        if (slogan) setSiteSlogan(slogan);
+      }
+    } catch (e) {
+      console.error("Failed to fetch config");
+    }
+  };
+
   if (!authenticated || !mounted) return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] flex items-center justify-center">
       <Loader2 className="animate-spin text-gray-400 dark:text-[#6ee7b7]/20" size={40} />
@@ -88,6 +108,7 @@ export default function AdminPage() {
         setTheme={setTheme}
         handleLogout={handleLogout}
         currentStats={stats}
+        siteSlogan={siteSlogan}
       />
 
       {/* Main Content Area */}

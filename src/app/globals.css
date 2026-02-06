@@ -339,6 +339,43 @@ body::before {
   color: rgb(var(--background));
 }
 
+/* Logo Carousel Scroll Animation */
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite;
+  will-change: transform;
+}
+
+.animate-scroll:hover,
+.animate-scroll.pause-animation {
+  animation-play-state: paused;
+}
+
+/* Performance Optimizations */
+.will-change-transform {
+  will-change: transform;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-scroll {
+    animation: none;
+  }
+}
+
 /* Utilities */
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {

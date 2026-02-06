@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   artistic-nav:
@@ -10,28 +10,76 @@ services:
     ports:
       - "3000:3000"
     environment:
-      # Database
-      # For SQLite (default), use a file path.
-      # For production, consider using a real database container (Postgres/MySQL) or a managed DB.
-      - DATABASE_URL=file:/app/prisma/dev.db
+      # ==========================================
+      # 数据库配置 (Database Configuration)
+      # ==========================================
       
-      # App Secrets
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123} # Change this!
+      # --- SQLite 模式 (默认，适合小内存服务器) ---
+      # 优点：零配置、单文件、内存占用极低
+      # 注意：路径相对于 prisma/schema.prisma 文件位置
+      - DB_PROVIDER=sqlite
+      - DATABASE_URL=file:./dev.db
+      
+      # --- MySQL 模式 (适合高并发) ---
+      # 取消注释以下行，并注释掉上面的 SQLite 配置
+      # - DB_PROVIDER=mysql
+      # - DATABASE_URL=mysql://root:password@mysql:3306/artistic_nav
+      
+      # ==========================================
+      # 安全相关配置
+      # ==========================================
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-changeme}
       
-      # Storage Configuration
+      # ==========================================
+      # 存储配置
       # Options: 'local' | 'oss'
+      # ==========================================
       - STORAGE_TYPE=${STORAGE_TYPE:-local}
       
-      # Aliyun OSS Config (Required if STORAGE_TYPE=oss)
-      - OSS_REGION=${OSS_REGION}
-      - OSS_ACCESS_KEY_ID=${OSS_ACCESS_KEY_ID}
-      - OSS_ACCESS_KEY_SECRET=${OSS_ACCESS_KEY_SECRET}
-      - OSS_BUCKET=${OSS_BUCKET}
-      - OSS_DOMAIN=${OSS_DOMAIN} # Optional custom domain
+      # 阿里云 OSS 配置 (仅在 STORAGE_TYPE=oss 时需要)
+      - OSS_REGION=${OSS_REGION:-}
+      - OSS_ACCESS_KEY_ID=${OSS_ACCESS_KEY_ID:-}
+      - OSS_ACCESS_KEY_SECRET=${OSS_ACCESS_KEY_SECRET:-}
+      - OSS_BUCKET=${OSS_BUCKET:-}
+      - OSS_DOMAIN=${OSS_DOMAIN:-}
       
     volumes:
-      # Persist SQLite database
+      # SQLite 数据库文件持久化 (注意：容器内路径要对应 DATABASE_URL)
       - ./prisma/dev.db:/app/prisma/dev.db
-      # Persist local uploads if using local storage
+      # 本地存储的上传文件持久化
       - ./public/uploads:/app/public/uploads
+      # 可选：映射 .env 文件以便动态修改配置
+      - ./.env:/app/.env:ro
+    
+    # 启动命令：先初始化数据库，再启动应用
+    command: >
+      sh -c "
+        echo 'Initializing database...' &&
+        npx prisma db push --accept-data-loss 2>/dev/null || true &&
+        echo 'Starting application...' &&
+        node server.js
+      "
+    
+    # 如果使用 MySQL 模式，取消注释下面的 depends_on
+    # depends_on:
+    #   - mysql
+
+  # ==========================================
+  # MySQL 服务 (仅在 MySQL 模式下需要)
+  # ==========================================
+  # mysql:
+  #   container_name: artistic-nav-mysql
+  #   image: mysql:8.0
+  #   restart: always
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=password
+  #     - MYSQL_DATABASE=artistic_nav
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #   command: --default-authentication-plugin=mysql_native_password
+
+# volumes:
+#   mysql_data:

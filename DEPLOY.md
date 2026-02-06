@@ -1,173 +1,183 @@
-# 部署指南 (Deployment Guide)
+# 阿里云 ECS 部署指南
 
-本指南包含本地开发部署和阿里云生产环境部署的详细步骤。
-
-## 1. 环境要求 (Prerequisites)
-
-- **Node.js**: v18.17.0 或更高版本
-- **包管理器**: npm (推荐) 或 yarn/pnpm
-- **数据库**: MySQL 8.0+ 或 PostgreSQL
-- **Git**: 版本控制工具
+> **服务器**: 阿里云 ECS 2核2G, Ubuntu 22.04 LTS  
+> **公网IP**: 39.102.80.128  
+> **仓库**: https://github.com/ychech/YC-Navigation
 
 ---
 
-## 2. 本地部署 (Local Deployment)
+## 🚀 一键部署 (5分钟完成)
 
-### 2.1 克隆项目
 ```bash
-git clone <your-repo-url>
-cd artistic-nav
+# 1. SSH 登录服务器
+ssh root@39.102.80.128
+
+# 2. 下载并运行部署脚本
+curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy/deploy.sh -o deploy.sh
+sudo bash deploy.sh
 ```
 
-### 2.2 安装依赖
-```bash
-npm install
-```
-
-### 2.3 配置环境变量
-复制 `.env` 文件模板：
-```bash
-cp .env.example .env
-# 或者直接创建 .env 文件
-```
-
-在 `.env` 文件中填入数据库连接信息：
-```env
-# 示例：MySQL 连接串
-DATABASE_URL="mysql://root:password@localhost:3306/artistic_nav"
-```
-
-### 2.4 初始化数据库
-```bash
-# 生成 Prisma Client
-npx prisma generate
-
-# 推送数据库结构
-npx prisma db push
-
-# (可选) 填充初始数据
-npx prisma db seed
-```
-
-### 2.5 启动开发服务器
-```bash
-npm run dev
-```
-访问 http://localhost:3000
+部署脚本会自动处理所有配置，包括：
+- 安装 Docker、Nginx、SSL 工具
+- 配置防火墙 (开放 22/80/443)
+- 拉取最新代码
+- 生成配置文件
+- 构建并启动应用
+- 配置反向代理
 
 ---
 
-## 3. 阿里云部署 (Alibaba Cloud Deployment)
+## 📁 部署文件说明
 
-本方案采用 **ECS (Ubuntu/CentOS) + Nginx + PM2** 的架构。
-
-### 3.1 准备工作
-1.  购买阿里云 ECS 实例（推荐 Ubuntu 22.04 LTS）。
-2.  配置安全组规则，开放端口：
-    *   `80` (HTTP)
-    *   `443` (HTTPS)
-    *   `22` (SSH)
-    *   `3000` (Next.js 默认端口，仅用于测试，生产环境通过 Nginx 转发)
-
-### 3.2 服务器环境配置 (在 ECS 上执行)
-
-#### 安装 Node.js
-```bash
-# 安装 NodeSource 仓库 (Node.js 20.x)
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# 验证安装
-node -v
-npm -v
+```
+deploy/
+├── deploy.sh              # 一键部署脚本
+├── docker-compose.yml     # Docker 生产配置
+├── Dockerfile             # 生产镜像构建
+├── nginx/
+│   └── artistic-nav.conf  # Nginx 配置模板
+├── .env.example           # 环境变量模板
+└── README.md              # 详细部署文档
 ```
 
-#### 安装 Nginx
+---
+
+## ⚡ 快速命令
+
+部署完成后，使用以下命令管理应用：
+
 ```bash
-sudo apt-get update
-sudo apt-get install -y nginx
+# 查看状态
+artistic-nav status
+
+# 查看日志
+artistic-nav logs
+
+# 重启应用
+artistic-nav restart
+
+# 备份数据
+artistic-nav backup
+
+# 更新代码
+artistic-nav update
+
+# 显示管理员密码
+artistic-nav admin
 ```
 
-#### 安装 PM2 (进程管理)
+---
+
+## 🔧 配置说明
+
+### 数据库选择
+
+| 类型 | 内存占用 | 适用场景 |
+|------|---------|---------|
+| **SQLite** (推荐) | ~180MB | 2C2G 服务器，个人/小团队 |
+| MySQL | ~700MB | 高并发，多用户 |
+
+> 💡 **建议**: 2C2G 配置请使用 SQLite，性能足够且省内存。
+
+### 存储选择
+
+| 类型 | 说明 |
+|------|------|
+| **本地存储** (推荐) | 文件存在服务器，简单免费 |
+| 阿里云 OSS | 高可靠，适合大规模，按量付费 |
+
+---
+
+## 🔐 安全配置
+
+首次部署后，请立即：
+
+1. **修改管理员密码**
+   - 访问: http://39.102.80.128/admin
+   - 默认账号: `admin`
+   - 密码查看: `artistic-nav admin`
+
+2. **配置 HTTPS** (如果有域名)
 ```bash
-sudo npm install -g pm2
-```
-
-### 3.3 部署项目
-
-#### 拉取代码
-```bash
-cd /var/www
-sudo git clone <your-repo-url> artistic-nav
-cd artistic-nav
-```
-
-#### 安装依赖与构建
-```bash
-# 安装依赖
-npm install
-
-# 配置环境变量 (生产环境)
-vim .env
-# 粘贴你的 DATABASE_URL
-
-# 初始化数据库
-npx prisma generate
-npx prisma db push
-
-# 构建项目
-npm run build
-```
-
-#### 使用 PM2 启动
-```bash
-pm2 start npm --name "artistic-nav" -- start
-pm2 save
-pm2 startup
-```
-
-### 3.4 配置 Nginx 反向代理
-
-编辑 Nginx 配置文件：
-```bash
-sudo vim /etc/nginx/sites-available/artistic-nav
-```
-
-写入以下内容：
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com www.your-domain.com; # 替换为你的域名
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-启用配置并重启 Nginx：
-```bash
-sudo ln -s /etc/nginx/sites-available/artistic-nav /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-```
-
-### 3.5 (可选) 配置 HTTPS (SSL 证书)
-使用 Certbot 自动配置 Let's Encrypt 证书：
-```bash
-sudo apt-get install -y certbot python3-certbot-nginx
+# 安装 SSL 证书 (替换为你的域名)
 sudo certbot --nginx -d your-domain.com
 ```
 
 ---
 
-## 4. 常见问题 (Troubleshooting)
+## 📊 目录结构
 
-- **构建报错 (Heap Out of Memory)**: 尝试增加 Node 内存限制 `NODE_OPTIONS="--max-old-space-size=4096" npm run build`
-- **数据库连接失败**: 检查 ECS 安全组是否允许出入站连接，检查 `.env` 中的数据库地址是否正确。
-- **502 Bad Gateway**: 检查 PM2 进程是否正常运行 (`pm2 list`)，检查 Next.js 端口是否为 3000。
+部署后服务器上的文件结构：
+
+```
+/opt/artistic-nav/
+├── data/              # SQLite 数据库
+├── uploads/           # 上传的文件
+├── logs/              # 应用日志
+├── backups/           # 自动备份
+├── .env               # 环境配置 (保密)
+├── .admin_password    # 初始密码 (保密)
+└── ...                # 源代码
+```
+
+---
+
+## 🐛 常见问题
+
+### 应用无法访问
+
+```bash
+# 检查服务状态
+artistic-nav status
+
+# 检查 Nginx
+curl http://localhost:3000
+sudo nginx -t
+```
+
+### 内存不足
+
+```bash
+# 添加 2G Swap
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+```
+
+### 数据库错误
+
+```bash
+# 检查数据库权限
+sudo chown -R 1001:1001 /opt/artistic-nav/data/
+
+# 重新初始化
+docker-compose exec -T nextjs npx prisma db push
+```
+
+---
+
+## 🔄 自动更新 (GitHub Actions)
+
+已配置 GitHub Actions 自动部署，需要设置 Secrets：
+
+1. 打开仓库 Settings → Secrets and variables → Actions
+2. 添加以下 secrets:
+   - `ECS_HOST`: 39.102.80.128
+   - `ECS_USER`: root
+   - `ECS_SSH_KEY`: 你的 SSH 私钥
+
+推送代码到 main 分支会自动部署到服务器。
+
+---
+
+## 📚 详细文档
+
+查看完整部署文档: [deploy/README.md](deploy/README.md)
+
+包含：
+- 手动部署步骤
+- SSL 详细配置
+- 故障排查
+- 安全加固
+- 数据备份恢复

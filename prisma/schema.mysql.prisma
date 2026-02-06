@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        Int    @id @default(autoincrement())
+  name      String @unique
+  sortOrder Int    @default(0)
+  links     Link[]
+}
+
+model Link {
+  id          Int      @id @default(autoincrement())
+  title       String
+  url         String
+  icon        String?
+  snapshotUrl String?  @db.Text
+  description String?  @db.Text
+  clicks      Int      @default(0)
+  categoryId  Int
+  sortOrder   Int      @default(0)
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model GalleryImage {
+  id        Int      @id @default(autoincrement())
+  url       String
+  title     String?
+  createdAt DateTime @default(now())
+}
+
+model AboutContent {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.Text
+  description String   @db.Text
+  updatedAt   DateTime @updatedAt
+}
+
+model SiteConfig {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String @db.Text
+}
+
+model HeroSlide {
+  id          Int      @id @default(autoincrement())
+  title       String
+  subtitle    String   @db.Text
+  codeSnippet String?  @db.Text
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
