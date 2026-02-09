@@ -57,7 +57,7 @@ export const Hero = ({ title, subtitle, categories = [], systemCode = "Archive.O
         {/* 3D 地球 */}
         <div className="absolute inset-0 z-0">
           <motion.div style={{ opacity }} className="w-full h-full">
-            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.08),transparent_60%)]" />
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15),transparent_60%)] dark:bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.08),transparent_60%)]" />
             <WorldGlobe />
           </motion.div>
         </div>
