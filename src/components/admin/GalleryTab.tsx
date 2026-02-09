@@ -27,7 +27,11 @@ export function GalleryTab() {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    const res = await fetch("/api/upload", { 
+      method: "POST", 
+      credentials: "include",
+      body: formData 
+    });
     const data = await res.json();
 
     setNewGalleryImg({ ...newGalleryImg, url: data.url });

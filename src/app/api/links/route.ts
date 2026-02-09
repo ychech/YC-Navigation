@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
-  const { title, url, icon, snapshotUrl, description, categoryId } = await req.json();
+  const { title, url, icon, snapshotUrl, description, categoryId, tag } = await req.json();
   
   // Get max sortOrder for this category
   const lastLink = await prisma.link.findFirst({
@@ -20,6 +20,7 @@ export async function POST(req: Request) {
       description,
       categoryId: parseInt(categoryId),
       sortOrder: newSortOrder,
+      tag: tag || null,
     },
   });
   return NextResponse.json(link);
@@ -45,7 +46,7 @@ export async function PUT(req: Request) {
     }
   }
 
-  const { id, title, url, icon, snapshotUrl, description, categoryId } = body;
+  const { id, title, url, icon, snapshotUrl, description, categoryId, tag } = body;
   const link = await prisma.link.update({
     where: { id: parseInt(id) },
     data: {
@@ -55,6 +56,7 @@ export async function PUT(req: Request) {
       snapshotUrl,
       description,
       categoryId: parseInt(categoryId),
+      tag: tag || null,
     },
   });
   return NextResponse.json(link);

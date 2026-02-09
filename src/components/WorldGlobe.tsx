@@ -287,7 +287,7 @@ function useEarthTextures() {
 // --- Components ---
 
 // Optimized Particles - Floating Stardust (Reduced count for performance)
-const Particles = memo(({ count = 3000 }: { count?: number }) => {
+const Particles = memo(({ count = 1000 }: { count?: number }) => {
   const points = useRef<THREE.Points>(null);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
@@ -412,28 +412,28 @@ function Earth({ textures, hasError }: { textures: any, hasError: boolean }) {
     );
   }
 
-  // Dark Mode: Realistic Style
+  // Dark Mode: Realistic Earth
   return (
     <group rotation={[0, 0, Math.PI / 6]}>
-      {/* Main Earth Body - Realistic Style */}
+      {/* Main Earth Body */}
       <Sphere ref={earthRef} args={[2.2, 64, 64]}>
         <meshStandardMaterial
           map={textures.map!} 
           normalMap={textures.normal || undefined}
-          roughness={0.7} 
-          metalness={0.1}
-          color="#ffffff" // Pure white base for natural color
+          roughness={0.5} 
+          metalness={0.05}
+          color="#e8f4ff"
         />
       </Sphere>
 
-      {/* Clouds Layer - Realistic */}
+      {/* Clouds Layer */}
       {textures.clouds && (
-        <Sphere ref={cloudsRef} args={[2.23, 64, 64]}>
+        <Sphere ref={cloudsRef} args={[2.24, 32, 32]}>
           <meshPhongMaterial
             map={textures.clouds}
             transparent
-            opacity={0.8} 
-            color="#ffffff" // Pure white clouds
+            opacity={0.7}
+            color="#ffffff"
             depthWrite={false}
             blending={THREE.AdditiveBlending}
             side={THREE.DoubleSide}
@@ -464,11 +464,9 @@ function RealisticSun() {
   if (!isDark) return null;
 
   return (
-    <group position={[15, 8, -20]}> {/* Further away to reduce perspective distortion */}
-      {/* Billboard ensures the plane always faces the camera */}
+    <group position={[15, 8, -20]}>
       <Billboard follow={true} lockX={false} lockY={false} lockZ={false}>
-        {/* Plane Geometry serves as the canvas for the 2D shader that simulates a sphere */}
-        <Plane args={[10, 10]}> 
+        <Plane args={[8, 8]}>
           {/* @ts-ignore */}
           <sunMaterial 
             ref={sunMatRef} 
@@ -520,14 +518,24 @@ export default function WorldGlobe() {
         gl={{ antialias: true, alpha: true, premultipliedAlpha: false }}
         style={{ outline: 'none', background: 'transparent' }}
       >
-        <ambientLight intensity={0.05} />
+        <ambientLight intensity={0.4} />
         
+        {/* Main Sun Light - Bright and Warm */}
         <directionalLight 
-          position={[12, 6, -5]}
+          position={[10, 5, 10]}
           intensity={2.5} 
-          color="#fff7ed"
-          castShadow 
+          color="#fff8f0"
         />
+        
+        {/* Fill Light - Soft Blue from opposite */}
+        <directionalLight 
+          position={[-8, -3, -8]}
+          intensity={0.8} 
+          color="#aaccff"
+        />
+        
+        {/* Rim Light for edge glow */}
+        <pointLight position={[0, 0, 12]} intensity={1.2} color="#88ccff" />
         
         <pointLight position={[-10, -10, -5]} intensity={0.1} color="#1e3a8a" /> 
         

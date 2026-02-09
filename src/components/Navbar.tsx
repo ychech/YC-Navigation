@@ -103,11 +103,11 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-6 flex justify-between items-center transition-all duration-500 border-b border-gray-200 dark:border-white/5"
+      className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-5 flex justify-between items-center transition-all duration-500 bg-white/60 dark:bg-[#020617]/60 backdrop-blur-2xl border-b border-gray-200/50 dark:border-white/[0.05]"
     >
       <motion.div 
         style={{ scaleX: scrollYProgress }}
-        className="absolute bottom-0 left-0 right-0 h-[1px] bg-indigo-500/30 origin-left"
+        className="absolute -bottom-px left-4 right-4 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent origin-left rounded-full"
       />
 
       <div className="flex items-center gap-12">
@@ -152,7 +152,7 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
         <div className="flex gap-3 items-center">
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.05] text-gray-500 hover:text-indigo-500 transition-all shadow-sm"
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-white/60 dark:bg-white/[0.05] border border-white/60 dark:border-white/[0.08] text-gray-500 hover:text-indigo-500 hover:bg-white dark:hover:bg-white/[0.08] transition-all duration-300 shadow-sm hover:shadow-md"
           >
             <Search size={16} strokeWidth={2.5} />
           </button>
@@ -160,7 +160,7 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.05] text-gray-500 hover:text-indigo-500 transition-all shadow-sm"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/60 dark:bg-white/[0.05] border border-white/60 dark:border-white/[0.08] text-gray-500 hover:text-indigo-500 hover:bg-white dark:hover:bg-white/[0.08] transition-all duration-300 shadow-sm hover:shadow-md"
             >
               {theme === "dark" ? <Sun size={16} strokeWidth={2.5} /> : <Moon size={16} strokeWidth={2.5} />}
             </button>

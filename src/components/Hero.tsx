@@ -39,8 +39,8 @@ export const Hero = ({ title, subtitle, categories = [], systemCode = "Archive.O
         {/* HUD 装饰 */}
         <div className="absolute left-6 md:left-12 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-8 z-10 pointer-events-none opacity-30">
            <div className="flex flex-col gap-2">
-             <div className="flex items-center gap-2 text-[10px] text-[#6366f1] font-mono tracking-widest">
-               <div className="w-1.5 h-1.5 bg-[#6366f1]" /> SYSTEM
+             <div className="flex items-center gap-2 text-[10px] text-[#1d4ed8] font-mono tracking-widest">
+               <div className="w-1.5 h-1.5 bg-[#1d4ed8] animate-pulse" /> SYSTEM
              </div>
              <div className="text-[9px] text-gray-500 font-mono">
                CORE: ONLINE<br/>NET: CONNECTED
@@ -57,7 +57,7 @@ export const Hero = ({ title, subtitle, categories = [], systemCode = "Archive.O
         {/* 3D 地球 */}
         <div className="absolute inset-0 z-0">
           <motion.div style={{ opacity }} className="w-full h-full">
-            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15),transparent_60%)] dark:bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.08),transparent_60%)]" />
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(29,78,216,0.15),transparent_60%)] dark:bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.12),transparent_60%)]" />
             <WorldGlobe />
           </motion.div>
         </div>
@@ -72,23 +72,33 @@ export const Hero = ({ title, subtitle, categories = [], systemCode = "Archive.O
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="flex items-center justify-center gap-4 text-indigo-500 font-black text-[10px] tracking-[0.8em] uppercase"
+              className="flex items-center justify-center gap-4 text-blue-700 dark:text-cyan-400 font-black text-[10px] tracking-[0.8em] uppercase"
             >
-              <span className="text-indigo-500 font-mono">&gt;_</span>
-              <span>{systemCode} // Core</span>
+              <span className="text-blue-700 dark:text-cyan-400 font-mono animate-pulse">&gt;_</span>
+              <span className="dark:text-cyan-300/80">{systemCode} // Core</span>
             </motion.div>
             
-            <h1 className="text-3xl md:text-5xl text-gray-900 dark:text-white leading-tight tracking-tighter relative z-10 font-mono transition-colors duration-500">
-              {title}
-            </h1>
+            {/* 主标题 - 霓虹效果 */}
+            <motion.h1 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, delay: 0.2 }}
+              className="text-3xl md:text-5xl lg:text-6xl text-gray-900 dark:text-white leading-tight tracking-tighter relative z-10 font-mono transition-colors duration-500"
+            >
+              <span className="relative bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-500 dark:from-white dark:via-cyan-100 dark:to-blue-200">
+                {title}
+              </span>
+            </motion.h1>
             
+            {/* 副标题 */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.5, delay: 0.3 }}
-              className="text-gray-600 dark:text-gray-400 text-sm md:text-base max-w-2xl mx-auto px-12 transition-colors duration-500">
-            >
-              {subtitle}
+              className="text-gray-600 dark:text-cyan-100/70 text-sm md:text-base lg:text-lg max-w-2xl mx-auto px-12 transition-colors duration-500 font-light tracking-wide">
+              <span className="dark:text-gray-400">
+                {subtitle}
+              </span>
             </motion.p>
 
             {/* 搜索按钮 */}
@@ -99,9 +109,9 @@ export const Hero = ({ title, subtitle, categories = [], systemCode = "Archive.O
               onClick={() => setIsSearchOpen(true)}
               className="group relative flex items-center gap-4 px-6 py-3 rounded-full bg-white border border-gray-200 hover:bg-gray-50 dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10 transition-all w-full max-w-md mx-auto"
             >
-              <Search size={16} className="text-gray-500" />
-              <span className="text-sm text-gray-400">Type to search...</span>
-              <div className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded bg-black/20 text-[10px] text-gray-400 font-mono">
+              <Search size={16} className="text-gray-500 dark:text-gray-400" />
+              <span className="text-sm text-gray-400 dark:text-gray-500">Type to search...</span>
+              <div className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded bg-black/20 dark:bg-white/10 text-[10px] text-gray-400 dark:text-gray-500 font-mono">
                 <Command size={10} /> K
               </div>
             </motion.button>

@@ -26,7 +26,30 @@ export default async function Home() {
   ]);
 
   const configMap = Object.fromEntries(siteConfigs.map(c => [c.key, c.value]));
-
+  
+  // 获取精选链接（从配置中读取）
+  const allLinks = categories.flatMap(cat => cat.links || []);
+  let featuredLinks: typeof allLinks = [];
+  
+  try {
+    const featuredConfig = configMap.featured_links;
+    if (featuredConfig) {
+      const featuredIds: number[] = JSON.parse(featuredConfig);
+      featuredLinks = featuredIds
+        .map(id => allLinks.find(link => link.id === id))
+        .filter(Boolean) as typeof allLinks;
+    }
+  } catch {
+    // 如果没有配置或解析失败，不显示精选
+  }
+  
+  // 如果没有配置精选，默认取点击率最高的3个
+  if (featuredLinks.length === 0) {
+    featuredLinks = allLinks
+      .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
+      .slice(0, 3);
+  }
+  
   return (
     <main className="min-h-screen bg-[#020617] dark:bg-[#020617] bg-slate-50 dark:text-white text-slate-900 transition-colors duration-300 relative selection:bg-indigo-500/30">
       <GlobalSpotlight />
@@ -41,13 +64,13 @@ export default async function Home() {
       />
 
       {/* Visual Transition Zone - Overlapping with Hero */}
-      <div className="relative w-full h-[300px] -mt-[150px] z-10 pointer-events-none">
+      <div className="relative w-full h-[200px] -mt-[100px] z-10 pointer-events-none">
         <StarFieldTransition />
-        <div className="absolute inset-0 flex items-center justify-center opacity-50 dark:opacity-50 opacity-20">
+        <div className="absolute inset-0 flex items-center justify-center opacity-30">
           <ParticleWave />
         </div>
-        {/* Gradient Mask for Seamless Blend - Almost transparent in light mode to remove 'dirty' look */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/5 to-slate-50 dark:via-[#020617]/80 dark:to-[#020617]" />
+        {/* Gradient Mask for Seamless Blend */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
       </div>
 
       <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 xl:px-24 pb-20 relative z-10 -mt-20">
@@ -55,14 +78,14 @@ export default async function Home() {
         <div id="directory" className="space-y-32">
           {categories.map((category, idx) => (
             <div key={category.id} id={`category-${category.id}`} className="relative group scroll-mt-32">
-              {/* Special Carousel for first category */}
+              {/* Logo Carousel - 第一个分类标题上方 */}
               {idx === 0 && category.links && category.links.length > 0 && (
-                 <div className="mb-16 -mt-8">
-                   <LogoCarousel links={category.links} />
+                 <div className="mb-8">
+                   <LogoCarousel links={category.links.slice(0, 8)} />
                  </div>
               )}
 
-              {/* Sticky Category Navigation - Placed inside content flow, specifically after AI Carousel if present */}
+              {/* Sticky Category Navigation -->
               {idx === 0 && (
                  <div className="mb-12 sticky top-4 z-40 flex justify-center pointer-events-none">
                     <div className="pointer-events-auto">
@@ -80,7 +103,11 @@ export default async function Home() {
                 count={category.links?.length || 0} 
               />
               
-              <LinkGrid links={category.links} categoryIndex={idx} />
+              <LinkGrid 
+                links={category.links} 
+                categoryIndex={idx} 
+                featuredLinks={featuredLinks}
+              />
             </div>
           ))}
         </div>

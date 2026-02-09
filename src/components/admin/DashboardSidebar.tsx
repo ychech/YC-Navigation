@@ -22,7 +22,17 @@ interface DashboardSidebarProps {
     totalGallery: number;
   };
   siteSlogan?: string;
+  adminTitles?: Record<string, string>;
 }
+
+// 默认菜单标题
+const DEFAULT_MENU_TITLES: Record<string, string> = {
+  links: "链接管理",
+  gallery: "图库管理",
+  hero: "首页轮播",
+  about: "关于页面",
+  config: "系统配置"
+};
 
 export function DashboardSidebar({
   activeTab,
@@ -33,14 +43,20 @@ export function DashboardSidebar({
   setTheme,
   handleLogout,
   currentStats,
-  siteSlogan = "ARCHIVE.OS"
+  siteSlogan = "ART.NAV",
+  adminTitles = {}
 }: DashboardSidebarProps) {
+  // 获取菜单标题（使用传入的或默认的）
+  const getMenuTitle = (tab: Tab) => {
+    return adminTitles[tab] || DEFAULT_MENU_TITLES[tab];
+  };
+
   return (
     <aside className={`${isSidebarCollapsed ? "w-24" : "w-80"} border-r border-gray-100 dark:border-white/[0.03] bg-white/40 dark:bg-[#0a0a0a]/40 backdrop-blur-3xl flex flex-col p-8 z-20 shrink-0 relative overflow-hidden transition-all duration-700 ease-out`}>
       {/* Sidebar Collapse Toggle */}
       <button 
         onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        className="absolute -right-3 top-24 w-6 h-12 bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/10 rounded-full flex items-center justify-center text-gray-400 hover:text-indigo-500 dark:hover:text-[#6ee7b7] transition-all z-30 shadow-xl group"
+        className="absolute -right-3 top-44 w-6 h-12 bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/10 rounded-full flex items-center justify-center text-gray-400 hover:text-indigo-500 dark:hover:text-[#6ee7b7] transition-all z-30 shadow-xl group"
       >
         {isSidebarCollapsed ? <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" /> : <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />}
       </button>
@@ -95,11 +111,7 @@ export function DashboardSidebar({
             
             {!isSidebarCollapsed && (
               <span className="relative z-10 flex-1 text-left whitespace-nowrap font-black">
-                {tab === "links" && "档案索引"}
-                {tab === "gallery" && "视觉陈列"}
-                {tab === "hero" && "Hero 轮播"}
-                {tab === "about" && "馆主自传"}
-                {tab === "config" && "系统核心"}
+                {getMenuTitle(tab)}
               </span>
             )}
           </button>

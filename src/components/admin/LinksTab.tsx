@@ -20,6 +20,7 @@ interface Link {
   url: string;
   icon?: string;
   description?: string;
+  tag?: string;
   categoryId: string;
   snapshotUrl?: string;
   order?: number;
@@ -41,7 +42,7 @@ export function LinksTab() {
   const ITEMS_PER_PAGE = 2;
 
   // Forms state
-  const [newLink, setNewLink] = useState<Partial<Link>>({ title: "", url: "", icon: "", description: "", categoryId: "", snapshotUrl: "" });
+  const [newLink, setNewLink] = useState<Partial<Link> & { tag?: string }>({ title: "", url: "", icon: "", description: "", categoryId: "", snapshotUrl: "", tag: "" });
   const [newCategory, setNewCategory] = useState("");
   const [editingLink, setEditingLink] = useState<Link | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -51,9 +52,39 @@ export function LinksTab() {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
 
+  // 标签列表
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+
   useEffect(() => {
     fetchCategories();
+    fetchTags();
   }, []);
+
+  const fetchTags = async () => {
+    try {
+      const res = await fetch("/api/config");
+      if (res.ok) {
+        const configs = await res.json();
+        const tagsConfig = configs.find((c: any) => c.key === "link_tags");
+        if (tagsConfig) {
+          try {
+            const tags = JSON.parse(tagsConfig.value);
+            if (Array.isArray(tags) && tags.length > 0) {
+              setAvailableTags(tags);
+            } else {
+              setAvailableTags(["热门", "推荐", "官方", "工具", "资源"]);
+            }
+          } catch {
+            setAvailableTags(["热门", "推荐", "官方", "工具", "资源"]);
+          }
+        } else {
+          setAvailableTags(["热门", "推荐", "官方", "工具", "资源"]);
+        }
+      }
+    } catch {
+      setAvailableTags(["热门", "推荐", "官方", "工具", "资源"]);
+    }
+  };
 
   const fetchCategories = async () => {
     const res = await fetch("/api/categories");
@@ -138,7 +169,7 @@ export function LinksTab() {
     e.preventDefault();
     if (!newLink.categoryId) return toast.error("请选择分类");
     await fetch("/api/links", { method: "POST", body: JSON.stringify(newLink) });
-    setNewLink({ title: "", url: "", icon: "", description: "", categoryId: "", snapshotUrl: "" });
+    setNewLink({ title: "", url: "", icon: "", description: "", categoryId: "", snapshotUrl: "", tag: "" });
     setIsLinkModalOpen(false);
     toast.success("链接已添加");
     fetchCategories();
@@ -201,20 +232,54 @@ export function LinksTab() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
-    const data = await res.json();
-
-    if (type === 'link') {
-      if (editingLink) setEditingLink({ ...editingLink, icon: data.url });
-      else setNewLink({ ...newLink, icon: data.url });
-    } else if (type === 'snapshot') {
-      if (editingLink) setEditingLink({ ...editingLink, snapshotUrl: data.url });
-      else setNewLink({ ...newLink, snapshotUrl: data.url });
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+      toast.error('请选择图片文件');
+      return;
     }
-    toast.success("文件上传成功");
+
+    // 验证文件大小 (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('文件大小不能超过5MB');
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", { 
+        method: "POST", 
+        credentials: "include",
+        body: formData 
+      });
+      
+      const data = await res.json();
+      
+      if (res.status === 401) {
+        toast.error('登录已过期，请重新登录');
+        localStorage.removeItem('admin_auth');
+        window.location.href = '/admin/login';
+        return;
+      }
+      
+      if (!res.ok || data.error) {
+        toast.error(data.error || '上传失败');
+        return;
+      }
+
+      if (type === 'link') {
+        if (editingLink) setEditingLink({ ...editingLink, icon: data.url });
+        else setNewLink({ ...newLink, icon: data.url });
+      } else if (type === 'snapshot') {
+        if (editingLink) setEditingLink({ ...editingLink, snapshotUrl: data.url });
+        else setNewLink({ ...newLink, snapshotUrl: data.url });
+      }
+      toast.success("文件上传成功");
+    } catch (error) {
+      toast.error('上传出错，请重试');
+      console.error('Upload error:', error);
+    }
   };
 
   const fetchLinkTitle = async (url: string) => {
@@ -379,8 +444,76 @@ export function LinksTab() {
                 placeholder="编码简短上下文..."
                 value={editingLink ? editingLink.description : newLink.description}
                 onChange={(e) => editingLink ? setEditingLink({...editingLink, description: e.target.value}) : setNewLink({ ...newLink, description: e.target.value })}
-                className="w-full bg-gray-50/50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 rounded-[24px] px-6 py-6 text-sm font-medium focus:outline-none glow-border transition-all min-h-[140px] resize-none leading-relaxed text-gray-900 dark:text-white"
+                className="w-full bg-gray-50/50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 rounded-[24px] px-6 py-6 text-sm font-medium focus:outline-none glow-border transition-all min-h-[100px] resize-none leading-relaxed text-gray-900 dark:text-white"
               />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[9px] uppercase tracking-[0.5em] text-gray-400 font-black ml-1 opacity-50">标签</label>
+              {/* 已选标签 */}
+              <div className="flex flex-wrap gap-2 min-h-[40px] p-3 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 rounded-2xl">
+                {(editingLink ? (editingLink as any).tag || "" : (newLink as any).tag || "")
+                  .split(',')
+                  .map((t: string) => t.trim())
+                  .filter(Boolean)
+                  .map((tag: string, idx: number) => (
+                    <span 
+                      key={idx}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-full"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const currentTags = (editingLink ? (editingLink as any).tag || "" : (newLink as any).tag || "")
+                            .split(',')
+                            .map((t: string) => t.trim())
+                            .filter((t: string) => t !== tag)
+                            .join(', ');
+                          if (editingLink) setEditingLink({...editingLink, tag: currentTags});
+                          else setNewLink({ ...newLink, tag: currentTags });
+                        }}
+                        className="hover:text-red-500"
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+                {(editingLink ? (editingLink as any).tag || "" : (newLink as any).tag || "").split(',').filter(Boolean).length === 0 && (
+                  <span className="text-gray-400 text-sm">点击选择标签...</span>
+                )}
+              </div>
+              {/* 可选标签 */}
+              <div className="flex flex-wrap gap-2">
+                {availableTags.map((tag) => {
+                  const currentTagsStr = editingLink ? (editingLink as any).tag || "" : (newLink as any).tag || "";
+                  const currentTags = currentTagsStr.split(',').map((t: string) => t.trim()).filter(Boolean);
+                  const isSelected = currentTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => {
+                        let newTags;
+                        if (isSelected) {
+                          newTags = currentTags.filter((t: string) => t !== tag);
+                        } else {
+                          newTags = [...currentTags, tag];
+                        }
+                        const tagsStr = newTags.join(', ');
+                        if (editingLink) setEditingLink({...editingLink, tag: tagsStr});
+                        else setNewLink({ ...newLink, tag: tagsStr });
+                      }}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-full transition-all ${
+                        isSelected
+                          ? 'bg-indigo-500 text-white'
+                          : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
+                      }`}
+                    >
+                      {isSelected ? '✓ ' : '+ '}{tag}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <div className="flex gap-3 pt-6">
               <button type="submit" className="flex-1 bg-gray-900 dark:bg-white text-white dark:text-black py-5 rounded-2xl text-[10px] uppercase tracking-[0.4em] font-black hover:bg-indigo-600 dark:hover:bg-[#6ee7b7] dark:hover:text-black transition-all shadow-2xl hover:shadow-indigo-500/20 dark:hover:shadow-[#6ee7b7]/20 active:scale-[0.98]">

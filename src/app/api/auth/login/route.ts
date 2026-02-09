@@ -14,7 +14,21 @@ export async function POST(req: Request) {
   const validPassword = storedPassword ? storedPassword.value : defaultPassword;
 
   if (password === validPassword) {
-    return NextResponse.json({ success: true });
+    // Create session cookie
+    const response = NextResponse.json({ success: true });
+    const timestamp = Date.now();
+    const sessionValue = `${timestamp}:authenticated`;
+    
+    // Set cookie - 24 hours expiry
+    response.cookies.set("admin_session", sessionValue, {
+      httpOnly: true,
+      secure: false, // Allow http for localhost
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60, // 24 hours in seconds
+      path: "/",
+    });
+    
+    return response;
   } else {
     return NextResponse.json({ success: false, message: "密码错误" }, { status: 401 });
   }

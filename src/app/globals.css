@@ -10,7 +10,7 @@
     --card-foreground: 9, 9, 11;
     --popover: 255, 255, 255;
     --popover-foreground: 9, 9, 11;
-    --primary: 99, 102, 241; /* Indigo-500 for blue version */
+    --primary: 29, 78, 216; /* Blue-700 for navy theme */
     --primary-foreground: 255, 255, 255;
     --nm-flat: 6px 6px 12px #e2e2e2, -6px -6px 12px #ffffff;
     --nm-inset: inset 4px 4px 8px #e2e2e2, inset -4px -4px 8px #ffffff;
@@ -23,7 +23,7 @@
     --card-foreground: 250, 250, 250;
     --popover: 12, 12, 12;
     --popover-foreground: 250, 250, 250;
-    --primary: 99, 102, 241; /* Indigo-500 */
+    --primary: 29, 78, 216; /* Blue-700 */
     --primary-foreground: 255, 255, 255;
     --nm-flat: 10px 10px 20px rgba(0, 0, 0, 0.4), -5px -5px 15px rgba(255, 255, 255, 0.02);
     --nm-inset: inset 6px 6px 12px rgba(0, 0, 0, 0.4), inset -3px -3px 10px rgba(255, 255, 255, 0.01);
@@ -44,8 +44,8 @@
 }
 
 .glow-border:focus-within {
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2), 0 0 15px rgba(99, 102, 241, 0.1);
-  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.2), 0 0 15px rgba(29, 78, 216, 0.1);
+  border-color: rgba(29, 78, 216, 0.4);
 }
 
 .slant-decor {
@@ -60,7 +60,7 @@
   left: 0;
   width: 4px;
   height: 100%;
-  background: #6366f1; /* Blue for homepage */
+  background: #1d4ed8; /* Navy blue for homepage */
   transform: skewX(-15deg);
   transform-origin: top;
 }
@@ -75,7 +75,7 @@
   .custom-cursor {
     width: 20px;
     height: 20px;
-    background: rgba(99, 102, 241, 0.3);
+    background: rgba(29, 78, 216, 0.3);
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
@@ -87,7 +87,7 @@
   .custom-cursor-inner {
     width: 4px;
     height: 4px;
-    background: rgb(99, 102, 241);
+    background: rgb(29, 78, 216);
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
@@ -118,12 +118,12 @@
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+  background: radial-gradient(circle at 50% 50%, rgba(29, 78, 216, 0.05) 0%, transparent 70%);
   animation: inkFlowMove 20s ease-in-out infinite alternate;
 }
 
 .dark .ink-flow-bg {
-  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.03) 0%, transparent 70%);
+  background: radial-gradient(circle at 50% 50%, rgba(29, 78, 216, 0.03) 0%, transparent 70%);
 }
 
 @keyframes inkFlowMove {
@@ -138,18 +138,18 @@
   letter-spacing: -0.05em;
   font-weight: 900;
   line-height: 0.9;
-  filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.15));
+  filter: drop-shadow(0 0 15px rgba(29, 78, 216, 0.15));
 }
 
 .dark .archive-title {
-  filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.2));
+  filter: drop-shadow(0 0 25px rgba(29, 78, 216, 0.2));
 }
 
 /* Dynamic Grid Background */
 .dynamic-grid {
   background-image: 
-    linear-gradient(to right, rgba(99, 102, 241, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(29, 78, 216, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(29, 78, 216, 0.05) 1px, transparent 1px);
   background-size: 4rem 4rem;
   animation: gridFlow 60s linear infinite;
 }
@@ -187,7 +187,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.03), transparent 70%);
+  background: radial-gradient(circle at 50% 50%, rgba(29, 78, 216, 0.03), transparent 70%);
   pointer-events: none;
   z-index: -1;
 }
@@ -208,7 +208,7 @@ body::before {
 
 /* Neumorphism Utilities - Refined & Subtle */
 .nm-flat {
-  box-shadow: 8px 8px 16px rgba(99, 102, 241, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.7);
+  box-shadow: 8px 8px 16px rgba(29, 78, 216, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.7);
   border-radius: 20px;
   background: rgb(var(--background));
   transition: all 0.4s ease;
@@ -219,7 +219,7 @@ body::before {
 }
 
 .nm-inset {
-  box-shadow: inset 4px 4px 8px rgba(99, 102, 241, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.7);
+  box-shadow: inset 4px 4px 8px rgba(29, 78, 216, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.7);
   border-radius: 20px;
   background: rgb(var(--background));
 }
@@ -237,13 +237,13 @@ body::before {
 }
 
 .btn-action:hover {
-  @apply text-[#6366f1] scale-[1.02];
-  box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.1);
-  border-color: rgba(99, 102, 241, 0.2);
+  @apply text-[#1d4ed8] scale-[1.02];
+  box-shadow: 0 10px 20px -5px rgba(29, 78, 216, 0.1);
+  border-color: rgba(29, 78, 216, 0.2);
 }
 
 .btn-action.active {
-  @apply bg-[#6366f1] text-white border-transparent shadow-lg shadow-[#6366f1]/20;
+  @apply bg-[#1d4ed8] text-white border-transparent shadow-lg shadow-[#1d4ed8]/20;
 }
 
 /* Dashboard Sidebar Item */
@@ -256,7 +256,7 @@ body::before {
 }
 
 .sidebar-link.active {
-  @apply bg-[#6366f1] text-white shadow-lg shadow-[#6366f1]/20;
+  @apply bg-[#1d4ed8] text-white shadow-lg shadow-[#1d4ed8]/20;
 }
 
 /* Ink Bleed Card Style - Refined for Clarity */
@@ -275,10 +275,10 @@ body::before {
   position: absolute;
   inset: -2px; /* Slightly tighter bleed area */
   background: linear-gradient(135deg, 
-    rgba(99, 102, 241, 0.4), 
-    rgba(168, 85, 247, 0.4), 
-    rgba(236, 72, 153, 0.4),
-    rgba(99, 102, 241, 0.4)
+    rgba(29, 78, 216, 0.4), 
+    rgba(37, 99, 235, 0.4), 
+    rgba(59, 130, 246, 0.4),
+    rgba(29, 78, 216, 0.4)
   );
   background-size: 300% 300%;
   border-radius: 34px;

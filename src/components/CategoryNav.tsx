@@ -41,7 +41,7 @@ export const CategoryNav = ({ categories }: CategoryNavProps) => {
   };
 
   return (
-    <div className="inline-flex items-center p-1.5 rounded-full bg-white/60 dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200/60 dark:border-white/[0.06] shadow-lg shadow-black/5 dark:shadow-black/20">
+    <div className="inline-flex items-center p-1.5 rounded-full bg-white/40 dark:bg-white/[0.02] backdrop-blur-xl border border-white/60 dark:border-white/[0.08] shadow-[0_4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
       <div className="flex items-center gap-1">
         {categories.map((cat, index) => {
           const isActive = activeCategory === cat.id;
@@ -55,7 +55,7 @@ export const CategoryNav = ({ categories }: CategoryNavProps) => {
               {isActive && (
                 <motion.div
                   layoutId="activeTab"
-                  className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full shadow-lg shadow-indigo-500/25"
+                  className="absolute inset-0 bg-gradient-to-r from-gray-600 to-gray-500 dark:from-gray-600 dark:to-gray-500 rounded-full shadow-lg shadow-gray-600/25"
                   transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
                 />
               )}

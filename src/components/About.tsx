@@ -91,7 +91,7 @@ export const About = ({ content, slides = [] }: AboutProps) => {
 
   return (
     <div 
-      className="relative py-32 overflow-hidden bg-[#080808] dark:bg-[#080808] bg-white dark:text-white text-black border-t border-gray-200 dark:border-white/5 transition-colors duration-300"
+      className="relative py-16 overflow-hidden bg-[#080808] dark:bg-[#080808] bg-white dark:text-white text-black border-t border-gray-200 dark:border-white/5 transition-colors duration-300"
       onMouseMove={handleMouseMove}
     >
       <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white via-white/50 to-transparent dark:from-[#020617] dark:via-[#020617]/50 pointer-events-none z-20" />
@@ -108,8 +108,38 @@ export const About = ({ content, slides = [] }: AboutProps) => {
         />
       </div>
 
+      {/* 左侧装饰 */}
+      <div className="absolute left-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col items-center gap-4 z-10">
+        <div className="w-[1px] h-20 bg-gradient-to-b from-transparent via-indigo-500/30 to-transparent" />
+        <div className="flex flex-col gap-2">
+          {displaySlides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentSlide(idx)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                idx === currentSlide ? 'bg-indigo-500 scale-125' : 'bg-indigo-500/20 hover:bg-indigo-500/40'
+              }`}
+            />
+          ))}
+        </div>
+        <div className="w-[1px] h-20 bg-gradient-to-b from-transparent via-indigo-500/30 to-transparent" />
+        <span className="text-[10px] text-indigo-500/40 font-mono tracking-widest uppercase" style={{ writingMode: 'vertical-rl' }}>
+          Archive
+        </span>
+      </div>
+
+      {/* 右侧装饰 */}
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col items-center gap-4 z-10">
+        <div className="text-[10px] text-indigo-500/40 font-mono tracking-widest">{String(currentSlide + 1).padStart(2, '0')}</div>
+        <div className="w-[1px] h-32 bg-gradient-to-b from-indigo-500/30 via-indigo-500/10 to-transparent" />
+        <div className="flex flex-col gap-1">
+          <span className="text-[9px] text-gray-500 font-mono">Total</span>
+          <span className="text-sm text-indigo-500 font-bold font-mono">{String(displaySlides.length).padStart(2, '0')}</span>
+        </div>
+      </div>
+
       <div className="max-w-4xl mx-auto px-6 md:px-12 relative z-10">
-        <div className="flex flex-col items-center justify-center text-center max-w-3xl mx-auto space-y-10 min-h-[400px]">
+        <div className="flex flex-col items-center justify-center text-center max-w-3xl mx-auto space-y-6 min-h-[280px]">
           
           <AnimatePresence mode="wait">
             <motion.div
@@ -119,24 +149,24 @@ export const About = ({ content, slides = [] }: AboutProps) => {
               onDragEnd={handleDragEnd}
               style={{ x, transformStyle: "preserve-3d", cursor: "grab" }}
               whileTap={{ cursor: "grabbing" }}
-              initial={{ opacity: 0, rotateY: 90 }}
-              animate={{ opacity: 1, rotateY: 0 }}
-              exit={{ opacity: 0, rotateY: -90 }}
-              transition={{ duration: 0.6, ease: "easeInOut" }}
-              className="space-y-12 relative w-full perspective-1000 select-none"
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="space-y-6 relative w-full perspective-1000 select-none"
             >
-               <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[1px] h-10 bg-gradient-to-b from-transparent to-indigo-500/50" />
+               <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-[1px] h-6 bg-gradient-to-b from-transparent to-indigo-500/50" />
                <div className="flex items-center justify-center gap-6">
                   <Globe size={14} className="text-indigo-500 animate-spin-slow opacity-60" />
                   <p className="text-[10px] uppercase tracking-[0.5em] text-indigo-500 font-black">Archive.OS // SLIDE_{currentSlide + 1}</p>
                   <Cpu size={14} className="text-indigo-500 animate-pulse opacity-60" />
                </div>
                
-               <h2 className="archive-title text-4xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-black via-black to-black/10 dark:from-white dark:via-white dark:to-white/10 leading-[0.9] tracking-tighter mix-blend-overlay dark:mix-blend-overlay mix-blend-normal relative z-10">
+               <h2 className="archive-title text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-b from-black via-black to-black/10 dark:from-white dark:via-white dark:to-white/10 leading-[0.9] tracking-tighter mix-blend-overlay dark:mix-blend-overlay mix-blend-normal relative z-10">
                   <ScrambleText text={activeSlide.title} />
                </h2>
 
-               <div className="text-gray-500 dark:text-gray-400 text-base md:text-lg leading-relaxed font-light max-w-2xl mx-auto space-y-6 relative z-10">
+               <div className="text-gray-500 dark:text-gray-400 text-sm md:text-base leading-relaxed font-light max-w-2xl mx-auto relative z-10">
                   <p className="drop-shadow-lg whitespace-pre-wrap">
                     {activeSlide.subtitle}
                   </p>

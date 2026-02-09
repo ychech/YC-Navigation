@@ -19,6 +19,15 @@ interface SiteConfig {
   value: string;
 }
 
+// 默认标题配置
+const DEFAULT_ADMIN_TITLES: Record<string, string> = {
+  links: "链接管理",
+  gallery: "图库管理", 
+  about: "关于页面",
+  config: "系统配置",
+  hero: "首页轮播"
+};
+
 export default function AdminPage() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -26,15 +35,12 @@ export default function AdminPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [stats, setStats] = useState({ totalLinks: 0, totalGallery: 0 });
-  const [siteSlogan, setSiteSlogan] = useState("ARCHIVE.OS");
-  const [adminTitles, setAdminTitles] = useState<Record<string, string>>({
-    links: "档案索引",
-    gallery: "视觉陈列", 
-    about: "馆主自传",
-    config: "系统核心",
-    hero: "首页展示"
-  });
-  const [version, setVersion] = useState("v2.0.4-稳定版");
+  
+  // 从数据库读取的配置
+  const [siteSlogan, setSiteSlogan] = useState("ART.NAV");
+  const [adminTitles, setAdminTitles] = useState<Record<string, string>>(DEFAULT_ADMIN_TITLES);
+  const [version, setVersion] = useState("v2.0.4");
+  
   const router = useRouter();
 
   useEffect(() => {
@@ -48,7 +54,7 @@ export default function AdminPage() {
     } else {
       setAuthenticated(true);
       fetchStats();
-      fetchConfig();
+      fetchAdminConfig();
     }
   }, []);
 
@@ -57,6 +63,36 @@ export default function AdminPage() {
       localStorage.setItem("admin_active_tab", activeTab);
     }
   }, [activeTab, mounted]);
+
+  // 获取后台配置
+  const fetchAdminConfig = async () => {
+    try {
+      const res = await fetch("/api/config");
+      if (res.ok) {
+        const configs: SiteConfig[] = await res.json();
+        
+        // 读取站点标语
+        const slogan = configs.find(c => c.key === "site_slogan");
+        if (slogan) setSiteSlogan(slogan.value);
+        
+        // 读取各个菜单标题
+        const titles: Record<string, string> = { ...DEFAULT_ADMIN_TITLES };
+        configs.forEach(c => {
+          if (c.key.startsWith("admin_title_")) {
+            const tabKey = c.key.replace("admin_title_", "");
+            titles[tabKey] = c.value;
+          }
+        });
+        setAdminTitles(titles);
+        
+        // 读取版本号
+        const versionConfig = configs.find(c => c.key === "admin_version");
+        if (versionConfig) setVersion(versionConfig.value);
+      }
+    } catch (e) {
+      console.error("Failed to fetch admin config");
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -82,37 +118,6 @@ export default function AdminPage() {
     router.push("/admin/login");
   };
 
-  const fetchConfig = async () => {
-    try {
-      const res = await fetch("/api/config");
-      if (res.ok) {
-        const configs: SiteConfig[] = await res.json();
-        const slogan = configs.find(c => c.key === "site_slogan")?.value;
-        if (slogan) setSiteSlogan(slogan);
-        
-        // 获取自定义标题
-        const titles: Record<string, string> = {};
-        configs.forEach(c => {
-          if (c.key.startsWith("admin_title_")) {
-            const tab = c.key.replace("admin_title_", "");
-            titles[tab] = c.value;
-          }
-        });
-        if (Object.keys(titles).length > 0) {
-          setAdminTitles(prev => ({ ...prev, ...titles }));
-        }
-        
-        // 获取版本号
-        const versionConfig = configs.find(c => c.key === "admin_version");
-        if (versionConfig) {
-          setVersion(versionConfig.value);
-        }
-      }
-    } catch (e) {
-      console.error("Failed to fetch config");
-    }
-  };
-
   if (!authenticated || !mounted) return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] flex items-center justify-center">
       <Loader2 className="animate-spin text-gray-400 dark:text-[#6ee7b7]/20" size={40} />
@@ -135,6 +140,7 @@ export default function AdminPage() {
         handleLogout={handleLogout}
         currentStats={stats}
         siteSlogan={siteSlogan}
+        adminTitles={adminTitles}
       />
 
       {/* Main Content Area */}
@@ -149,7 +155,7 @@ export default function AdminPage() {
                   <span>验证访问</span>
                 </div>
                 <h2 className="text-5xl font-black tracking-tighter text-gray-900 dark:text-white archive-title">
-                  {adminTitles[activeTab]}
+                  {adminTitles[activeTab] || DEFAULT_ADMIN_TITLES[activeTab]}
                 </h2>
                 <div className="flex items-center gap-4 text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest opacity-60">
                   <span className="px-3 py-1 bg-gray-200 dark:bg-white/5 rounded-full text-gray-600 dark:text-gray-300">{version}</span>
