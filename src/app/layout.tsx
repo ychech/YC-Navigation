@@ -52,8 +52,8 @@ export default function RootLayout({
       <head>
         <style>{`
           /* 关键 CSS - 防止首次渲染闪烁 */
-          html { background-color: #020617; }
-          body { background-color: #020617; }
+          html { background-color: rgb(253, 253, 253); }
+          html.dark { background-color: rgb(2, 6, 23); }
           /* 确保内容可见 */
           #__next { min-height: 100vh; }
           /* 减少动画偏好支持 */
@@ -65,8 +65,8 @@ export default function RootLayout({
       <body className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} font-sans antialiased overflow-x-hidden`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
+          defaultTheme="system"
+          enableSystem={true}
           disableTransitionOnChange={false}
         >
           <div className="paper-texture" />
