@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings, Lock } from "lucide-react";
+import { Settings, Lock, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function ConfigTab() {
   const [configs, setConfigs] = useState<any[]>([]);
   const [passwordChange, setPasswordChange] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
+  const [newKey, setNewKey] = useState("");
+  const [newValue, setNewValue] = useState("");
 
   useEffect(() => {
     fetchConfigs();
@@ -23,6 +25,32 @@ export function ConfigTab() {
     await fetch("/api/config", { method: "PUT", body: JSON.stringify({ configs }) });
     fetchConfigs();
     toast.success("配置更新成功");
+  };
+
+  const handleAddConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newKey.trim() || !newValue.trim()) {
+      return toast.error("Key 和 Value 不能为空");
+    }
+    
+    // Check if key already exists
+    if (configs.some(c => c.key === newKey)) {
+      return toast.error("该 Key 已存在");
+    }
+    
+    const newConfigs = [...configs, { key: newKey, value: newValue }];
+    await fetch("/api/config", { method: "PUT", body: JSON.stringify({ configs: newConfigs }) });
+    setNewKey("");
+    setNewValue("");
+    fetchConfigs();
+    toast.success("配置添加成功");
+  };
+
+  const handleDeleteConfig = async (key: string) => {
+    const newConfigs = configs.filter(c => c.key !== key);
+    await fetch("/api/config", { method: "PUT", body: JSON.stringify({ configs: newConfigs }) });
+    fetchConfigs();
+    toast.success("配置删除成功");
   };
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
@@ -58,7 +86,16 @@ export function ConfigTab() {
         <form onSubmit={handleUpdateConfigs} className="space-y-6">
           {configs.map((config: any, index: number) => (
             <div key={config.key} className="space-y-3">
-              <label className="text-[9px] uppercase tracking-[0.5em] text-gray-400 font-black ml-1 opacity-50">{config.key}</label>
+              <div className="flex justify-between items-center">
+                <label className="text-[9px] uppercase tracking-[0.5em] text-gray-400 font-black ml-1 opacity-50">{config.key}</label>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteConfig(config.key)}
+                  className="text-gray-400 hover:text-red-500 transition-colors"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
               <input
                 type="text"
                 value={config.value}
@@ -75,6 +112,33 @@ export function ConfigTab() {
             更新配置
           </button>
         </form>
+
+        {/* Add New Config */}
+        <div className="mt-8 pt-8 border-t border-gray-100 dark:border-white/5">
+          <h3 className="text-[10px] uppercase tracking-[0.3em] text-gray-500 font-black mb-4 flex items-center gap-2">
+            <Plus size={12} />
+            添加新配置
+          </h3>
+          <form onSubmit={handleAddConfig} className="space-y-4">
+            <input
+              type="text"
+              placeholder="Key (如: admin_version)"
+              value={newKey}
+              onChange={(e) => setNewKey(e.target.value)}
+              className="w-full bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold focus:outline-none glow-border transition-all"
+            />
+            <input
+              type="text"
+              placeholder="Value (如: v3.0.0-正式版)"
+              value={newValue}
+              onChange={(e) => setNewValue(e.target.value)}
+              className="w-full bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold focus:outline-none glow-border transition-all"
+            />
+            <button type="submit" className="w-full bg-indigo-600 text-white py-4 rounded-2xl text-[10px] uppercase tracking-[0.3em] font-black hover:bg-indigo-500 transition-all">
+              添加配置
+            </button>
+          </form>
+        </div>
       </section>
 
       <section className="nm-flat p-8 rounded-[40px] border border-red-500/10 relative overflow-hidden">
