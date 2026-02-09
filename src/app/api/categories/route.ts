@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { verifyAuth } from "@/lib/auth";
 
 export async function GET() {
   const categories = await prisma.category.findMany({
@@ -10,6 +11,12 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  // 验证管理员身份
+  const isAuth = await verifyAuth();
+  if (!isAuth) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
   const { name } = await req.json();
   
   // Get max sortOrder
@@ -25,6 +32,12 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  // 验证管理员身份
+  const isAuth = await verifyAuth();
+  if (!isAuth) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
   
@@ -44,6 +57,12 @@ export async function DELETE(req: Request) {
 }
 
 export async function PUT(req: Request) {
+  // 验证管理员身份
+  const isAuth = await verifyAuth();
+  if (!isAuth) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
   const body = await req.json();
   
   // Handle sorting update if body is array

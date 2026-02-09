@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import { StorageFactory } from "@/lib/storage";
+import { verifyAuth } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
+    // 验证管理员身份
+    const isAuth = await verifyAuth();
+    if (!isAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    
     const formData = await req.formData();
     const file = formData.get("file") as File;
     

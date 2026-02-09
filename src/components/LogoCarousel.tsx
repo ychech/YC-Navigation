@@ -66,10 +66,10 @@ export const LogoCarousel = ({ links }: LogoCarouselProps) => {
   const displayLinks = Array(multiplier).fill(validLinks).flat();
 
   return (
-    <div className="w-full overflow-hidden py-6 relative border-b border-gray-200 dark:border-white/5 bg-transparent dark:bg-[#020617] transition-colors duration-300">
-      {/* Gradient Masks for fading edges - Adapted for light/dark blending */}
-      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-slate-50 via-slate-50/80 to-transparent dark:from-[#020617] dark:via-[#020617]/80 z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-slate-50 via-slate-50/80 to-transparent dark:from-[#020617] dark:via-[#020617]/80 z-10 pointer-events-none" />
+    <div className="w-full overflow-hidden py-6 relative border-b border-gray-200 dark:border-white/5 bg-transparent transition-colors duration-300">
+      {/* Gradient Masks for fading edges - 使用透明渐变 */}
+      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-[#020617] dark:via-[#020617]/80 z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white via-white/80 to-transparent dark:from-[#020617] dark:via-[#020617]/80 z-10 pointer-events-none" />
       
       {/* Framer Motion Infinite Scroll */}
       {/* Use CSS animation instead of Framer Motion for better performance */}

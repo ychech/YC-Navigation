@@ -25,7 +25,7 @@ export const Hero = ({ title, subtitle, categories = [], systemCode = "Archive.O
 
   return (
     <>
-      <section ref={containerRef} className="relative h-auto min-h-[50vh] py-20 w-full flex flex-col justify-center items-center overflow-hidden bg-gray-50 dark:bg-[#020617] transition-colors duration-500">
+      <section ref={containerRef} className="relative h-auto min-h-[50vh] py-20 w-full flex flex-col justify-center items-center overflow-hidden bg-white dark:bg-[#020617] transition-colors duration-500">
         
         {/* 简化的背景网格 */}
         <div 

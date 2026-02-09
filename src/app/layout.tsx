@@ -52,8 +52,8 @@ export default function RootLayout({
       <head>
         <style>{`
           /* 关键 CSS - 防止首次渲染闪烁 */
-          html { background-color: rgb(253, 253, 253); }
-          html.dark { background-color: rgb(2, 6, 23); }
+          html { background-color: #ffffff; }
+          html.dark { background-color: #020617; }
           /* 确保内容可见 */
           #__next { min-height: 100vh; }
           /* 减少动画偏好支持 */
