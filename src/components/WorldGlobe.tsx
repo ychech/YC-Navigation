@@ -4,6 +4,7 @@ import { useRef, useMemo, memo, useState, useEffect } from 'react';
 import { Canvas, useFrame, extend, ReactThreeFiber } from '@react-three/fiber';
 import { Sphere, Stars, OrbitControls, shaderMaterial, Billboard, Plane } from '@react-three/drei';
 import * as THREE from 'three';
+import { useTheme } from 'next-themes';
 
 // --- Shaders ---
 
@@ -158,6 +159,23 @@ declare global {
 
 // Background Gradient
 function DeepSpace() {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  
+  if (!isDark) {
+    // Light Mode: Clean light gradient
+    return (
+      <mesh>
+        <sphereGeometry args={[50, 32, 32]} />
+        <meshBasicMaterial 
+          color="#f8fafc" 
+          side={THREE.BackSide} 
+        />
+      </mesh>
+    );
+  }
+  
+  // Dark Mode: Deep space
   return (
     <mesh>
       <sphereGeometry args={[50, 32, 32]} />
@@ -353,6 +371,8 @@ function Earth({ textures, hasError }: { textures: any, hasError: boolean }) {
   const earthRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
   const wireframeRef = useRef<THREE.Mesh>(null);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   useFrame(() => {
     if (earthRef.current) earthRef.current.rotation.y += 0.0005; 
@@ -362,6 +382,28 @@ function Earth({ textures, hasError }: { textures: any, hasError: boolean }) {
       cloudsRef.current.rotation.z += 0.0001;
     }
   });
+
+  // Light Mode: Wireframe Grid Sphere
+  if (!isDark) {
+    return (
+      <group ref={wireframeRef} rotation={[0, 0, Math.PI / 6]}>
+        <Sphere args={[2.2, 32, 32]}>
+          <meshStandardMaterial 
+            color="#6366f1" 
+            emissive="#4338ca"
+            emissiveIntensity={0.2}
+            wireframe 
+            transparent
+            opacity={0.4}
+          />
+        </Sphere>
+        {/* Inner Core */}
+        <Sphere args={[2.1, 32, 32]}>
+           <meshBasicMaterial color="#f8fafc" />
+        </Sphere>
+      </group>
+    );
+  }
 
   // Render fallback if error or still loading
   if (hasError || !textures) {
