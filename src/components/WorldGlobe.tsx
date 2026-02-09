@@ -390,7 +390,7 @@ function Earth({ textures, hasError }: { textures: any, hasError: boolean }) {
     return <FallbackEarth />;
   }
 
-  // Light Mode: Wireframe Grid Sphere
+  // Light Mode: Wireframe Grid Sphere (透明核心，不遮挡背景)
   if (!isDark) {
     return (
       <group ref={wireframeRef} rotation={[0, 0, Math.PI / 6]}>
@@ -401,12 +401,12 @@ function Earth({ textures, hasError }: { textures: any, hasError: boolean }) {
             emissiveIntensity={0.2}
             wireframe 
             transparent
-            opacity={0.4}
+            opacity={0.6}
           />
         </Sphere>
-        {/* Inner Core */}
+        {/* Inner Core - 透明，不显示 */}
         <Sphere args={[2.1, 32, 32]}>
-           <meshBasicMaterial color="#f8fafc" />
+           <meshBasicMaterial transparent opacity={0} />
         </Sphere>
       </group>
     );
