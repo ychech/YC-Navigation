@@ -34,6 +34,7 @@ export default function AdminPage() {
     config: "系统核心",
     hero: "首页展示"
   });
+  const [version, setVersion] = useState("v2.0.4-稳定版");
   const router = useRouter();
 
   useEffect(() => {
@@ -100,6 +101,12 @@ export default function AdminPage() {
         if (Object.keys(titles).length > 0) {
           setAdminTitles(prev => ({ ...prev, ...titles }));
         }
+        
+        // 获取版本号
+        const versionConfig = configs.find(c => c.key === "admin_version");
+        if (versionConfig) {
+          setVersion(versionConfig.value);
+        }
       }
     } catch (e) {
       console.error("Failed to fetch config");
@@ -145,7 +152,7 @@ export default function AdminPage() {
                   {adminTitles[activeTab]}
                 </h2>
                 <div className="flex items-center gap-4 text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest opacity-60">
-                  <span className="px-3 py-1 bg-gray-200 dark:bg-white/5 rounded-full text-gray-600 dark:text-gray-300">v2.0.4-稳定版</span>
+                  <span className="px-3 py-1 bg-gray-200 dark:bg-white/5 rounded-full text-gray-600 dark:text-gray-300">{version}</span>
                   <span className="flex items-center gap-2 text-gray-600 dark:text-gray-300"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 节点在线</span>
                 </div>
               </div>

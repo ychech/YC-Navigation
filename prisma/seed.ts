@@ -77,6 +77,7 @@ async function main() {
       { key: "admin_title_about", value: "馆主自传" },
       { key: "admin_title_config", value: "系统核心" },
       { key: "admin_title_hero", value: "首页展示" },
+      { key: "admin_version", value: "v2.0.4-稳定版" },
     ]
   });
 
