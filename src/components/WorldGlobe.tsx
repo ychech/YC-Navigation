@@ -189,6 +189,8 @@ function DeepSpace() {
 function ShootingStar() {
   const ref = useRef<THREE.Mesh>(null);
   const [active, setActive] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   
   // Random start position logic
   const reset = () => {
@@ -218,6 +220,9 @@ function ShootingStar() {
     ref.current.translateZ(0.8); // Speed
     if (ref.current.position.length() > 40) setActive(false); // Out of bounds
   });
+  
+  // 亮色模式下隐藏流星
+  if (!isDark) return null;
 
   if (!active) return null;
 
@@ -292,6 +297,8 @@ function useEarthTextures() {
 // Optimized Particles - Floating Stardust (Reduced count for performance)
 const Particles = memo(({ count = 3000 }: { count?: number }) => {
   const points = useRef<THREE.Points>(null);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   const particlesPosition = useMemo(() => {
     const positions = new Float32Array(count * 3);
@@ -316,6 +323,9 @@ const Particles = memo(({ count = 3000 }: { count?: number }) => {
       points.current.rotation.y += 0.0001;
     }
   });
+  
+  // 亮色模式下隐藏粒子
+  if (!isDark) return null;
 
   return (
     <points ref={points}>
@@ -511,12 +521,12 @@ export default function WorldGlobe() {
   }
 
   return (
-    <div className="w-full h-full cursor-move outline-none">
+    <div className="w-full h-full cursor-move outline-none bg-transparent">
       <Canvas 
         camera={{ position: [0, 0, 9], fov: 45 }}
         dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true }}
-        style={{ outline: 'none' }}
+        gl={{ antialias: true, alpha: true, premultipliedAlpha: false }}
+        style={{ outline: 'none', background: 'transparent' }}
       >
         <ambientLight intensity={0.05} />
         
