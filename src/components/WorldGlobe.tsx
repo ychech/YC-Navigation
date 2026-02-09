@@ -162,13 +162,13 @@ function DeepSpace() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   
+  // Light Mode: Clean light gradient
   if (!isDark) {
-    // Light Mode: Clean light gradient
     return (
       <mesh>
         <sphereGeometry args={[50, 32, 32]} />
         <meshBasicMaterial 
-          color="#f8fafc" 
+          color="#f1f5f9" 
           side={THREE.BackSide} 
         />
       </mesh>
@@ -383,6 +383,11 @@ function Earth({ textures, hasError }: { textures: any, hasError: boolean }) {
     }
   });
 
+  // Render fallback if error or still loading (in dark mode)
+  if ((hasError || !textures) && isDark) {
+    return <FallbackEarth />;
+  }
+
   // Light Mode: Wireframe Grid Sphere
   if (!isDark) {
     return (
@@ -403,11 +408,6 @@ function Earth({ textures, hasError }: { textures: any, hasError: boolean }) {
         </Sphere>
       </group>
     );
-  }
-
-  // Render fallback if error or still loading
-  if (hasError || !textures) {
-    return <FallbackEarth />;
   }
 
   // Dark Mode: Realistic Style
@@ -452,14 +452,14 @@ function RealisticSun() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   
-  // 白天模式不显示太阳
-  if (!isDark) return null;
-  
   useFrame((state) => {
     if (sunMatRef.current) {
       sunMatRef.current.uniforms.time.value = state.clock.getElapsedTime();
     }
   });
+  
+  // 白天模式不显示太阳
+  if (!isDark) return null;
 
   return (
     <group position={[15, 8, -20]}> {/* Further away to reduce perspective distortion */}
