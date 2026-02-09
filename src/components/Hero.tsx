@@ -25,7 +25,7 @@ export const Hero = ({ title, subtitle, categories = [], systemCode = "Archive.O
 
   return (
     <>
-      <section ref={containerRef} className="relative h-auto min-h-[50vh] py-20 w-full flex flex-col justify-center items-center overflow-hidden bg-[#020617]">
+      <section ref={containerRef} className="relative h-auto min-h-[50vh] py-20 w-full flex flex-col justify-center items-center overflow-hidden bg-gray-50 dark:bg-[#020617] transition-colors duration-500">
         
         {/* 简化的背景网格 */}
         <div 
@@ -78,7 +78,7 @@ export const Hero = ({ title, subtitle, categories = [], systemCode = "Archive.O
               <span>{systemCode} // Core</span>
             </motion.div>
             
-            <h1 className="text-3xl md:text-5xl text-white leading-tight tracking-tighter relative z-10 font-mono">
+            <h1 className="text-3xl md:text-5xl text-gray-900 dark:text-white leading-tight tracking-tighter relative z-10 font-mono transition-colors duration-500">
               {title}
             </h1>
             
@@ -86,7 +86,7 @@ export const Hero = ({ title, subtitle, categories = [], systemCode = "Archive.O
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.5, delay: 0.3 }}
-              className="text-gray-400 text-sm md:text-base max-w-2xl mx-auto px-12"
+              className="text-gray-600 dark:text-gray-400 text-sm md:text-base max-w-2xl mx-auto px-12 transition-colors duration-500">
             >
               {subtitle}
             </motion.p>
@@ -97,7 +97,7 @@ export const Hero = ({ title, subtitle, categories = [], systemCode = "Archive.O
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
               onClick={() => setIsSearchOpen(true)}
-              className="group relative flex items-center gap-4 px-6 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all w-full max-w-md mx-auto"
+              className="group relative flex items-center gap-4 px-6 py-3 rounded-full bg-white border border-gray-200 hover:bg-gray-50 dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10 transition-all w-full max-w-md mx-auto"
             >
               <Search size={16} className="text-gray-500" />
               <span className="text-sm text-gray-400">Type to search...</span>
