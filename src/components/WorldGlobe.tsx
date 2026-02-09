@@ -449,6 +449,11 @@ function StarField() {
 // Realistic Sun Component - Volumetric Billboard
 function RealisticSun() {
   const sunMatRef = useRef<any>(null);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  
+  // 白天模式不显示太阳
+  if (!isDark) return null;
   
   useFrame((state) => {
     if (sunMatRef.current) {
@@ -506,11 +511,12 @@ export default function WorldGlobe() {
   }
 
   return (
-    <div className="w-full h-full cursor-move">
+    <div className="w-full h-full cursor-move outline-none">
       <Canvas 
         camera={{ position: [0, 0, 9], fov: 45 }}
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
+        style={{ outline: 'none' }}
       >
         <ambientLight intensity={0.05} />
         
