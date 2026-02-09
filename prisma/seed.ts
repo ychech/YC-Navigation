@@ -72,6 +72,11 @@ async function main() {
       { key: "hero_subtitle", value: "超越常规的数字导航体验。探索极致的设计语言与未来交互。" },
       { key: "site_name", value: "艺术导航" },
       { key: "site_slogan", value: "ARCHIVE.OS" },
+      { key: "admin_title_links", value: "档案索引" },
+      { key: "admin_title_gallery", value: "视觉陈列" },
+      { key: "admin_title_about", value: "馆主自传" },
+      { key: "admin_title_config", value: "系统核心" },
+      { key: "admin_title_hero", value: "首页展示" },
     ]
   });
 

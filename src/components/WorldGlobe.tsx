@@ -162,17 +162,9 @@ function DeepSpace() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   
-  // Light Mode: Clean light gradient
+  // Light Mode: 不渲染背景球，使用透明
   if (!isDark) {
-    return (
-      <mesh>
-        <sphereGeometry args={[50, 32, 32]} />
-        <meshBasicMaterial 
-          color="#f1f5f9" 
-          side={THREE.BackSide} 
-        />
-      </mesh>
-    );
+    return null;
   }
   
   // Dark Mode: Deep space

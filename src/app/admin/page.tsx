@@ -27,6 +27,13 @@ export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [stats, setStats] = useState({ totalLinks: 0, totalGallery: 0 });
   const [siteSlogan, setSiteSlogan] = useState("ARCHIVE.OS");
+  const [adminTitles, setAdminTitles] = useState<Record<string, string>>({
+    links: "档案索引",
+    gallery: "视觉陈列", 
+    about: "馆主自传",
+    config: "系统核心",
+    hero: "首页展示"
+  });
   const router = useRouter();
 
   useEffect(() => {
@@ -81,6 +88,18 @@ export default function AdminPage() {
         const configs: SiteConfig[] = await res.json();
         const slogan = configs.find(c => c.key === "site_slogan")?.value;
         if (slogan) setSiteSlogan(slogan);
+        
+        // 获取自定义标题
+        const titles: Record<string, string> = {};
+        configs.forEach(c => {
+          if (c.key.startsWith("admin_title_")) {
+            const tab = c.key.replace("admin_title_", "");
+            titles[tab] = c.value;
+          }
+        });
+        if (Object.keys(titles).length > 0) {
+          setAdminTitles(prev => ({ ...prev, ...titles }));
+        }
       }
     } catch (e) {
       console.error("Failed to fetch config");
@@ -123,11 +142,7 @@ export default function AdminPage() {
                   <span>验证访问</span>
                 </div>
                 <h2 className="text-5xl font-black tracking-tighter text-gray-900 dark:text-white archive-title">
-                  {activeTab === "links" && "档案索引"}
-                  {activeTab === "gallery" && "视觉陈列"}
-                  {activeTab === "about" && "馆主自传"}
-                  {activeTab === "config" && "系统核心"}
-                  {activeTab === "hero" && "首页展示"}
+                  {adminTitles[activeTab]}
                 </h2>
                 <div className="flex items-center gap-4 text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest opacity-60">
                   <span className="px-3 py-1 bg-gray-200 dark:bg-white/5 rounded-full text-gray-600 dark:text-gray-300">v2.0.4-稳定版</span>

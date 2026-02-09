@@ -472,7 +472,7 @@ export function LinksTab() {
             onClick={() => { setEditingLink(null); setIsLinkModalOpen(true); }}
             className="flex items-center gap-3 px-8 py-6 bg-gray-900 dark:bg-white text-white dark:text-black rounded-[28px] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-600 dark:hover:bg-[#6ee7b7] hover:text-white dark:hover:text-white transition-all shadow-2xl hover:shadow-indigo-500/20 dark:hover:shadow-[#6ee7b7]/20 active:scale-95"
           >
-            <Command size={16} /> 索引链接
+            <Command size={16} /> 添加链接
           </button>
         </div>
       </div>
