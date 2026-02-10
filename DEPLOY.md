@@ -1,23 +1,40 @@
 # 部署指南
 
 > **服务器**: 阿里云 ECS 2核2G, Ubuntu 22.04 LTS  
-> **公网IP**: 39.102.80.128
+> **部署方式**: Node.js + PM2 + Nginx（推荐）
 
 ---
 
-## 📋 方案对比
+## 方案对比
 
-| 方案 | 内存占用 | 适用场景 | 难度 |
-|------|---------|---------|------|
-| **Node.js + PM2** | ~150MB | 2C2G 服务器，推荐 ✅ | ⭐ |
-| **Docker + SQLite** | ~400MB | 4G+ 内存服务器 | ⭐⭐ |
-| **Docker + MySQL** | ~900MB | 高并发，多实例 | ⭐⭐⭐ |
-
-> 💡 **2C2G 服务器强烈推荐 Node.js + PM2 方案**
+| 方案 | 内存占用 | 适用场景 | 推荐度 |
+|------|---------|---------|--------|
+| **Node.js + PM2** | ~150MB | 2C2G 服务器 | ⭐⭐⭐ |
+| **Docker** | ~400MB | 4G+ 内存服务器 | ⭐⭐ |
 
 ---
 
-## 方案一：Node.js + PM2（推荐）
+## 一、服务器准备
+
+### 1. 系统更新
+
+```bash
+apt-get update && apt-get upgrade -y
+```
+
+### 2. 添加 Swap（2G内存必需）
+
+```bash
+fallocate -l 4G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+echo '/swapfile none swap sw 0 0' >> /etc/fstab
+```
+
+---
+
+## 二、Node.js + PM2 部署
 
 ### 1. 安装 Node.js 20
 
@@ -41,20 +58,29 @@ cd artistic-nav
 ### 3. 安装依赖
 
 ```bash
-npm ci
+npm ci --production
 ```
 
-### 4. 配置环境
+### 4. 配置环境变量
 
 ```bash
 cat > .env << 'EOF'
+# 数据库（SQLite，零配置）
 DB_PROVIDER=sqlite
 DATABASE_URL=file:./prisma/dev.db
+
+# 安全密钥（必须修改！）
 NEXTAUTH_SECRET=$(openssl rand -base64 32)
-NEXTAUTH_URL=http://39.102.80.128
-ADMIN_PASSWORD=admin123456
+NEXTAUTH_URL=http://YOUR_SERVER_IP
+
+# 管理员密码（必须修改！）
+ADMIN_PASSWORD=your_secure_password
+
+# 存储配置
 STORAGE_TYPE=local
 UPLOAD_DIR=./public/uploads
+
+# 禁用遥测
 NEXT_TELEMETRY_DISABLED=1
 PORT=3000
 EOF
@@ -68,7 +94,7 @@ npx prisma db push --accept-data-loss
 npx prisma db seed
 ```
 
-### 6. 构建
+### 6. 构建应用
 
 ```bash
 npm run build
@@ -91,7 +117,7 @@ apt-get install -y nginx
 cat > /etc/nginx/sites-available/artistic-nav << 'EOF'
 server {
     listen 80;
-    server_name 39.102.80.128;
+    server_name _;
     
     client_max_body_size 50M;
     
@@ -112,61 +138,131 @@ rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
 ```
 
-### 9. 完成
+---
 
-- 前台: http://39.102.80.128
-- 后台: http://39.102.80.128/admin
-- 账号: `admin` / `admin123456`
+## 三、阿里云 OSS 配置（可选）
+
+### 1. 创建 OSS Bucket
+
+- 登录阿里云控制台 → 对象存储 OSS
+- 创建 Bucket（建议：标准存储、私有读写）
+- 记录 Endpoint（如 `oss-cn-beijing.aliyuncs.com`）
+
+### 2. 获取访问密钥
+
+- 右上角头像 → AccessKey 管理
+- 创建 AccessKey，记录 `AccessKey ID` 和 `AccessKey Secret`
+
+### 3. 配置环境变量
+
+```bash
+cat >> .env << 'EOF'
+
+# OSS 配置
+STORAGE_TYPE=oss
+OSS_REGION=oss-cn-beijing
+OSS_BUCKET=your-bucket-name
+OSS_ACCESS_KEY_ID=your-access-key-id
+OSS_ACCESS_KEY_SECRET=your-access-key-secret
+OSS_ENDPOINT=https://oss-cn-beijing.aliyuncs.com
+EOF
+```
+
+### 4. 重启应用
+
+```bash
+pm2 restart artistic-nav
+```
 
 ---
 
-## 方案二：Docker 部署
+## 四、配置 HTTPS（推荐）
 
-> ⚠️ 需要 4G+ 内存，2C2G 服务器不推荐
+### 使用阿里云免费证书
 
-详见 [deploy/README.md](./deploy/README.md)
+```bash
+# 安装 certbot
+apt-get install -y certbot python3-certbot-nginx
+
+# 申请证书（将 your-domain.com 替换为你的域名）
+certbot --nginx -d your-domain.com --non-interactive --agree-tos -m your-email@example.com
+
+# 自动续期测试
+certbot renew --dry-run
+```
 
 ---
 
-## 🔧 运维命令
+## 五、运维命令
 
 ```bash
 # 查看状态
 pm2 status
-
-# 查看日志
 pm2 logs
 
-# 重启
+# 重启/停止
 pm2 restart artistic-nav
-
-# 停止
 pm2 stop artistic-nav
 
 # 更新代码
 cd /opt/artistic-nav
 git pull
-npm ci
+npm ci --production
 npm run build
 pm2 restart artistic-nav
+
+# 备份数据
+tar -czf backup-$(date +%Y%m%d).tar.gz prisma/dev.db public/uploads
 ```
 
 ---
 
-## 🐛 常见问题
+## 六、安全加固
 
-### 1. 内存不足 (2C2G 常见问题)
+### 1. 配置防火墙
 
 ```bash
-# 添加 4G Swap
-fallocate -l 4G /swapfile
-chmod 600 /swapfile
-mkswap /swapfile
-swapon /swapfile
-echo '/swapfile none swap sw 0 0' >> /etc/fstab
+ufw default deny incoming
+ufw allow 22/tcp
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw enable
 ```
 
-### 2. 数据库错误
+### 2. 修改默认密码
+
+部署完成后立即登录后台修改管理员密码。
+
+### 3. 定期备份
+
+建议设置定时任务自动备份：
+
+```bash
+crontab -e
+# 添加：每天凌晨3点备份
+0 3 * * * cd /opt/artistic-nav && tar -czf /backup/artistic-nav-$(date +\%Y\%m\%d).tar.gz prisma/dev.db public/uploads
+```
+
+---
+
+## 七、常见问题
+
+### 1. 构建时内存不足
+
+```bash
+# 增加 Node 内存限制
+NODE_OPTIONS="--max-old-space-size=1536" npm run build
+```
+
+### 2. 端口被占用
+
+```bash
+lsof -i :3000
+kill $(lsof -t -i:3000)
+pm2 restart artistic-nav
+```
+
+### 3. 数据库错误
 
 ```bash
 cd /opt/artistic-nav
@@ -175,38 +271,10 @@ npx prisma db seed
 pm2 restart artistic-nav
 ```
 
-### 3. 端口被占用
-
-```bash
-lsof -i :3000
-kill $(lsof -t -i:3000)
-pm2 restart artistic-nav
-```
-
-### 4. npm install 卡住
-
-```bash
-# 使用淘宝镜像
-npm config set registry https://registry.npmmirror.com
-npm ci
-```
-
 ---
 
-## 🔒 安全建议
+## 八、访问地址
 
-1. **立即修改默认密码**: 登录后台 → 系统核心 → 修改密码
-2. **配置防火墙**:
-   ```bash
-   ufw default deny incoming
-   ufw allow 22/tcp
-   ufw allow 80/tcp
-   ufw allow 443/tcp
-   ufw enable
-   ```
-3. **定期备份**:
-   ```bash
-   tar -czf backup-$(date +%Y%m%d).tar.gz \
-       /opt/artistic-nav/prisma/dev.db \
-       /opt/artistic-nav/public/uploads
-   ```
+- **前台**: http://YOUR_SERVER_IP
+- **后台**: http://YOUR_SERVER_IP/admin
+- **默认账号**: `admin` / 你设置的密码
