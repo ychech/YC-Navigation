@@ -7,18 +7,47 @@ services:
       context: ..
       dockerfile: deploy/Dockerfile
     restart: always
+    
+    # 端口映射
     ports:
       - "3000:3000"
+    
+    # 资源限制（2C2G 优化）
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1.5G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    # 安全选项
+    security_opt:
+      - no-new-privileges:true
+    
+    # 只读根文件系统
+    read_only: true
+    
+    # 临时文件系统
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+      - /app/.next/cache:size=50m
+    
     environment:
-      # 数据库配置
+      # 生产环境
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      
+      # 数据库
       - DB_PROVIDER=sqlite
       - DATABASE_URL=file:./prisma/dev.db
       
-      # 安全配置
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123456}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-changeme}
+      # 安全
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       
-      # 存储配置
+      # 存储
       - STORAGE_TYPE=${STORAGE_TYPE:-local}
       
       # OSS 配置（可选）
@@ -27,16 +56,49 @@ services:
       - OSS_ACCESS_KEY_SECRET=${OSS_ACCESS_KEY_SECRET:-}
       - OSS_BUCKET=${OSS_BUCKET:-}
       - OSS_ENDPOINT=${OSS_ENDPOINT:-}
-      
+    
     volumes:
-      - ../prisma/dev.db:/app/prisma/dev.db
-      - ../public/uploads:/app/public/uploads
+      # 数据库持久化
+      - type: bind
+        source: ../prisma/dev.db
+        target: /app/prisma/dev.db
+      
+      # 上传文件持久化
+      - type: bind
+        source: ../public/uploads
+        target: /app/public/uploads
+      
+      # 临时目录（可写）
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 100M
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     
     # 启动命令
     command: >
       sh -c "
-        echo 'Initializing database...' &&
+        echo '🔐 Security: Running as non-root user' &&
+        echo '🔧 Initializing database...' &&
         npx prisma db push --accept-data-loss 2>/dev/null || true &&
-        echo 'Starting application...' &&
-        node server.js
+        echo '🚀 Starting application...' &&
+        exec node server.js
       "
+    
+    # 网络隔离
+    networks:
+      - artistic-nav-net
+
+networks:
+  artistic-nav-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

@@ -57,19 +57,23 @@ npm run dev
 ### 一键部署（推荐）
 
 ```bash
-# Node.js + PM2（适合 2C2G 服务器）
-curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh | sudo bash
-
-# Docker（需要 4G+ 内存）
+# Docker（推荐，安全性更高，2C2G 可用）
 curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh | sudo bash -s docker
+
+# Node.js + PM2（资源占用更低）
+curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh | sudo bash
 ```
 
-### 手动部署
+### 方案对比
 
-详见 [DEPLOY.md](./DEPLOY.md)
+| 方案 | 内存 | 安全性 | 推荐场景 |
+|------|------|--------|---------|
+| **Docker** | ~400MB | ⭐⭐⭐ 高（容器隔离） | 生产环境 |
+| **PM2** | ~150MB | ⭐⭐ 中 | 开发/测试 |
 
-- **推荐**: Node.js + PM2 (适合 2C2G 服务器)
-- **可选**: Docker (需要 4G+ 内存)
+> 💡 **安全建议**: Docker 提供进程隔离和文件系统保护，即使应用被入侵也能限制攻击范围
+
+详见 [DEPLOY.md](./DEPLOY.md) | [SECURITY.md](./SECURITY.md)
 
 ## 🗂️ 项目结构
 
