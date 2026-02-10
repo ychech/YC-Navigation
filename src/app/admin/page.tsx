@@ -23,9 +23,9 @@ interface SiteConfig {
 const DEFAULT_ADMIN_TITLES: Record<string, string> = {
   links: "链接管理",
   gallery: "图库管理", 
-  about: "关于页面",
+  about: "馆主资料",
   config: "系统配置",
-  hero: "首页轮播"
+  hero: "档案展示"
 };
 
 export default function AdminPage() {

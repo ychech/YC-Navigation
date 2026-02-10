@@ -1,232 +1,305 @@
 "use client";
 
-import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
-import type { AboutContent, HeroSlide } from "@prisma/client";
-import { Cpu, Globe, ChevronLeft, ChevronRight, Terminal as TerminalIcon } from "lucide-react";
-import { useState, useEffect } from "react";
-import { DigitalRain } from "./DigitalRain";
+import { motion, AnimatePresence } from "framer-motion";
+import type { AboutContent, HeroSlide, Category, Link } from "@prisma/client";
+import { useState, useEffect, useRef } from "react";
 
 interface AboutProps {
   content: AboutContent;
   slides?: HeroSlide[];
+  categories?: (Category & { links: Link[] })[];
 }
 
-const ScrambleText = ({ text }: { text: string }) => {
-  const [displayText, setDisplayText] = useState(text);
-  const chars = "!<>-_\\/[]{}—=+*^?#________";
-  
+// 打字机效果
+function TypeWriter({ text, delay = 0 }: { text: string; delay?: number }) {
+  const [displayText, setDisplayText] = useState("");
+  const [started, setStarted] = useState(false);
+
   useEffect(() => {
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplayText(_prev => 
-        text.split("")
-          .map((_char, index) => {
-            if (index < iteration) return text[index];
-            return chars[Math.floor(Math.random() * chars.length)];
-          })
-          .join("")
-      );
-      
-      if (iteration >= text.length) clearInterval(interval);
-      iteration += 1/3;
+    const timer = setTimeout(() => setStarted(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  useEffect(() => {
+    if (!started) return;
+    let index = 0;
+    const timer = setInterval(() => {
+      if (index <= text.length) {
+        setDisplayText(text.slice(0, index));
+        index++;
+      } else {
+        clearInterval(timer);
+      }
     }, 30);
-    
-    return () => clearInterval(interval);
-  }, [text]);
+    return () => clearInterval(timer);
+  }, [started, text]);
 
-  return <span>{displayText}</span>;
-};
+  return (
+    <span>
+      {displayText}
+      <span className="animate-pulse">_</span>
+    </span>
+  );
+}
 
-export const About = ({ content, slides = [] }: AboutProps) => {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
+// 代码高亮
+function CodeBlock({ code }: { code: string }) {
+  const lines = code.split('\n');
+  
+  const highlight = (line: string) => {
+    return line
+      .replace(/(".*?")/g, '<span class="text-[#7ee787]">$1</span>')
+      .replace(/(\{|\}|\[|\])/g, '<span class="text-[#79c0ff]">$1</span>')
+      .replace(/:/g, '<span class="text-white/50">:</span>')
+      .replace(/,/g, '<span class="text-white/50">,</span>')
+      .replace(/\b(true|false|null)\b/g, '<span class="text-[#ff7b72]">$1</span>')
+      .replace(/\b(\d+)\b/g, '<span class="text-[#79c0ff]">$1</span>');
+  };
 
-  const springX = useSpring(mouseX, { stiffness: 100, damping: 30 });
-  const springY = useSpring(mouseY, { stiffness: 100, damping: 30 });
+  return (
+    <div className="font-mono text-base leading-relaxed">
+      {lines.map((line, i) => (
+        <div key={i} className="flex">
+          <span className="text-white/20 w-10 text-right mr-6 select-none text-sm">{i + 1}</span>
+          <span dangerouslySetInnerHTML={{ __html: highlight(line) }} />
+        </div>
+      ))}
+    </div>
+  );
+}
 
+// 滑动指示器
+function Slider({ 
+  total, 
+  current, 
+  onChange 
+}: { 
+  total: number; 
+  current: number; 
+  onChange: (i: number) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      {Array.from({ length: total }).map((_, i) => (
+        <button
+          key={i}
+          onClick={() => onChange(i)}
+          className={`h-1.5 transition-all duration-300 ${
+            i === current ? 'w-10 bg-[#3fb950]' : 'w-3 bg-white/20 hover:bg-white/40'
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
+
+export const About = ({ content, slides = [], categories = [] }: AboutProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Drag Gesture Logic
-  const x = useMotionValue(0);
-  const dragConstraints = { left: 0, right: 0 };
+  const totalLinks = categories.reduce((acc, cat) => acc + (cat.links?.length || 0), 0);
 
-  const handleDragEnd = (event: any, info: any) => {
-    const offset = info.offset.x;
-    const velocity = info.velocity.x;
-
-    if (offset < -100 || velocity < -500) {
-      nextSlide();
-    } else if (offset > 100 || velocity > 500) {
-      prevSlide();
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    mouseX.set(x);
-    mouseY.set(y);
-  };
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % (slides.length || 1));
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + (slides.length || 1)) % (slides.length || 1));
-  };
-
-  // Fallback data if no slides
   const displaySlides = slides.length > 0 ? slides : [{
     id: 0,
-    title: "FUTURE & ART",
-    subtitle: "「我们将代码视为新的画笔，将数据视为流动的颜料。在这里，艺术不再是静止的陈列，而是每一次点击、每一次滚动的实时交互。」",
-    codeSnippet: null,
-    isActive: true,
-    sortOrder: 0
+    title: content.title || "ROOT",
+    subtitle: content.description || "system.init()",
+    description: "一个精心整理的设计资源库。没有算法推荐，没有广告干扰，只有纯粹的链接。",
+    codeSnippet: `{
+  "identity": "archive",
+  "version": "2.0.0",
+  "status": "running",
+  "nodes": ${totalLinks || 0},
+  "mode": "dark"
+}`,
   }];
 
   const activeSlide = displaySlides[currentSlide];
 
-  return (
-    <div 
-      className="relative py-16 overflow-hidden bg-[#080808] dark:bg-[#080808] bg-white dark:text-white text-black border-t border-gray-200 dark:border-white/5 transition-colors duration-300"
-      onMouseMove={handleMouseMove}
-    >
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white via-white/50 to-transparent dark:from-[#020617] dark:via-[#020617]/50 pointer-events-none z-20" />
-      <DigitalRain />
+  // 自动轮播
+  useEffect(() => {
+    if (displaySlides.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % displaySlides.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [displaySlides.length]);
 
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
-        <div className="absolute top-0 left-0 w-full h-[1px] bg-indigo-500/50 animate-[scan_8s_linear_infinite]" />
-        <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(to_right,#6366f1_1px,transparent_1px),linear-gradient(to_bottom,#6366f1_1px,transparent_1px)] bg-[size:60px_60px] dark:opacity-[0.05] opacity-10" />
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(99,102,241,0.15),transparent_40%)]" 
-             style={{ 
-               "--mouse-x": `${springX.get() + 500}px`, 
-               "--mouse-y": `${springY.get() + 500}px` 
-             } as any} 
+  // 触摸/鼠标滑动
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    setIsDragging(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    setStartX(clientX);
+  };
+
+  const handleDragEnd = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
+    const diff = startX - clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0 && currentSlide < displaySlides.length - 1) {
+        setCurrentSlide(currentSlide + 1);
+      } else if (diff < 0 && currentSlide > 0) {
+        setCurrentSlide(currentSlide - 1);
+      }
+    }
+  };
+
+  // 键盘控制
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' && currentSlide < displaySlides.length - 1) {
+        setCurrentSlide(currentSlide + 1);
+      } else if (e.key === 'ArrowLeft' && currentSlide > 0) {
+        setCurrentSlide(currentSlide - 1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentSlide, displaySlides.length]);
+
+  return (
+    <section className="relative py-24 md:py-32 bg-[#0d1117] overflow-hidden">
+      {/* 黑客风格背景 */}
+      <div className="absolute inset-0 opacity-30">
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `linear-gradient(rgba(48,54,61,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(48,54,61,0.4) 1px, transparent 1px)`,
+            backgroundSize: '40px 40px',
+          }}
         />
       </div>
 
-      {/* 左侧装饰 */}
-      <div className="absolute left-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col items-center gap-4 z-10">
-        <div className="w-[1px] h-20 bg-gradient-to-b from-transparent via-indigo-500/30 to-transparent" />
-        <div className="flex flex-col gap-2">
-          {displaySlides.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrentSlide(idx)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                idx === currentSlide ? 'bg-indigo-500 scale-125' : 'bg-indigo-500/20 hover:bg-indigo-500/40'
-              }`}
-            />
-          ))}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8">
+        
+        {/* 顶部状态栏 */}
+        <div className="flex items-center justify-between mb-12 text-xs font-mono">
+          <div className="flex items-center gap-4">
+            <span className="text-[#3fb950]">●</span>
+            <span className="text-white/40">ONLINE</span>
+            <span className="text-white/20">|</span>
+            <span className="text-white/40">LATENCY: 12ms</span>
+          </div>
+          <div className="text-white/40">
+            {new Date().toISOString().split('T')[0]}
+          </div>
         </div>
-        <div className="w-[1px] h-20 bg-gradient-to-b from-transparent via-indigo-500/30 to-transparent" />
-        <span className="text-[10px] text-indigo-500/40 font-mono tracking-widest uppercase" style={{ writingMode: 'vertical-rl' }}>
-          Archive
-        </span>
-      </div>
 
-      {/* 右侧装饰 */}
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col items-center gap-4 z-10">
-        <div className="text-[10px] text-indigo-500/40 font-mono tracking-widest">{String(currentSlide + 1).padStart(2, '0')}</div>
-        <div className="w-[1px] h-32 bg-gradient-to-b from-indigo-500/30 via-indigo-500/10 to-transparent" />
-        <div className="flex flex-col gap-1">
-          <span className="text-[9px] text-gray-500 font-mono">Total</span>
-          <span className="text-sm text-indigo-500 font-bold font-mono">{String(displaySlides.length).padStart(2, '0')}</span>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-6 md:px-12 relative z-10">
-        <div className="flex flex-col items-center justify-center text-center max-w-3xl mx-auto space-y-6 min-h-[280px]">
-          
+        {/* 主内容 - 可滑动 */}
+        <div 
+          ref={containerRef}
+          className="cursor-grab active:cursor-grabbing select-none"
+          onMouseDown={handleDragStart}
+          onMouseUp={handleDragEnd}
+          onMouseLeave={() => setIsDragging(false)}
+          onTouchStart={handleDragStart}
+          onTouchEnd={handleDragEnd}
+        >
           <AnimatePresence mode="wait">
             <motion.div
-              key={activeSlide.id}
-              drag="x"
-              dragConstraints={dragConstraints}
-              onDragEnd={handleDragEnd}
-              style={{ x, transformStyle: "preserve-3d", cursor: "grab" }}
-              whileTap={{ cursor: "grabbing" }}
-              initial={{ opacity: 0, x: 100 }}
+              key={currentSlide}
+              initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="space-y-6 relative w-full perspective-1000 select-none"
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="grid md:grid-cols-2 gap-8 md:gap-12"
             >
-               <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-[1px] h-6 bg-gradient-to-b from-transparent to-indigo-500/50" />
-               <div className="flex items-center justify-center gap-6">
-                  <Globe size={14} className="text-indigo-500 animate-spin-slow opacity-60" />
-                  <p className="text-[10px] uppercase tracking-[0.5em] text-indigo-500 font-black">Archive.OS // SLIDE_{currentSlide + 1}</p>
-                  <Cpu size={14} className="text-indigo-500 animate-pulse opacity-60" />
-               </div>
-               
-               <h2 className="archive-title text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-b from-black via-black to-black/10 dark:from-white dark:via-white dark:to-white/10 leading-[0.9] tracking-tighter mix-blend-overlay dark:mix-blend-overlay mix-blend-normal relative z-10">
-                  <ScrambleText text={activeSlide.title} />
-               </h2>
+              {/* 左侧：文字内容 */}
+              <div className="space-y-6">
+                {/* 标题 */}
+                <div>
+                  <div className="text-[10px] font-mono text-white/30 mb-2 tracking-wider">
+                    $ cat identity.txt
+                  </div>
+                  <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight">
+                    {activeSlide.title}
+                  </h2>
+                </div>
 
-               <div className="text-gray-500 dark:text-gray-400 text-sm md:text-base leading-relaxed font-light max-w-2xl mx-auto relative z-10">
-                  <p className="drop-shadow-lg whitespace-pre-wrap">
-                    {activeSlide.subtitle}
-                  </p>
-               </div>
+                {/* 副标题 */}
+                <div className="font-mono text-lg text-[#58a6ff]">
+                  <TypeWriter text={activeSlide.subtitle} delay={300} />
+                </div>
 
-               {activeSlide.codeSnippet ? (
-                 <div className="pt-8 flex justify-center w-full">
-                   <div className="relative group w-full max-w-lg mx-auto text-left">
-                     <div className="absolute inset-0 bg-indigo-500/10 blur-2xl group-hover:bg-indigo-500/20 transition-all duration-500 rounded-3xl" />
-                     <div className="relative rounded-2xl bg-white dark:bg-black/80 border border-gray-200 dark:border-indigo-500/30 backdrop-blur-xl overflow-hidden shadow-2xl dark:shadow-none">
-                       <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5">
-                         <div className="flex gap-1.5">
-                           <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
-                           <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
-                           <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
-                         </div>
-                         <div className="ml-2 text-[10px] text-gray-400 dark:text-gray-500 font-mono flex items-center gap-1">
-                           <TerminalIcon size={10} />
-                           <span>protocol.ts</span>
-                         </div>
-                       </div>
-                       <div className="p-6 overflow-x-auto">
-                         <pre className="text-xs md:text-sm font-mono text-slate-700 dark:text-indigo-300 leading-relaxed">
-                           <code>{activeSlide.codeSnippet}</code>
-                         </pre>
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-               ) : (
-                 <div className="pt-8 flex justify-center">
-                    <div className="relative group cursor-pointer">
-                       <div className="absolute inset-0 bg-indigo-500/20 blur-xl group-hover:bg-indigo-500/40 transition-all duration-500 rounded-full" />
-                       <div className="relative px-8 py-3 rounded-full bg-black/40 border border-indigo-500/30 backdrop-blur-xl flex items-center gap-3 hover:scale-105 transition-transform duration-300">
-                          <div className="flex gap-1">
-                             <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                             <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                             <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '300ms' }} />
-                          </div>
-                          <span className="text-[10px] font-mono text-indigo-300 tracking-widest uppercase">Initializing Art Sequence...</span>
-                       </div>
+                {/* 描述 - 使用 description 字段 */}
+                <p className="text-white/50 leading-relaxed max-w-md text-lg">
+                  {activeSlide.description || "一个精心整理的设计资源库。没有算法推荐，没有广告干扰，只有纯粹的链接。"}
+                </p>
+
+                {/* 分类快速链接 */}
+                {categories.length > 0 && (
+                  <div className="pt-6 space-y-2">
+                    <div className="text-[10px] font-mono text-white/30 tracking-wider">
+                      $ ls -la categories/
                     </div>
-                 </div>
-               )}
+                    <div className="flex flex-wrap gap-2">
+                      {categories.slice(0, 6).map((cat) => (
+                        <a
+                          key={cat.id}
+                          href={`#category-${cat.id}`}
+                          className="px-3 py-1.5 text-xs font-mono bg-[#21262d] text-[#7ee787] hover:bg-[#30363d] transition-colors rounded"
+                        >
+                          {cat.name.toLowerCase()}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 右侧：代码块 - 放大版 */}
+              <div className="relative">
+                {/* 窗口标题栏 */}
+                <div className="flex items-center gap-2 px-5 py-4 bg-[#161b22] border border-[#30363d] border-b-0 rounded-t-lg">
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#ff7b72]" />
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#ffa657]" />
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#3fb950]" />
+                  <span className="ml-4 text-sm font-mono text-white/40">manifest.json</span>
+                </div>
+                
+                {/* 代码内容 - 放大 */}
+                <div className="p-8 bg-[#0d1117] border border-[#30363d] rounded-b-lg overflow-x-auto">
+                  <CodeBlock code={activeSlide.codeSnippet || "{}"} />
+                </div>
+
+                {/* 装饰角标 */}
+                <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-[#3fb950]" />
+                <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-[#3fb950]" />
+              </div>
             </motion.div>
           </AnimatePresence>
+        </div>
 
-          {/* Drag Hint & Navigation Controls */}
-          {displaySlides.length > 1 && (
-            <div className="flex flex-col items-center gap-2 pt-6 relative z-20">
-              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-indigo-500/40 font-bold">
-                <ChevronLeft size={12} />
-                <span>Drag to Navigate</span>
-                <ChevronRight size={12} />
-              </div>
+        {/* 底部控制栏 */}
+        <div className="flex items-center justify-between mt-12 pt-6 border-t border-[#30363d]">
+          {/* 滑动指示器 */}
+          <Slider 
+            total={displaySlides.length} 
+            current={currentSlide} 
+            onChange={setCurrentSlide}
+          />
+
+          {/* 统计 */}
+          <div className="flex items-center gap-6 text-xs font-mono">
+            <div className="text-white/40">
+              NODES: <span className="text-[#79c0ff]">{totalLinks}</span>
             </div>
-          )}
+            <div className="text-white/40">
+              SLIDE: <span className="text-[#79c0ff]">{currentSlide + 1}/{displaySlides.length}</span>
+            </div>
+          </div>
 
+          {/* 键盘提示 */}
+          <div className="hidden md:flex items-center gap-2 text-[10px] font-mono text-white/30">
+            <span className="px-2 py-1 bg-[#21262d] rounded">←</span>
+            <span className="px-2 py-1 bg-[#21262d] rounded">→</span>
+            <span>to navigate</span>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

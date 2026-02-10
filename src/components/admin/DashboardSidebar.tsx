@@ -29,8 +29,8 @@ interface DashboardSidebarProps {
 const DEFAULT_MENU_TITLES: Record<string, string> = {
   links: "链接管理",
   gallery: "图库管理",
-  hero: "首页轮播",
-  about: "关于页面",
+  hero: "档案展示",
+  about: "馆主资料",
   config: "系统配置"
 };
 

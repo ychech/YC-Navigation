@@ -53,6 +53,7 @@ model HeroSlide {
   id          Int      @id @default(autoincrement())
   title       String
   subtitle    String
+  description String?  // 用于 About 区域的描述文字
   codeSnippet String?
   isActive    Boolean  @default(true)
   sortOrder   Int      @default(0)

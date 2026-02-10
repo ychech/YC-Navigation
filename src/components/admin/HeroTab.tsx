@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { 
-  Plus, Trash2, Edit2, X, Terminal, Sparkles, Code
+  Plus, Trash2, Edit2, Terminal, Sparkles, Code, FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
@@ -13,6 +13,7 @@ interface HeroSlide {
   id: number;
   title: string;
   subtitle: string;
+  description: string | null;
   codeSnippet: string | null;
   isActive: boolean;
   sortOrder: number;
@@ -28,6 +29,7 @@ export function HeroTab() {
   const [newSlide, setNewSlide] = useState<Partial<HeroSlide>>({
     title: "",
     subtitle: "",
+    description: "",
     codeSnippet: "",
     isActive: true
   });
@@ -47,20 +49,42 @@ export function HeroTab() {
     const isEdit = !!editingSlide;
     const url = "/api/hero";
     const method = isEdit ? "PUT" : "POST";
-    const body = isEdit ? editingSlide : newSlide;
+    
+    // 只传递需要的字段
+    const body = isEdit && editingSlide ? {
+      id: editingSlide.id,
+      title: editingSlide.title,
+      subtitle: editingSlide.subtitle,
+      description: editingSlide.description,
+      codeSnippet: editingSlide.codeSnippet,
+      isActive: editingSlide.isActive,
+    } : {
+      title: newSlide.title,
+      subtitle: newSlide.subtitle,
+      description: newSlide.description,
+      codeSnippet: newSlide.codeSnippet,
+      isActive: newSlide.isActive ?? true,
+    };
 
     try {
-      await fetch(url, {
+      const res = await fetch(url, {
         method,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
+      
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "操作失败");
+      }
+      
       toast.success(isEdit ? "更新成功" : "创建成功");
       setIsModalOpen(false);
       setEditingSlide(null);
-      setNewSlide({ title: "", subtitle: "", codeSnippet: "", isActive: true });
+      setNewSlide({ title: "", subtitle: "", description: "", codeSnippet: "", isActive: true });
       fetchSlides();
-    } catch (error) {
-      toast.error("操作失败");
+    } catch (error: any) {
+      toast.error(error.message || "操作失败");
     }
   };
 
@@ -81,7 +105,7 @@ export function HeroTab() {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
           <Terminal className="text-indigo-600 dark:text-[#6ee7b7]" />
-          HERO 轮播管理
+          档案展示管理
         </h2>
         <button
           onClick={() => { setEditingSlide(null); setIsModalOpen(true); }}
@@ -123,6 +147,13 @@ export function HeroTab() {
               
               <p className="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 min-h-[40px]">{slide.subtitle}</p>
               
+              {slide.description && (
+                <div className="flex items-center gap-2 text-[10px] text-gray-400">
+                  <FileText size={12} />
+                  <span>有描述文字</span>
+                </div>
+              )}
+              
               {slide.codeSnippet && (
                 <div className="bg-slate-100 dark:bg-black/50 rounded-xl p-3 border border-gray-200 dark:border-white/5 font-mono text-[10px] text-slate-700 dark:text-gray-500 truncate transition-colors duration-300">
                   <Code size={12} className="inline mr-2 text-indigo-500 dark:text-gray-600" />
@@ -135,7 +166,7 @@ export function HeroTab() {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <section className="bg-white dark:bg-[#0f0f0f] border border-gray-100 dark:border-white/10 rounded-3xl p-8 w-full max-w-2xl relative overflow-hidden">
+        <section className="bg-white dark:bg-[#0f0f0f] border border-gray-100 dark:border-white/10 rounded-3xl p-8 w-full max-w-2xl relative overflow-hidden max-h-[90vh] overflow-y-auto">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 dark:bg-[#6ee7b7]/10 blur-3xl pointer-events-none" />
           
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
@@ -154,22 +185,38 @@ export function HeroTab() {
                   : setNewSlide({ ...newSlide, title: e.target.value })
                 }
                 className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors"
-                placeholder="例如: FUTURE & ART"
+                placeholder="例如: ROOT"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs text-gray-500 font-bold uppercase tracking-widest">副标题 / 描述</label>
-              <textarea
+              <label className="text-xs text-gray-500 font-bold uppercase tracking-widest">副标题</label>
+              <input
+                type="text"
                 value={editingSlide?.subtitle ?? newSlide.subtitle}
                 onChange={(e) => editingSlide 
                   ? setEditingSlide({ ...editingSlide, subtitle: e.target.value })
                   : setNewSlide({ ...newSlide, subtitle: e.target.value })
                 }
-                className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors min-h-[100px]"
-                placeholder="主要描述文本..."
+                className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors"
+                placeholder="例如: system.init()"
                 required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs text-gray-500 font-bold uppercase tracking-widest">
+                描述文字 <span className="text-gray-400 font-normal normal-case">- 显示在 About 区域</span>
+              </label>
+              <textarea
+                value={editingSlide?.description ?? newSlide.description ?? ""}
+                onChange={(e) => editingSlide 
+                  ? setEditingSlide({ ...editingSlide, description: e.target.value })
+                  : setNewSlide({ ...newSlide, description: e.target.value })
+                }
+                className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors min-h-[80px]"
+                placeholder="一个精心整理的设计资源库..."
               />
             </div>
 
@@ -182,7 +229,7 @@ export function HeroTab() {
                   : setNewSlide({ ...newSlide, codeSnippet: e.target.value })
                 }
                 className="w-full bg-slate-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-indigo-600 dark:text-[#6ee7b7] font-mono text-sm focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors min-h-[120px]"
-                placeholder="const future = new Art();"
+                placeholder={`{\n  \"status\": \"active\"\n}`}
               />
             </div>
 

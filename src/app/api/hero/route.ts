@@ -10,12 +10,13 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { title, subtitle, codeSnippet, isActive } = body;
+  const { title, subtitle, description, codeSnippet, isActive } = body;
   
   const slide = await prisma.heroSlide.create({
     data: {
       title,
       subtitle,
+      description,
       codeSnippet,
       isActive: isActive ?? true,
     },
@@ -39,12 +40,13 @@ export async function PUT(req: Request) {
   }
 
   // Handle single update
-  const { id, title, subtitle, codeSnippet, isActive } = body;
+  const { id, title, subtitle, description, codeSnippet, isActive } = body;
   const slide = await prisma.heroSlide.update({
     where: { id },
     data: {
       title,
       subtitle,
+      description,
       codeSnippet,
       isActive,
     },
