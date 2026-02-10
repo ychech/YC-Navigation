@@ -4,16 +4,35 @@
 
 ---
 
+## 快速开始（一键部署）
+
+```bash
+# 下载并执行一键部署脚本
+curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh | sudo bash -s docker
+```
+
+或手动部署：
+
+```bash
+# 1. 克隆代码
+git clone https://github.com/ychech/YC-Navigation.git /opt/artistic-nav
+cd /opt/artistic-nav
+
+# 2. 执行部署
+sudo bash deploy.sh docker
+```
+
+---
+
 ## 前置要求
 
 - 内存: 4G+ RAM
 - 磁盘: 20G+ 可用空间
-- Docker 20.10+
-- Docker Compose 2.0+
+- 系统: Ubuntu 20.04/22.04 LTS
 
 ---
 
-## 部署步骤
+## 手动部署步骤
 
 ### 1. 安装 Docker
 
@@ -50,15 +69,9 @@ cd artistic-nav
 
 # 创建环境配置
 cat > .env << 'EOF'
-DB_PROVIDER=sqlite
-DATABASE_URL=file:./prisma/dev.db
+ADMIN_PASSWORD=your_secure_password
 NEXTAUTH_SECRET=$(openssl rand -base64 32)
 NEXTAUTH_URL=http://your-domain.com
-ADMIN_PASSWORD=admin123456
-STORAGE_TYPE=local
-UPLOAD_DIR=./public/uploads
-NEXT_TELEMETRY_DISABLED=1
-PORT=3000
 EOF
 
 mkdir -p prisma public/uploads
@@ -120,7 +133,7 @@ docker-compose up -d
 
 ### 拉取镜像超时
 
-配置多个镜像源，或改用 Node.js 直接部署。
+配置多个镜像源，或使用一键部署脚本。
 
 ### 构建时内存不足
 

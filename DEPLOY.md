@@ -14,9 +14,33 @@
 
 ---
 
-## 方案一：Node.js + PM2（推荐）
+## 🚀 一键部署（推荐）
 
-### 1. 服务器准备
+### Node.js + PM2（2C2G 服务器）
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh | sudo bash
+```
+
+或
+
+```bash
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh)"
+```
+
+### Docker（4G+ 内存服务器）
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh | sudo bash -s docker
+```
+
+---
+
+## 手动部署
+
+### 方案一：Node.js + PM2（推荐）
+
+#### 1. 服务器准备
 
 ```bash
 # 系统更新
@@ -30,7 +54,7 @@ swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
 ```
 
-### 2. 安装 Node.js 20
+#### 2. 安装 Node.js 20
 
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
@@ -41,7 +65,7 @@ node -v   # v20.x.x
 npm -v    # 10.x.x
 ```
 
-### 3. 克隆代码
+#### 3. 克隆代码
 
 ```bash
 cd /opt
@@ -49,13 +73,13 @@ git clone https://github.com/ychech/YC-Navigation.git artistic-nav
 cd artistic-nav
 ```
 
-### 4. 安装依赖
+#### 4. 安装依赖
 
 ```bash
 npm ci --omit=dev
 ```
 
-### 5. 配置环境变量
+#### 5. 配置环境变量
 
 ```bash
 cat > .env << 'EOF'
@@ -80,7 +104,7 @@ PORT=3000
 EOF
 ```
 
-### 6. 初始化数据库
+#### 6. 初始化数据库
 
 ```bash
 npx prisma generate
@@ -88,13 +112,13 @@ npx prisma db push --accept-data-loss
 npx prisma db seed
 ```
 
-### 7. 构建应用
+#### 7. 构建应用
 
 ```bash
 npm run build
 ```
 
-### 8. 安装 PM2 并启动
+#### 8. 安装 PM2 并启动
 
 ```bash
 npm install -g pm2
@@ -103,7 +127,7 @@ pm2 startup
 pm2 save
 ```
 
-### 9. 配置 Nginx
+#### 9. 配置 Nginx
 
 ```bash
 apt-get install -y nginx
@@ -134,29 +158,22 @@ nginx -t && systemctl reload nginx
 
 ---
 
-## 方案二：Docker 部署
+### 方案二：Docker 部署
 
 > ⚠️ 需要 4G+ 内存，详见 [deploy/README.md](./deploy/README.md)
+
+```bash
+# 一键部署
+curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh | sudo bash -s docker
+```
+
+或手动部署：
 
 ```bash
 cd /opt
 git clone https://github.com/ychech/YC-Navigation.git artistic-nav
 cd artistic-nav
-
-# 配置环境变量
-cat > .env << 'EOF'
-ADMIN_PASSWORD=your_secure_password
-NEXTAUTH_SECRET=$(openssl rand -base64 32)
-NEXTAUTH_URL=http://your-domain.com
-EOF
-
-# 启动
-cd deploy
-docker-compose up -d
-
-# 初始化数据库
-docker-compose exec artistic-nav npx prisma db push
-docker-compose exec artistic-nav npx prisma db seed
+sudo bash deploy.sh docker
 ```
 
 ---
@@ -177,7 +194,7 @@ docker-compose exec artistic-nav npx prisma db seed
 ### 3. 配置环境变量
 
 ```bash
-cat >> .env << 'EOF'
+cat >> /opt/artistic-nav/.env << 'EOF'
 
 # OSS 配置
 STORAGE_TYPE=oss
@@ -190,7 +207,7 @@ EOF
 
 # 重启应用
 pm2 restart artistic-nav
-# 或 Docker: docker-compose restart artistic-nav
+# 或 Docker: cd /opt/artistic-nav/deploy && docker-compose restart artistic-nav
 ```
 
 ---

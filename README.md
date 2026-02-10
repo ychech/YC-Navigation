@@ -54,6 +54,18 @@ npm run dev
 
 ## 📦 部署
 
+### 一键部署（推荐）
+
+```bash
+# Node.js + PM2（适合 2C2G 服务器）
+curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh | sudo bash
+
+# Docker（需要 4G+ 内存）
+curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh | sudo bash -s docker
+```
+
+### 手动部署
+
 详见 [DEPLOY.md](./DEPLOY.md)
 
 - **推荐**: Node.js + PM2 (适合 2C2G 服务器)
