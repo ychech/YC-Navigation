@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  artistic-nav:
+    container_name: artistic-nav
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # 数据库配置
+      - DB_PROVIDER=sqlite
+      - DATABASE_URL=file:./prisma/dev.db
+      
+      # 安全配置
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123456}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-changeme}
+      
+      # 存储配置
+      - STORAGE_TYPE=${STORAGE_TYPE:-local}
+      
+      # OSS 配置（可选）
+      - OSS_REGION=${OSS_REGION:-}
+      - OSS_ACCESS_KEY_ID=${OSS_ACCESS_KEY_ID:-}
+      - OSS_ACCESS_KEY_SECRET=${OSS_ACCESS_KEY_SECRET:-}
+      - OSS_BUCKET=${OSS_BUCKET:-}
+      - OSS_ENDPOINT=${OSS_ENDPOINT:-}
+      
+    volumes:
+      - ../prisma/dev.db:/app/prisma/dev.db
+      - ../public/uploads:/app/public/uploads
+    
+    # 启动命令
+    command: >
+      sh -c "
+        echo 'Initializing database...' &&
+        npx prisma db push --accept-data-loss 2>/dev/null || true &&
+        echo 'Starting application...' &&
+        node server.js
+      "

@@ -1,7 +1,7 @@
 # 部署指南
 
 > **服务器**: 阿里云 ECS 2核2G, Ubuntu 22.04 LTS  
-> **部署方式**: Node.js + PM2 + Nginx（推荐）
+> **推荐部署**: Node.js + PM2（内存占用 ~150MB）
 
 ---
 
@@ -14,17 +14,15 @@
 
 ---
 
-## 一、服务器准备
+## 方案一：Node.js + PM2（推荐）
 
-### 1. 系统更新
+### 1. 服务器准备
 
 ```bash
+# 系统更新
 apt-get update && apt-get upgrade -y
-```
 
-### 2. 添加 Swap（2G内存必需）
-
-```bash
+# 添加 Swap（2G内存必需）
 fallocate -l 4G /swapfile
 chmod 600 /swapfile
 mkswap /swapfile
@@ -32,11 +30,7 @@ swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
 ```
 
----
-
-## 二、Node.js + PM2 部署
-
-### 1. 安装 Node.js 20
+### 2. 安装 Node.js 20
 
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
@@ -47,7 +41,7 @@ node -v   # v20.x.x
 npm -v    # 10.x.x
 ```
 
-### 2. 克隆代码
+### 3. 克隆代码
 
 ```bash
 cd /opt
@@ -55,13 +49,13 @@ git clone https://github.com/ychech/YC-Navigation.git artistic-nav
 cd artistic-nav
 ```
 
-### 3. 安装依赖
+### 4. 安装依赖
 
 ```bash
-npm ci --production
+npm ci --omit=dev
 ```
 
-### 4. 配置环境变量
+### 5. 配置环境变量
 
 ```bash
 cat > .env << 'EOF'
@@ -86,7 +80,7 @@ PORT=3000
 EOF
 ```
 
-### 5. 初始化数据库
+### 6. 初始化数据库
 
 ```bash
 npx prisma generate
@@ -94,13 +88,13 @@ npx prisma db push --accept-data-loss
 npx prisma db seed
 ```
 
-### 6. 构建应用
+### 7. 构建应用
 
 ```bash
 npm run build
 ```
 
-### 7. 安装 PM2 并启动
+### 8. 安装 PM2 并启动
 
 ```bash
 npm install -g pm2
@@ -109,7 +103,7 @@ pm2 startup
 pm2 save
 ```
 
-### 8. 配置 Nginx
+### 9. 配置 Nginx
 
 ```bash
 apt-get install -y nginx
@@ -140,7 +134,34 @@ nginx -t && systemctl reload nginx
 
 ---
 
-## 三、阿里云 OSS 配置（可选）
+## 方案二：Docker 部署
+
+> ⚠️ 需要 4G+ 内存，详见 [deploy/README.md](./deploy/README.md)
+
+```bash
+cd /opt
+git clone https://github.com/ychech/YC-Navigation.git artistic-nav
+cd artistic-nav
+
+# 配置环境变量
+cat > .env << 'EOF'
+ADMIN_PASSWORD=your_secure_password
+NEXTAUTH_SECRET=$(openssl rand -base64 32)
+NEXTAUTH_URL=http://your-domain.com
+EOF
+
+# 启动
+cd deploy
+docker-compose up -d
+
+# 初始化数据库
+docker-compose exec artistic-nav npx prisma db push
+docker-compose exec artistic-nav npx prisma db seed
+```
+
+---
+
+## 阿里云 OSS 配置（可选）
 
 ### 1. 创建 OSS Bucket
 
@@ -166,25 +187,21 @@ OSS_ACCESS_KEY_ID=your-access-key-id
 OSS_ACCESS_KEY_SECRET=your-access-key-secret
 OSS_ENDPOINT=https://oss-cn-beijing.aliyuncs.com
 EOF
-```
 
-### 4. 重启应用
-
-```bash
+# 重启应用
 pm2 restart artistic-nav
+# 或 Docker: docker-compose restart artistic-nav
 ```
 
 ---
 
-## 四、配置 HTTPS（推荐）
-
-### 使用阿里云免费证书
+## HTTPS 配置（推荐）
 
 ```bash
 # 安装 certbot
 apt-get install -y certbot python3-certbot-nginx
 
-# 申请证书（将 your-domain.com 替换为你的域名）
+# 申请证书（替换为你的域名）
 certbot --nginx -d your-domain.com --non-interactive --agree-tos -m your-email@example.com
 
 # 自动续期测试
@@ -193,7 +210,7 @@ certbot renew --dry-run
 
 ---
 
-## 五、运维命令
+## 运维命令
 
 ```bash
 # 查看状态
@@ -207,7 +224,7 @@ pm2 stop artistic-nav
 # 更新代码
 cd /opt/artistic-nav
 git pull
-npm ci --production
+npm ci --omit=dev
 npm run build
 pm2 restart artistic-nav
 
@@ -217,7 +234,7 @@ tar -czf backup-$(date +%Y%m%d).tar.gz prisma/dev.db public/uploads
 
 ---
 
-## 六、安全加固
+## 安全加固
 
 ### 1. 配置防火墙
 
@@ -235,8 +252,6 @@ ufw enable
 
 ### 3. 定期备份
 
-建议设置定时任务自动备份：
-
 ```bash
 crontab -e
 # 添加：每天凌晨3点备份
@@ -245,7 +260,7 @@ crontab -e
 
 ---
 
-## 七、常见问题
+## 常见问题
 
 ### 1. 构建时内存不足
 
@@ -273,7 +288,7 @@ pm2 restart artistic-nav
 
 ---
 
-## 八、访问地址
+## 访问地址
 
 - **前台**: http://YOUR_SERVER_IP
 - **后台**: http://YOUR_SERVER_IP/admin
