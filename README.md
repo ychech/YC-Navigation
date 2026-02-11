@@ -16,6 +16,7 @@
 - 📊 **访问统计** - 链接点击数据分析
 - 🖼️ **画廊展示** - 支持图片展示功能
 - 🌓 **深色模式** - 自动/手动切换
+- 🔒 **安全加固** - 生产环境安全配置
 
 ## 🚀 快速开始
 
@@ -23,6 +24,7 @@
 
 - Node.js 18+
 - SQLite (默认) 或 MySQL 8.0+
+- Docker (可选)
 
 ### 本地开发
 
@@ -54,36 +56,67 @@ npm run dev
 
 ## 📦 部署
 
-### 一键部署（推荐）
+### 四种部署方式
+
+| 方式 | 适用场景 | 速度 |
+|------|---------|------|
+| **Docker 本地构建** | 推荐，服务器网络慢 | ⭐⭐⭐ |
+| **Docker 服务器构建** | 服务器网络好 | ⭐⭐ |
+| **PM2 直接部署** | 快速测试、低配置 | ⭐⭐⭐ |
+| **镜像导入** | 多台服务器部署 | ⭐⭐⭐ |
+
+### 一键部署
 
 ```bash
-# Docker（推荐，安全性更高，2C2G 可用）
+# Docker 方式（推荐）
 curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh | sudo bash -s docker
 
-# Node.js + PM2（资源占用更低）
-curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh | sudo bash
+# PM2 方式
+curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh | sudo bash -s nodejs
 ```
 
-### 方案对比
+### 详细部署文档
 
-| 方案 | 内存 | 安全性 | 推荐场景 |
-|------|------|--------|---------|
-| **Docker** | ~400MB | ⭐⭐⭐ 高（容器隔离） | 生产环境 |
-| **PM2** | ~150MB | ⭐⭐ 中 | 开发/测试 |
+- [DEPLOY.md](./DEPLOY.md) - 完整部署指南
+- [SECURITY.md](./SECURITY.md) - 安全加固指南
 
-> 💡 **安全建议**: Docker 提供进程隔离和文件系统保护，即使应用被入侵也能限制攻击范围
+### 快速部署示例
 
-详见 [DEPLOY.md](./DEPLOY.md) | [SECURITY.md](./SECURITY.md)
+**Docker 部署：**
+```bash
+git clone https://github.com/ychech/YC-Navigation.git
+cd YC-Navigation/deploy
+docker-compose up -d
+```
+
+**本地构建 + 上传：**
+```bash
+# 本地构建
+docker build -f deploy/Dockerfile -t artistic-nav:latest .
+docker save artistic-nav:latest > artistic-nav.tar
+
+# 上传到服务器
+scp artistic-nav.tar root@server:/opt/
+
+# 服务器运行
+ssh root@server "docker load < /opt/artistic-nav.tar && docker run -d -p 3000:3000 artistic-nav:latest"
+```
 
 ## 🗂️ 项目结构
 
 ```
 ├── src/               # 源代码
-├── prisma/            # 数据库模型
-├── public/            # 静态资源
-├── deploy/            # Docker 部署配置
-├── DEPLOY.md          # 部署文档
-└── Dockerfile         # 容器构建
+│   ├── app/          # Next.js 页面和 API
+│   ├── components/   # UI 组件
+│   └── lib/          # 工具库
+├── prisma/           # 数据库模型
+├── public/           # 静态资源
+├── deploy/           # Docker 部署配置
+│   ├── Dockerfile
+│   └── docker-compose.yml
+├── DEPLOY.md         # 部署文档
+├── SECURITY.md       # 安全指南
+└── deploy.sh         # 一键部署脚本
 ```
 
 ## 🔧 技术栈
@@ -91,7 +124,19 @@ curl -fsSL https://raw.githubusercontent.com/ychech/YC-Navigation/main/deploy.sh
 - **框架**: Next.js 15 + React 19
 - **样式**: Tailwind CSS + Framer Motion
 - **数据库**: Prisma + SQLite/MySQL
-- **部署**: PM2 / Docker
+- **部署**: Docker / PM2
+- **安全**: 容器隔离、防火墙、Fail2ban
+
+## 🛡️ 安全特性
+
+- ✅ Docker 容器隔离
+- ✅ 非 root 用户运行
+- ✅ 安全响应头（X-Frame-Options, CSP 等）
+- ✅ Fail2ban 防暴力破解
+- ✅ 自动封禁恶意 IP
+- ✅ 定期安全更新
+
+详见 [SECURITY.md](./SECURITY.md)
 
 ## 📄 许可证
 
