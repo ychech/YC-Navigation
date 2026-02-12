@@ -88,7 +88,7 @@ export function MainContent({ categories, aboutContent, heroSlides, featuredLink
       </div>
       
       {/* Footer - 动态左边距 */}
-      <footer className="relative border-t border-white/5 bg-[#020617] text-gray-500 overflow-hidden transition-colors duration-300">
+      <footer className="relative border-t border-gray-200 dark:border-white/5 bg-white dark:bg-[#020617] text-gray-600 dark:text-gray-500 overflow-hidden transition-colors duration-300">
         {/* Grid Background */}
         <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#6366f1_1px,transparent_1px),linear-gradient(to_bottom,#6366f1_1px,transparent_1px)] bg-[size:40px_40px]" />
         

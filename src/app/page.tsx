@@ -43,7 +43,7 @@ export default async function Home() {
   }
   
   return (
-    <main className="min-h-screen bg-[#020617] dark:bg-[#020617] text-white transition-colors duration-300 relative selection:bg-indigo-500/30">
+    <main className="min-h-screen bg-gray-50 dark:bg-[#020617] text-gray-900 dark:text-white transition-colors duration-300 relative selection:bg-indigo-500/30">
       <GlobalSpotlight />
       <Navbar categories={categories} />
       
@@ -61,7 +61,7 @@ export default async function Home() {
         <div className="absolute inset-0 flex items-center justify-center opacity-30">
           <ParticleWave />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-50/50 to-gray-50 dark:via-[#020617]/50 dark:to-[#020617]" />
       </div>
 
       {/* Main Content with Sidebar */}
