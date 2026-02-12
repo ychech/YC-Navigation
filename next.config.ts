@@ -3,11 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   
-  // 禁用开发指示器
-  devIndicators: {
-    buildActivity: false,
-  },
-  
   // 禁用源码映射（防止泄露代码）
   productionBrowserSourceMaps: false,
   

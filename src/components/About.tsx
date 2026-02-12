@@ -102,9 +102,16 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // 默认使用深色主题，避免 hydration 不匹配
+  const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const totalLinks = categories.reduce((acc, cat) => acc + (cat.links?.length || 0), 0);
 
@@ -168,15 +175,15 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
   }, [currentSlide, displaySlides.length]);
 
   return (
-    <section className={`relative py-24 md:py-32 overflow-hidden transition-colors duration-300 ${isDark ? 'bg-[#0d1117]' : 'bg-gray-50'}`}>
+    <section className={`relative py-16 md:py-20 mt-12 overflow-hidden transition-colors duration-300 ${isDark ? 'bg-[#0d1117]' : 'bg-gray-100'}`}>
       {/* 背景 */}
-      <div className={`absolute inset-0 ${isDark ? 'opacity-30' : 'opacity-10'}`}>
+      <div className={`absolute inset-0 ${isDark ? 'opacity-30' : 'opacity-20'}`}>
         <div 
           className="absolute inset-0"
           style={{
             backgroundImage: isDark 
               ? `linear-gradient(rgba(48,54,61,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(48,54,61,0.4) 1px, transparent 1px)`
-              : `linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`,
+              : `linear-gradient(rgba(0,0,0,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px)`,
             backgroundSize: '40px 40px',
           }}
         />
@@ -249,10 +256,10 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
                         <a
                           key={cat.id}
                           href={`#category-${cat.id}`}
-                          className={`px-3 py-1.5 text-xs font-mono rounded transition-colors ${
+                          className={`px-3 py-1.5 text-xs font-mono rounded transition-colors border ${
                             isDark 
-                              ? 'bg-[#21262d] text-[#7ee787] hover:bg-[#30363d]' 
-                              : 'bg-gray-100 text-green-700 hover:bg-gray-200'
+                              ? 'bg-[#21262d] text-[#7ee787] border-[#30363d] hover:bg-[#30363d]' 
+                              : 'bg-white text-green-700 border-gray-300 hover:bg-gray-50 shadow-sm'
                           }`}
                         >
                           {cat.name.toLowerCase()}
@@ -266,15 +273,15 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
               {/* 右侧：代码块 */}
               <div className="relative">
                 {/* 窗口标题栏 */}
-                <div className={`flex items-center gap-2 px-5 py-4 border border-b-0 rounded-t-lg ${isDark ? 'bg-[#161b22] border-[#30363d]' : 'bg-gray-100 border-gray-200'}`}>
+                <div className={`flex items-center gap-2 px-5 py-4 border border-b-0 rounded-t-lg shadow-sm ${isDark ? 'bg-[#161b22] border-[#30363d]' : 'bg-gray-50 border-gray-300'}`}>
                   <div className="w-3.5 h-3.5 rounded-full bg-[#ff7b72]" />
                   <div className="w-3.5 h-3.5 rounded-full bg-[#ffa657]" />
                   <div className="w-3.5 h-3.5 rounded-full bg-[#3fb950]" />
-                  <span className={`ml-4 text-sm font-mono ${isDark ? 'text-white/40' : 'text-gray-500'}`}>manifest.json</span>
+                  <span className={`ml-4 text-sm font-mono ${isDark ? 'text-white/40' : 'text-gray-600'}`}>manifest.json</span>
                 </div>
                 
                 {/* 代码内容 */}
-                <div className={`p-8 border rounded-b-lg overflow-x-auto ${isDark ? 'bg-[#0d1117] border-[#30363d]' : 'bg-white border-gray-200'}`}>
+                <div className={`p-8 border rounded-b-lg overflow-x-auto shadow-sm ${isDark ? 'bg-[#0d1117] border-[#30363d]' : 'bg-gray-50 border-gray-300'}`}>
                   <CodeBlock code={activeSlide.codeSnippet || "{}"} isDark={isDark} />
                 </div>
 
