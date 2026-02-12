@@ -453,23 +453,23 @@ const Pagination = ({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-6">
+    <div className="flex items-center justify-end gap-2 mt-6">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="w-8 h-8 rounded-lg flex items-center justify-center disabled:opacity-30 transition-colors hover:bg-white/5"
+        className="w-8 h-8 rounded-lg flex items-center justify-center disabled:opacity-30 transition-colors hover:bg-white/10"
       >
         <ChevronLeft size={16} className="text-gray-400" />
       </button>
       
-      <span className="text-sm text-gray-400">
+      <span className="text-sm text-gray-400 min-w-[3rem] text-center">
         {currentPage} / {totalPages}
       </span>
       
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="w-8 h-8 rounded-lg flex items-center justify-center disabled:opacity-30 transition-colors hover:bg-white/5"
+        className="w-8 h-8 rounded-lg flex items-center justify-center disabled:opacity-30 transition-colors hover:bg-white/10"
       >
         <ChevronRight size={16} className="text-gray-400" />
       </button>

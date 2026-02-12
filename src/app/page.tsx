@@ -36,10 +36,24 @@ export default async function Home() {
     // 如果没有配置或解析失败，不显示精选
   }
   
-  if (featuredLinks.length === 0) {
-    featuredLinks = allLinks
-      .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
-      .slice(0, 3);
+  // 如果配置的精选不足3个，从有图片的链接中补充
+  if (featuredLinks.length < 3) {
+    const existingIds = new Set(featuredLinks.map(l => l.id));
+    const linksWithImages = allLinks
+      .filter(link => link.snapshotUrl && !existingIds.has(link.id))
+      .sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+    
+    featuredLinks = [...featuredLinks, ...linksWithImages.slice(0, 3 - featuredLinks.length)];
+  }
+  
+  // 如果还是有不足，用点击量最高的补充
+  if (featuredLinks.length < 3) {
+    const existingIds = new Set(featuredLinks.map(l => l.id));
+    const remainingLinks = allLinks
+      .filter(link => !existingIds.has(link.id))
+      .sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+    
+    featuredLinks = [...featuredLinks, ...remainingLinks.slice(0, 3 - featuredLinks.length)];
   }
   
   return (
