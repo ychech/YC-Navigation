@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import type { AboutContent, HeroSlide, Category, Link } from "@prisma/client";
 import { useState, useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 
 interface AboutProps {
   content: AboutContent;
@@ -43,7 +44,7 @@ function TypeWriter({ text, delay = 0 }: { text: string; delay?: number }) {
 }
 
 // 代码高亮
-function CodeBlock({ code }: { code: string }) {
+function CodeBlock({ code, isDark }: { code: string; isDark: boolean }) {
   const lines = code.split('\n');
   
   const highlight = (line: string) => {
@@ -57,10 +58,10 @@ function CodeBlock({ code }: { code: string }) {
   };
 
   return (
-    <div className="font-mono text-base leading-relaxed">
+    <div className={`font-mono text-base leading-relaxed ${isDark ? 'text-white' : 'text-gray-800'}`}>
       {lines.map((line, i) => (
         <div key={i} className="flex">
-          <span className="text-white/20 w-10 text-right mr-6 select-none text-sm">{i + 1}</span>
+          <span className={`w-10 text-right mr-6 select-none text-sm ${isDark ? 'text-white/20' : 'text-gray-400'}`}>{i + 1}</span>
           <span dangerouslySetInnerHTML={{ __html: highlight(line) }} />
         </div>
       ))}
@@ -72,11 +73,13 @@ function CodeBlock({ code }: { code: string }) {
 function Slider({ 
   total, 
   current, 
-  onChange 
+  onChange,
+  isDark
 }: { 
   total: number; 
   current: number; 
   onChange: (i: number) => void;
+  isDark: boolean;
 }) {
   return (
     <div className="flex items-center gap-1">
@@ -85,7 +88,9 @@ function Slider({
           key={i}
           onClick={() => onChange(i)}
           className={`h-1.5 transition-all duration-300 ${
-            i === current ? 'w-10 bg-[#3fb950]' : 'w-3 bg-white/20 hover:bg-white/40'
+            i === current 
+              ? 'w-10 bg-[#3fb950]' 
+              : isDark ? 'w-3 bg-white/20 hover:bg-white/40' : 'w-3 bg-gray-300 hover:bg-gray-400'
           }`}
         />
       ))}
@@ -98,6 +103,8 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const totalLinks = categories.reduce((acc, cat) => acc + (cat.links?.length || 0), 0);
 
@@ -111,7 +118,7 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
   "version": "2.0.0",
   "status": "running",
   "nodes": ${totalLinks || 0},
-  "mode": "dark"
+  "mode": "${isDark ? 'dark' : 'light'}"
 }`,
   }];
 
@@ -161,13 +168,15 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
   }, [currentSlide, displaySlides.length]);
 
   return (
-    <section className="relative py-24 md:py-32 bg-[#0d1117] overflow-hidden">
-      {/* 黑客风格背景 */}
-      <div className="absolute inset-0 opacity-30">
+    <section className={`relative py-24 md:py-32 overflow-hidden transition-colors duration-300 ${isDark ? 'bg-[#0d1117]' : 'bg-gray-50'}`}>
+      {/* 背景 */}
+      <div className={`absolute inset-0 ${isDark ? 'opacity-30' : 'opacity-10'}`}>
         <div 
           className="absolute inset-0"
           style={{
-            backgroundImage: `linear-gradient(rgba(48,54,61,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(48,54,61,0.4) 1px, transparent 1px)`,
+            backgroundImage: isDark 
+              ? `linear-gradient(rgba(48,54,61,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(48,54,61,0.4) 1px, transparent 1px)`
+              : `linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`,
             backgroundSize: '40px 40px',
           }}
         />
@@ -176,14 +185,14 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
       <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8">
         
         {/* 顶部状态栏 */}
-        <div className="flex items-center justify-between mb-12 text-xs font-mono">
+        <div className={`flex items-center justify-between mb-12 text-xs font-mono ${isDark ? 'text-white/40' : 'text-gray-500'}`}>
           <div className="flex items-center gap-4">
             <span className="text-[#3fb950]">●</span>
-            <span className="text-white/40">ONLINE</span>
-            <span className="text-white/20">|</span>
-            <span className="text-white/40">LATENCY: 12ms</span>
+            <span>ONLINE</span>
+            <span className={isDark ? 'text-white/20' : 'text-gray-300'}>|</span>
+            <span>LATENCY: 12ms</span>
           </div>
-          <div className="text-white/40">
+          <div>
             {new Date().toISOString().split('T')[0]}
           </div>
         </div>
@@ -211,28 +220,28 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
               <div className="space-y-6">
                 {/* 标题 */}
                 <div>
-                  <div className="text-[10px] font-mono text-white/30 mb-2 tracking-wider">
+                  <div className={`text-[10px] font-mono mb-2 tracking-wider ${isDark ? 'text-white/30' : 'text-gray-400'}`}>
                     $ cat identity.txt
                   </div>
-                  <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight">
+                  <h2 className={`text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     {activeSlide.title}
                   </h2>
                 </div>
 
                 {/* 副标题 */}
-                <div className="font-mono text-lg text-[#58a6ff]">
+                <div className={`font-mono text-lg ${isDark ? 'text-[#58a6ff]' : 'text-blue-600'}`}>
                   <TypeWriter text={activeSlide.subtitle} delay={300} />
                 </div>
 
-                {/* 描述 - 使用 description 字段 */}
-                <p className="text-white/50 leading-relaxed max-w-md text-lg">
+                {/* 描述 */}
+                <p className={`leading-relaxed max-w-md text-lg ${isDark ? 'text-white/50' : 'text-gray-600'}`}>
                   {activeSlide.description || "一个精心整理的设计资源库。没有算法推荐，没有广告干扰，只有纯粹的链接。"}
                 </p>
 
                 {/* 分类快速链接 */}
                 {categories.length > 0 && (
                   <div className="pt-6 space-y-2">
-                    <div className="text-[10px] font-mono text-white/30 tracking-wider">
+                    <div className={`text-[10px] font-mono tracking-wider ${isDark ? 'text-white/30' : 'text-gray-400'}`}>
                       $ ls -la categories/
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -240,7 +249,11 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
                         <a
                           key={cat.id}
                           href={`#category-${cat.id}`}
-                          className="px-3 py-1.5 text-xs font-mono bg-[#21262d] text-[#7ee787] hover:bg-[#30363d] transition-colors rounded"
+                          className={`px-3 py-1.5 text-xs font-mono rounded transition-colors ${
+                            isDark 
+                              ? 'bg-[#21262d] text-[#7ee787] hover:bg-[#30363d]' 
+                              : 'bg-gray-100 text-green-700 hover:bg-gray-200'
+                          }`}
                         >
                           {cat.name.toLowerCase()}
                         </a>
@@ -250,19 +263,19 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
                 )}
               </div>
 
-              {/* 右侧：代码块 - 放大版 */}
+              {/* 右侧：代码块 */}
               <div className="relative">
                 {/* 窗口标题栏 */}
-                <div className="flex items-center gap-2 px-5 py-4 bg-[#161b22] border border-[#30363d] border-b-0 rounded-t-lg">
+                <div className={`flex items-center gap-2 px-5 py-4 border border-b-0 rounded-t-lg ${isDark ? 'bg-[#161b22] border-[#30363d]' : 'bg-gray-100 border-gray-200'}`}>
                   <div className="w-3.5 h-3.5 rounded-full bg-[#ff7b72]" />
                   <div className="w-3.5 h-3.5 rounded-full bg-[#ffa657]" />
                   <div className="w-3.5 h-3.5 rounded-full bg-[#3fb950]" />
-                  <span className="ml-4 text-sm font-mono text-white/40">manifest.json</span>
+                  <span className={`ml-4 text-sm font-mono ${isDark ? 'text-white/40' : 'text-gray-500'}`}>manifest.json</span>
                 </div>
                 
-                {/* 代码内容 - 放大 */}
-                <div className="p-8 bg-[#0d1117] border border-[#30363d] rounded-b-lg overflow-x-auto">
-                  <CodeBlock code={activeSlide.codeSnippet || "{}"} />
+                {/* 代码内容 */}
+                <div className={`p-8 border rounded-b-lg overflow-x-auto ${isDark ? 'bg-[#0d1117] border-[#30363d]' : 'bg-white border-gray-200'}`}>
+                  <CodeBlock code={activeSlide.codeSnippet || "{}"} isDark={isDark} />
                 </div>
 
                 {/* 装饰角标 */}
@@ -274,28 +287,29 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
         </div>
 
         {/* 底部控制栏 */}
-        <div className="flex items-center justify-between mt-12 pt-6 border-t border-[#30363d]">
+        <div className={`flex items-center justify-between mt-12 pt-6 border-t ${isDark ? 'border-[#30363d]' : 'border-gray-200'}`}>
           {/* 滑动指示器 */}
           <Slider 
             total={displaySlides.length} 
             current={currentSlide} 
             onChange={setCurrentSlide}
+            isDark={isDark}
           />
 
           {/* 统计 */}
-          <div className="flex items-center gap-6 text-xs font-mono">
-            <div className="text-white/40">
-              NODES: <span className="text-[#79c0ff]">{totalLinks}</span>
+          <div className={`flex items-center gap-6 text-xs font-mono ${isDark ? 'text-white/40' : 'text-gray-500'}`}>
+            <div>
+              NODES: <span className={isDark ? 'text-[#79c0ff]' : 'text-blue-600'}>{totalLinks}</span>
             </div>
-            <div className="text-white/40">
-              SLIDE: <span className="text-[#79c0ff]">{currentSlide + 1}/{displaySlides.length}</span>
+            <div>
+              SLIDE: <span className={isDark ? 'text-[#79c0ff]' : 'text-blue-600'}>{currentSlide + 1}/{displaySlides.length}</span>
             </div>
           </div>
 
           {/* 键盘提示 */}
-          <div className="hidden md:flex items-center gap-2 text-[10px] font-mono text-white/30">
-            <span className="px-2 py-1 bg-[#21262d] rounded">←</span>
-            <span className="px-2 py-1 bg-[#21262d] rounded">→</span>
+          <div className={`hidden md:flex items-center gap-2 text-[10px] font-mono ${isDark ? 'text-white/30' : 'text-gray-400'}`}>
+            <span className={`px-2 py-1 rounded ${isDark ? 'bg-[#21262d]' : 'bg-gray-100'}`}>←</span>
+            <span className={`px-2 py-1 rounded ${isDark ? 'bg-[#21262d]' : 'bg-gray-100'}`}>→</span>
             <span>to navigate</span>
           </div>
         </div>
