@@ -7,20 +7,21 @@ interface AnimatedSectionHeaderProps {
   index: number;
   title: string;
   count: number;
+  compact?: boolean;
 }
 
-export const AnimatedSectionHeader = ({ index, title, count }: AnimatedSectionHeaderProps) => {
+export const AnimatedSectionHeader = ({ index, title, count, compact }: AnimatedSectionHeaderProps) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <div ref={ref} className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-gray-200 dark:border-white/5 pb-8">
+    <div ref={ref} className={`flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-gray-200 dark:border-white/5 ${compact ? 'mb-6 pb-4' : 'mb-12 pb-8'}`}>
       <div>
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={isInView ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex items-center gap-3 mb-3"
+          className={`flex items-center gap-3 ${compact ? 'mb-2' : 'mb-3'}`}
         >
           <span className="text-[10px] font-mono text-indigo-500">0{index + 1}</span>
           <div className="h-[1px] w-8 bg-indigo-500/30" />
@@ -31,7 +32,7 @@ export const AnimatedSectionHeader = ({ index, title, count }: AnimatedSectionHe
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="text-3xl md:text-4xl font-black tracking-tighter text-gray-900 dark:text-white"
+          className={`font-black tracking-tighter text-gray-900 dark:text-white ${compact ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}
         >
           <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-600 to-gray-400 dark:from-white dark:via-white dark:to-gray-500">
             {title}

@@ -67,6 +67,7 @@ export function MainContent({ categories, aboutContent, heroSlides, featuredLink
                   index={idx} 
                   title={category.name} 
                   count={category.links?.length || 0} 
+                  compact={idx > 0}
                 />
               </div>
               
@@ -81,7 +82,7 @@ export function MainContent({ categories, aboutContent, heroSlides, featuredLink
 
         {/* About Section - 自然过渡 */}
         {aboutContent && (
-          <div id="about" className="mt-8">
+          <div id="about" className="mt-20">
             <About content={aboutContent} slides={heroSlides} categories={categories} />
           </div>
         )}
