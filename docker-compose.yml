@@ -1,85 +1,55 @@
-version: '3.8'
-
 services:
-  artistic-nav:
-    container_name: artistic-nav
+  app:
     build:
       context: .
       dockerfile: Dockerfile
+    image: artistic-nav:latest
+    container_name: artistic-nav
     restart: always
     ports:
       - "3000:3000"
     environment:
-      # ==========================================
-      # 数据库配置 (Database Configuration)
-      # ==========================================
-      
-      # --- SQLite 模式 (默认，适合小内存服务器) ---
-      # 优点：零配置、单文件、内存占用极低
-      # 注意：路径相对于 prisma/schema.prisma 文件位置
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/prisma/dev.db
       - DB_PROVIDER=sqlite
-      - DATABASE_URL=file:./dev.db
-      
-      # --- MySQL 模式 (适合高并发) ---
-      # 取消注释以下行，并注释掉上面的 SQLite 配置
-      # - DB_PROVIDER=mysql
-      # - DATABASE_URL=mysql://root:password@mysql:3306/artistic_nav
-      
-      # ==========================================
-      # 安全相关配置
-      # ==========================================
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-your-secret-key-change-this}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-changeme}
-      
-      # ==========================================
-      # 存储配置
-      # Options: 'local' | 'oss'
-      # ==========================================
-      - STORAGE_TYPE=${STORAGE_TYPE:-local}
-      
-      # 阿里云 OSS 配置 (仅在 STORAGE_TYPE=oss 时需要)
-      - OSS_REGION=${OSS_REGION:-}
-      - OSS_ACCESS_KEY_ID=${OSS_ACCESS_KEY_ID:-}
-      - OSS_ACCESS_KEY_SECRET=${OSS_ACCESS_KEY_SECRET:-}
-      - OSS_BUCKET=${OSS_BUCKET:-}
-      - OSS_DOMAIN=${OSS_DOMAIN:-}
-      
+      - STORAGE_TYPE=local
     volumes:
-      # SQLite 数据库文件持久化 (注意：容器内路径要对应 DATABASE_URL)
-      - ./prisma/dev.db:/app/prisma/dev.db
-      # 本地存储的上传文件持久化
-      - ./public/uploads:/app/public/uploads
-      # 可选：映射 .env 文件以便动态修改配置
-      - ./.env:/app/.env:ro
-    
-    # 启动命令：先初始化数据库，再启动应用
-    command: >
-      sh -c "
-        echo 'Initializing database...' &&
-        npx prisma db push --accept-data-loss 2>/dev/null || true &&
-        echo 'Starting application...' &&
-        node server.js
-      "
-    
-    # 如果使用 MySQL 模式，取消注释下面的 depends_on
-    # depends_on:
-    #   - mysql
+      # 数据持久化 - 使用命名卷确保权限正确
+      - prisma-data:/app/prisma
+      - uploads-data:/app/public/uploads
+    networks:
+      - artistic-nav-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  # ==========================================
-  # MySQL 服务 (仅在 MySQL 模式下需要)
-  # ==========================================
-  # mysql:
-  #   container_name: artistic-nav-mysql
-  #   image: mysql:8.0
-  #   restart: always
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=password
-  #     - MYSQL_DATABASE=artistic_nav
-  #   ports:
-  #     - "3306:3306"
-  #   volumes:
-  #     - mysql_data:/var/lib/mysql
-  #   command: --default-authentication-plugin=mysql_native_password
+  # Nginx 反向代理
+  nginx:
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:alpine
+    container_name: artistic-nav-nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - uploads-data:/usr/share/nginx/html/uploads:ro
+    depends_on:
+      - app
+    networks:
+      - artistic-nav-network
 
-# volumes:
-#   mysql_data:
+networks:
+  artistic-nav-network:
+    driver: bridge
+
+volumes:
+  prisma-data:
+    driver: local
+  uploads-data:
+    driver: local

@@ -355,7 +355,7 @@ const LinkCard = memo(({
           
           {/* 标签 */}
           <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[calc(100%-16px)]">
-            {tags.slice(0, 2).map((tag, idx) => (
+            {tags.slice(0, 2).map((tag: string, idx: number) => (
               <span
                 key={idx}
                 className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold"

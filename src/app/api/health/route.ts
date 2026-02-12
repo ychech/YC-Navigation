@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export const dynamic = 'force-dynamic';
-
 export async function GET() {
   try {
     // 检查数据库连接
@@ -11,15 +9,14 @@ export async function GET() {
     return NextResponse.json({
       status: "healthy",
       timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      database: "connected"
-    }, { status: 200 });
+      database: "connected",
+    });
   } catch (error) {
     return NextResponse.json({
       status: "unhealthy",
       timestamp: new Date().toISOString(),
       database: "disconnected",
-      error: error instanceof Error ? error.message : "Unknown error"
+      error: error instanceof Error ? error.message : "Unknown error",
     }, { status: 503 });
   }
 }
