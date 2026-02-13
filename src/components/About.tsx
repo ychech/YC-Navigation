@@ -9,6 +9,7 @@ interface AboutProps {
   content: AboutContent;
   slides?: HeroSlide[];
   categories?: (Category & { links: Link[] })[];
+  codeFileName?: string;
 }
 
 // 打字机效果
@@ -98,7 +99,7 @@ function Slider({
   );
 }
 
-export const About = ({ content, slides = [], categories = [] }: AboutProps) => {
+export const About = ({ content, slides = [], categories = [], codeFileName = "manifest.json" }: AboutProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -175,7 +176,21 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
   }, [currentSlide, displaySlides.length]);
 
   return (
-    <section className={`relative py-16 md:py-20 mt-12 overflow-hidden transition-colors duration-300 ${isDark ? 'bg-[#0d1117]' : 'bg-gray-100'}`}>
+    <>
+      {/* 波浪过渡效果 */}
+      <div className={`relative h-24 w-full overflow-hidden ${isDark ? 'bg-[#020617]' : 'bg-gray-50'}`}>
+        <svg 
+          className="absolute bottom-0 w-full h-full" 
+          viewBox="0 0 1440 100" 
+          preserveAspectRatio="none"
+        >
+          <path 
+            fill={isDark ? '#0d1117' : '#f3f4f6'}
+            d="M0,50 C360,100 1080,0 1440,50 L1440,100 L0,100 Z"
+          />
+        </svg>
+      </div>
+    <section className={`relative py-16 md:py-20 overflow-hidden transition-colors duration-300 ${isDark ? 'bg-[#0d1117]' : 'bg-gray-100'}`}>
       {/* 背景 */}
       <div className={`absolute inset-0 ${isDark ? 'opacity-30' : 'opacity-20'}`}>
         <div 
@@ -277,7 +292,7 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
                   <div className="w-3.5 h-3.5 rounded-full bg-[#ff7b72]" />
                   <div className="w-3.5 h-3.5 rounded-full bg-[#ffa657]" />
                   <div className="w-3.5 h-3.5 rounded-full bg-[#3fb950]" />
-                  <span className={`ml-4 text-sm font-mono ${isDark ? 'text-white/40' : 'text-gray-600'}`}>manifest.json</span>
+                  <span className={`ml-4 text-sm font-mono ${isDark ? 'text-white/40' : 'text-gray-600'}`}>{codeFileName}</span>
                 </div>
                 
                 {/* 代码内容 */}
@@ -322,5 +337,6 @@ export const About = ({ content, slides = [], categories = [] }: AboutProps) => 
         </div>
       </div>
     </section>
+    </>
   );
 };

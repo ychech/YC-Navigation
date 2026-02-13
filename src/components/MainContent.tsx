@@ -83,7 +83,7 @@ export function MainContent({ categories, aboutContent, heroSlides, featuredLink
         {/* About Section - 自然过渡 */}
         {aboutContent && (
           <div id="about" className="mt-20">
-            <About content={aboutContent} slides={heroSlides} categories={categories} />
+            <About content={aboutContent} slides={heroSlides} categories={categories} codeFileName={configMap.code_filename || "manifest.json"} />
           </div>
         )}
       </div>
