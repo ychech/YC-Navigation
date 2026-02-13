@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { AboutContent, HeroSlide, Category, Link } from "@prisma/client";
 import { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
+import { RealWater } from "./RealWater";
 
 interface AboutProps {
   content: AboutContent;
@@ -177,53 +178,8 @@ export const About = ({ content, slides = [], categories = [], codeFileName = "m
 
   return (
     <>
-      {/* 透明水面过渡 */}
-      <div className="relative h-24 w-full overflow-hidden">
-        <style>{`
-          @keyframes water-ripple {
-            0%, 100% { 
-              background-position: 0% 0%;
-              transform: translateY(0);
-            }
-            50% { 
-              background-position: 100% 0%;
-              transform: translateY(-1px);
-            }
-          }
-          @keyframes light-move {
-            0% { left: -10%; opacity: 0; }
-            50% { opacity: 0.3; }
-            100% { left: 110%; opacity: 0; }
-          }
-          .water-surface {
-            background: repeating-linear-gradient(
-              90deg,
-              transparent,
-              transparent 50px,
-              rgba(255,255,255,0.02) 50px,
-              rgba(255,255,255,0.02) 51px
-            );
-            animation: water-ripple 8s ease-in-out infinite;
-          }
-          .light-streak {
-            animation: light-move 5s ease-in-out infinite;
-          }
-        `}</style>
-        
-        {/* 深色背景 - 像深水 */}
-        <div className="absolute inset-0 bg-[#0a0f1a]" />
-        
-        {/* 水表面纹理 */}
-        <div className="absolute inset-0 water-surface" />
-        
-        {/* 横向移动的光条 - 像阳光反射 */}
-        <div className="absolute top-1/3 w-20 h-px bg-white/20 blur-sm light-streak" />
-        <div className="absolute top-1/2 w-16 h-px bg-white/15 blur-sm light-streak" style={{animationDelay: '2s'}} />
-        <div className="absolute bottom-1/3 w-24 h-px bg-white/10 blur-sm light-streak" style={{animationDelay: '4s'}} />
-        
-        {/* 细微的波浪线 */}
-        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-      </div>
+      {/* 真实水波纹效果 */}
+      <RealWater />
     <section className={`relative py-16 md:py-20 overflow-hidden transition-colors duration-300 rounded-t-[3rem] ${isDark ? 'bg-[#0d1117]' : 'bg-gray-100'}`}>
       {/* 背景 */}
       <div className={`absolute inset-0 ${isDark ? 'opacity-30' : 'opacity-20'}`}>
