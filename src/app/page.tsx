@@ -59,7 +59,11 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-[#020617] text-gray-900 dark:text-white transition-colors duration-300 relative selection:bg-indigo-500/30">
       <GlobalSpotlight />
-      <Navbar categories={categories} />
+      <Navbar 
+        categories={categories} 
+        siteName={configMap.site_name || "艺术导航"}
+        siteSlogan={configMap.site_slogan || "ARTISTIC NAV"}
+      />
       
       {/* Hero Section */}
       <Hero 

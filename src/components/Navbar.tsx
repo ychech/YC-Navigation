@@ -11,13 +11,13 @@ import { Category, Link as PrismaLink } from "@prisma/client";
 const MotionLink = motion(Link);
 
 // --- New NavBrand Component ---
-const NavBrand = () => {
+const NavBrand = ({ siteName = "艺术导航", siteSlogan = "ARTISTIC NAV" }: { siteName?: string; siteSlogan?: string }) => {
   return (
     <Link href="/" className="group flex items-center gap-4 relative z-50">
       <div className="flex flex-col">
         <h1 className="text-xl font-black tracking-tight flex items-center gap-[2px]">
-          {/* Character-level animation for "艺术导航" - Liquid Metal Style */}
-          {["艺", "术", "导", "航"].map((char, i) => (
+          {/* Character-level animation for site name */}
+          {siteName.split("").map((char, i) => (
             <motion.span
               key={i}
               className="inline-block bg-clip-text text-transparent bg-gradient-to-b from-slate-900 via-slate-600 to-slate-400 dark:from-white dark:via-gray-300 dark:to-gray-500 drop-shadow-sm"
@@ -34,7 +34,7 @@ const NavBrand = () => {
           ))}
         </h1>
         <span className="text-[10px] font-mono text-gray-500 tracking-[0.2em] uppercase group-hover:text-indigo-600 dark:group-hover:text-gray-300 transition-colors flex items-center gap-1">
-          ARTISTIC NAV
+          {siteSlogan}
         </span>
       </div>
     </Link>
@@ -43,9 +43,11 @@ const NavBrand = () => {
 
 interface NavbarProps {
   categories?: (Category & { links: PrismaLink[] })[];
+  siteName?: string;
+  siteSlogan?: string;
 }
 
-export const Navbar = ({ categories = [] }: NavbarProps) => {
+export const Navbar = ({ categories = [], siteName = "艺术导航", siteSlogan = "ARTISTIC NAV" }: NavbarProps) => {
   const { scrollY, scrollYProgress } = useScroll();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -111,7 +113,7 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
       />
 
       <div className="flex items-center gap-12">
-        <NavBrand />
+        <NavBrand siteName={siteName} siteSlogan={siteSlogan} />
         
         <div className="hidden lg:flex items-center gap-3 text-[10px] text-gray-400 font-black tracking-widest font-mono">
           <Clock size={10} />
