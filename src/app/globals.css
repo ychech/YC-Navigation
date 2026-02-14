@@ -43,6 +43,16 @@
   100% { background-position: 40px 40px; }
 }
 
+/* 流光渐变动画 */
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 3s ease infinite;
+}
+
 .glow-border:focus-within {
   box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.2), 0 0 15px rgba(29, 78, 216, 0.1);
   border-color: rgba(29, 78, 216, 0.4);

@@ -31,7 +31,7 @@ export function MainContent({ categories, aboutContent, heroSlides, featuredLink
       
       {/* Main Content - 动态左边距 */}
       <div 
-        className={`w-full mx-auto px-4 md:px-6 lg:px-8 xl:px-12 pb-20 relative z-10 -mt-20 transition-all duration-300 ${
+        className={`w-full mx-auto px-4 md:px-6 lg:px-8 xl:px-12 pt-4 pb-20 relative z-10 transition-all duration-300 ${
           isSidebarCollapsed 
             ? 'max-w-[1920px] xl:pl-24' 
             : 'max-w-[1800px] xl:pl-56'
@@ -59,7 +59,7 @@ export function MainContent({ categories, aboutContent, heroSlides, featuredLink
               {/* Section Header with Decorative Line */}
               <div className="relative mb-8">
                 {/* Desktop: Left Line - 根据侧边栏状态调整位置 */}
-                <div className={`hidden xl:block absolute top-1/2 -translate-y-1/2 w-8 h-[1px] bg-gradient-to-r from-indigo-500/50 to-transparent transition-all duration-300 ${
+                <div className={`hidden xl:block absolute top-1/2 -translate-y-1/2 w-8 h-[1px] bg-gradient-to-r from-gray-400/50 to-transparent transition-all duration-300 ${
                   isSidebarCollapsed ? '-left-8' : '-left-12'
                 }`} />
                 
@@ -80,9 +80,9 @@ export function MainContent({ categories, aboutContent, heroSlides, featuredLink
           ))}
         </div>
 
-        {/* About Section - 自然过渡 */}
+        {/* About Section */}
         {aboutContent && (
-          <div id="about" className="mt-20">
+          <div id="about" className="mt-32 mb-12">
             <About content={aboutContent} slides={heroSlides} categories={categories} codeFileName={configMap.code_filename || "manifest.json"} />
           </div>
         )}
@@ -114,8 +114,8 @@ export function MainContent({ categories, aboutContent, heroSlides, featuredLink
             {/* Right */}
             <div className="flex items-center gap-8 text-xs font-mono text-gray-500">
               <div className="flex items-center gap-4">
-                <span className="text-[10px] uppercase tracking-widest text-indigo-500/40 font-bold">Contact</span>
-                <a href={`mailto:${configMap.contact_email}`} className="hover:text-indigo-400 transition-colors flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-widest text-gray-400/40 font-bold">Contact</span>
+                <a href={`mailto:${configMap.contact_email}`} className="hover:text-gray-400 transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 bg-gray-600 rounded-full" />
                   {configMap.contact_email || "hello@artistic-nav.com"}
                 </a>
@@ -126,8 +126,8 @@ export function MainContent({ categories, aboutContent, heroSlides, featuredLink
               <div className="flex items-center gap-4">
                 <span className="text-[10px] uppercase tracking-widest text-indigo-500/40 font-bold">Social</span>
                 <div className="flex gap-4">
-                  <a href="#" className="hover:text-indigo-400 transition-colors">Twitter</a>
-                  <a href="#" className="hover:text-indigo-400 transition-colors">Instagram</a>
+                  <a href="#" className="hover:text-gray-400 transition-colors">Twitter</a>
+                  <a href="#" className="hover:text-gray-400 transition-colors">Instagram</a>
                 </div>
               </div>
             </div>

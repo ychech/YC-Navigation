@@ -48,7 +48,7 @@ export const AnimatedSectionHeader = ({ index, title, count, compact }: Animated
       >
         <div className="flex flex-col items-end">
            <span className="text-[10px] uppercase tracking-widest text-indigo-500/60 dark:text-indigo-500/40 font-bold">Assets</span>
-           <span className="text-xl font-mono text-indigo-600 dark:text-indigo-400 font-bold leading-none">{count.toString().padStart(2, '0')}</span>
+           <span className="text-xl font-mono text-gray-600 dark:text-gray-400 font-bold leading-none">{count.toString().padStart(2, '0')}</span>
         </div>
         <div className="w-[1px] h-8 bg-gray-200 dark:bg-white/10" />
       </motion.div>

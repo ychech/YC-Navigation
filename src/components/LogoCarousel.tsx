@@ -32,7 +32,7 @@ const LogoItem = memo(({ link, index }: { link: PrismaLink; index: number }) => 
           />
         </div>
       ) : (
-        <div className="w-6 h-6 bg-indigo-500/20 rounded flex items-center justify-center text-xs font-bold text-indigo-600">
+        <div className="w-6 h-6 bg-gray-500/20 rounded flex items-center justify-center text-xs font-bold text-gray-400">
           {link.title[0].toUpperCase()}
         </div>
       )}
@@ -67,6 +67,20 @@ export const LogoCarousel = ({ links }: LogoCarouselProps) => {
 
   return (
     <div className="w-full overflow-hidden py-6 relative border-b border-gray-200 dark:border-white/5 bg-transparent transition-colors duration-300">
+      {/* 灵动线条 - 上方 - 白色 */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] overflow-hidden">
+        <div 
+          className="w-1/4 h-full bg-gradient-to-r from-transparent via-white/60 to-transparent"
+          style={{ animation: 'slideLine 4s ease-in-out infinite' }} 
+        />
+      </div>
+      <style>{`
+        @keyframes slideLine {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(400%); }
+        }
+      `}</style>
+      
       {/* Gradient Masks for fading edges - 使用透明渐变 */}
       <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-[#020617] dark:via-[#020617]/80 z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white via-white/80 to-transparent dark:from-[#020617] dark:via-[#020617]/80 z-10 pointer-events-none" />

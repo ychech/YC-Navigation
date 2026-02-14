@@ -73,14 +73,8 @@ export default async function Home() {
         systemCode={configMap.site_slogan || "ARCHIVE.OS"}
       />
 
-      {/* Visual Transition Zone */}
-      <div className="relative w-full h-[200px] -mt-[100px] z-10 pointer-events-none">
-        <StarFieldTransition />
-        <div className="absolute inset-0 flex items-center justify-center opacity-30">
-          <ParticleWave />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-50/50 to-gray-50 dark:via-[#020617]/50 dark:to-[#020617]" />
-      </div>
+      {/* 无缝过渡 */}
+      <div className="relative z-10 h-8 bg-gradient-to-b from-[#020617] to-gray-50 dark:from-[#020617] dark:to-[#020617]" />
 
       {/* Main Content with Sidebar */}
       <MainContent 
