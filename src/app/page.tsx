@@ -74,7 +74,7 @@ export default async function Home() {
       />
 
       {/* 无缝过渡 */}
-      <div className="relative z-10 h-8 bg-gradient-to-b from-[#020617] to-gray-50 dark:from-[#020617] dark:to-[#020617]" />
+      <div className="relative z-10 h-8 bg-gradient-to-b from-[#020617] to-gray-50 dark:from-[#020617] dark:to-[#020617]" style={{ background: 'linear-gradient(to bottom, #020617, rgb(249, 250, 251))' }} />
 
       {/* Main Content with Sidebar */}
       <MainContent 
