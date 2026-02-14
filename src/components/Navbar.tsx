@@ -8,48 +8,32 @@ import { useTheme } from "next-themes";
 import Link from "next/link";
 import { Category, Link as PrismaLink } from "@prisma/client";
 
-// Logo 组件 - 中国风毛笔字 + 印章
-const NavBrand = () => {
+// Logo 组件 - 字符级流光特效
+const NavBrand = ({ siteName = "艺术导航", siteSlogan = "ARTISTIC NAV" }: { siteName?: string; siteSlogan?: string }) => {
   return (
-    <Link href="/" className="flex items-center gap-3 relative z-50 group">
-      {/* 黑色圆形 - 毛笔字背景 */}
-      <div className="relative w-11 h-11">
-        {/* 黑色圆底 */}
-        <div className="absolute inset-0 rounded-full bg-black border-2 border-gray-800 shadow-lg" />
-        
-        {/* 白色毛笔字 */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span 
-            className="text-white text-xl font-bold tracking-widest transform -rotate-6"
-            style={{ 
-              fontFamily: '"Noto Serif SC", "Source Han Serif SC", "STKaiti", "KaiTi", serif',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+    <Link href="/" className="group flex flex-col relative z-50">
+      {/* 主标题 - 分散字符动画 */}
+      <h1 className="text-xl font-black tracking-tight flex items-center gap-[2px]">
+        {siteName.split("").map((char, i) => (
+          <motion.span
+            key={i}
+            className="inline-block bg-clip-text text-transparent bg-gradient-to-b from-white via-gray-300 to-gray-500 drop-shadow-sm"
+            whileHover={{ 
+              y: -3, 
+              scale: 1.1,
+              textShadow: "0 0 10px rgba(255,255,255,0.5)",
+              backgroundImage: "linear-gradient(to bottom, #fff, #ccc, #999)"
             }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
           >
-            艺
-          </span>
-        </div>
-        
-        {/* 红色印章 - 右下角 */}
-        <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-red-600 rounded-sm border border-red-700 shadow-md flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-transform duration-300">
-          <span 
-            className="text-white text-[7px] font-bold"
-            style={{ fontFamily: '"Noto Serif SC", serif' }}
-          >
-            术
-          </span>
-        </div>
-      </div>
-      
-      {/* 文字标题 */}
-      <div className="flex flex-col">
-        <span 
-          className="text-xl text-gray-900 dark:text-white tracking-widest"
-          style={{ fontFamily: '"Noto Serif SC", "Source Han Serif SC", serif' }}
-        >
-          艺术导航
-        </span>
-      </div>
+            {char}
+          </motion.span>
+        ))}
+      </h1>
+      {/* 副标题 */}
+      <span className="text-[9px] font-mono text-gray-500 tracking-[0.2em] uppercase">
+        {siteSlogan}
+      </span>
     </Link>
   );
 };
@@ -60,7 +44,7 @@ interface NavbarProps {
   siteSlogan?: string;
 }
 
-export const Navbar = ({ categories = [] }: NavbarProps) => {
+export const Navbar = ({ categories = [], siteName = "艺术导航", siteSlogan = "ARTISTIC NAV" }: NavbarProps) => {
   const { scrollY } = useScroll();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -106,29 +90,31 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
       style={{ backgroundColor }}
       className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl"
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <NavBrand />
+      <div className="w-full px-6 md:px-12 h-16 flex items-center justify-between">
+        {/* Logo - 左边 */}
+        <NavBrand siteName={siteName} siteSlogan={siteSlogan} />
 
-        {/* Navigation */}
-        <nav className="hidden md:flex items-center gap-1">
-          {[
-            { label: "目录", href: "/#directory" },
-            { label: "画廊", href: "/gallery" },
-            { label: "关于", href: "/#about" }
-          ].map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-white/5"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        {/* 右边所有内容 */}
+        <div className="flex items-center gap-4">
+          {/* Navigation - 右边 */}
+          <nav className="hidden md:flex items-center gap-1">
+            {[
+              { label: "目录", href: "/#directory" },
+              { label: "画廊", href: "/gallery" },
+              { label: "关于", href: "/#about" }
+            ].map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-white/5"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
 
-        {/* Right Side */}
-        <div className="flex items-center gap-2">
+          {/* Buttons */}
+          <div className="flex items-center gap-2">
           <div className="hidden lg:flex items-center gap-1.5 text-xs text-gray-400 font-mono mr-2">
             <Clock size={12} />
             <span>{time}</span>
@@ -156,6 +142,7 @@ export const Navbar = ({ categories = [] }: NavbarProps) => {
           >
             <LayoutDashboard size={16} />
           </Link>
+          </div>
         </div>
       </div>
     </motion.nav>

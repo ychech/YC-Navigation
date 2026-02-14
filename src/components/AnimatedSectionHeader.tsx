@@ -23,8 +23,8 @@ export const AnimatedSectionHeader = ({ index, title, count, compact }: Animated
           transition={{ duration: 0.6, delay: 0.2 }}
           className={`flex items-center gap-3 ${compact ? 'mb-2' : 'mb-3'}`}
         >
-          <span className="text-[10px] font-mono text-indigo-500">0{index + 1}</span>
-          <div className="h-[1px] w-8 bg-indigo-500/30" />
+          <span className="text-[10px] font-mono text-amber-400">0{index + 1}</span>
+          <div className="h-[1px] w-8 bg-amber-500/30" />
           <p className="text-[10px] uppercase tracking-[0.3em] text-gray-500 font-bold">Section / {title}</p>
         </motion.div>
         
@@ -47,7 +47,7 @@ export const AnimatedSectionHeader = ({ index, title, count, compact }: Animated
         className="flex items-center gap-4"
       >
         <div className="flex flex-col items-end">
-           <span className="text-[10px] uppercase tracking-widest text-indigo-500/60 dark:text-indigo-500/40 font-bold">Assets</span>
+           <span className="text-[10px] uppercase tracking-widest text-amber-500/60 dark:text-amber-500/40 font-bold">Assets</span>
            <span className="text-xl font-mono text-gray-600 dark:text-gray-400 font-bold leading-none">{count.toString().padStart(2, '0')}</span>
         </div>
         <div className="w-[1px] h-8 bg-gray-200 dark:bg-white/10" />

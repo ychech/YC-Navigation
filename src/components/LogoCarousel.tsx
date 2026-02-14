@@ -66,18 +66,18 @@ export const LogoCarousel = ({ links }: LogoCarouselProps) => {
   const displayLinks = Array(multiplier).fill(validLinks).flat();
 
   return (
-    <div className="w-full overflow-hidden py-6 relative border-b border-gray-200 dark:border-white/5 bg-transparent transition-colors duration-300">
-      {/* 灵动线条 - 上方 - 白色 */}
+    <div className="w-full overflow-hidden py-3 relative border-b border-gray-200 dark:border-white/5 bg-transparent transition-colors duration-300">
+      {/* 顶部动态白色线条 */}
       <div className="absolute top-0 left-0 right-0 h-[1px] overflow-hidden">
         <div 
-          className="w-1/4 h-full bg-gradient-to-r from-transparent via-white/60 to-transparent"
-          style={{ animation: 'slideLine 4s ease-in-out infinite' }} 
+          className="w-1/3 h-full bg-gradient-to-r from-transparent via-white/60 to-transparent"
+          style={{ animation: 'slideLine 3s ease-in-out infinite' }} 
         />
       </div>
       <style>{`
         @keyframes slideLine {
           0% { transform: translateX(-100%); }
-          100% { transform: translateX(400%); }
+          100% { transform: translateX(300%); }
         }
       `}</style>
       

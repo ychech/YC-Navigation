@@ -29,6 +29,7 @@ export function ConfigTab() {
   const [passwordChange, setPasswordChange] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
   const [adminTitles, setAdminTitles] = useState<Record<string, string>>({});
   const [siteSlogan, setSiteSlogan] = useState("ART.NAV");
+  const [codeFileName, setCodeFileName] = useState("manifest.json");
   
   // 精选管理
   const [allLinks, setAllLinks] = useState<Link[]>([]);
@@ -62,6 +63,10 @@ export function ConfigTab() {
     // 加载站点标语
     const sloganConfig = data.find((c: any) => c.key === "site_slogan");
     if (sloganConfig) setSiteSlogan(sloganConfig.value);
+    
+    // 加载代码文件名
+    const codeFileConfig = data.find((c: any) => c.key === "code_filename");
+    if (codeFileConfig) setCodeFileName(codeFileConfig.value);
     
     // 加载精选配置
     const featuredConfig = data.find((c: any) => c.key === "featured_links");
@@ -123,6 +128,14 @@ export function ConfigTab() {
       newConfigs[sloganIndex].value = siteSlogan;
     } else {
       newConfigs.push({ key: "site_slogan", value: siteSlogan });
+    }
+    
+    // 保存代码文件名
+    const codeFileIndex = newConfigs.findIndex((c: any) => c.key === "code_filename");
+    if (codeFileIndex >= 0) {
+      newConfigs[codeFileIndex].value = codeFileName;
+    } else {
+      newConfigs.push({ key: "code_filename", value: codeFileName });
     }
     
     // 保存各个菜单标题
@@ -406,6 +419,21 @@ export function ConfigTab() {
               className="w-full bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-5 text-sm font-bold focus:outline-none glow-border transition-all"
               placeholder="ART.NAV"
             />
+          </div>
+          
+          {/* 代码窗口标题 */}
+          <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-white/5">
+            <label className="text-[9px] uppercase tracking-[0.5em] text-gray-400 font-black ml-1 opacity-50">
+              关于区域代码窗口标题
+            </label>
+            <input
+              type="text"
+              value={codeFileName}
+              onChange={(e) => setCodeFileName(e.target.value)}
+              className="w-full bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-5 text-sm font-bold focus:outline-none glow-border transition-all"
+              placeholder="manifest.json"
+            />
+            <p className="text-xs text-gray-400 ml-1">显示在关于区域代码块顶部，如：manifest.json、config.yml 等</p>
           </div>
           
           {/* 各个菜单标题 */}

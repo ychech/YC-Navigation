@@ -50,7 +50,7 @@ function CodeBlock({ code, isDark }: { code: string; isDark: boolean }) {
     <div className={`font-mono text-xs md:text-sm leading-relaxed ${isDark ? 'text-white/80' : 'text-gray-700'}`}>
       {lines.map((line, i) => (
         <div key={i} className="flex">
-          <span className={`w-6 md:w-8 text-right mr-3 md:mr-4 select-none text-xs ${isDark ? 'text-white/30' : 'text-gray-400'}`}>{i + 1}</span>
+          <span className={`w-6 md:w-8 text-right mr-3 md:mr-4 select-none text-xs ${isDark ? 'text-white/30' : 'text-[#58a6ff]'}`}>{i + 1}</span>
           <span className="truncate">{line}</span>
         </div>
       ))}
@@ -145,8 +145,32 @@ export const About = ({ content, slides = [], categories = [], codeFileName = "m
           : 'bg-white border border-gray-200 shadow-lg'
         }
       `}>
-        {/* 简洁蓝色渐变背景 */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-800/20 via-transparent to-gray-700/10" />
+        {/* 蓝色水波纹背景 - 全屏 */}
+        <div className="absolute inset-0 overflow-hidden">
+          <svg className="absolute w-full h-full opacity-40" viewBox="0 0 1440 600" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="waterGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
+                <stop offset="50%" stopColor="#1d4ed8" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="#1e40af" stopOpacity="0.05" />
+              </linearGradient>
+            </defs>
+            <path fill="url(#waterGrad1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
+              <animate attributeName="d" dur="20s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1" values="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z;M0,128L48,138.7C96,149,192,171,288,165.3C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z;M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" />
+            </path>
+          </svg>
+          <svg className="absolute w-full h-full opacity-30" viewBox="0 0 1440 600" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="waterGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.1" />
+              </linearGradient>
+            </defs>
+            <path fill="url(#waterGrad2)" d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,106.7C672,96,768,128,864,154.7C960,181,1056,203,1152,197.3C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
+              <animate attributeName="d" dur="15s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1" values="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,106.7C672,96,768,128,864,154.7C960,181,1056,203,1152,197.3C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z;M0,128L48,138.7C96,149,192,171,288,181.3C384,192,480,192,576,170.7C672,149,768,107,864,101.3C960,96,1056,128,1152,149.3C1248,171,1344,181,1392,186.7L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z;M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,106.7C672,96,768,128,864,154.7C960,181,1056,203,1152,197.3C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" />
+            </path>
+          </svg>
+        </div>
 
         {/* 内容区域 */}
         <div className="relative z-10 px-5 md:px-8 py-8 md:py-10">

@@ -60,7 +60,7 @@ export const SidebarNav = ({ categories, isCollapsed, onToggle }: SidebarNavProp
     item: "relative w-full group",
     itemBg: "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/[0.03]",
     itemText: "text-[10px] font-mono text-white/40 group-hover:text-white/60",
-    itemTextActive: "text-[10px] font-mono text-white",
+    itemTextActive: "text-[10px] font-mono text-gray-200",
     itemName: "text-xs tracking-wide transition-colors text-white/40 group-hover:text-white/60",
     itemNameActive: "text-xs tracking-wide transition-colors text-white/80",
     divider: "my-3 mx-4 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent",
@@ -148,7 +148,7 @@ export const SidebarNav = ({ categories, isCollapsed, onToggle }: SidebarNavProp
                             exit={{ opacity: 0, x: -10 }}
                             className="flex items-center gap-3"
                           >
-                            <span className={isActive ? "text-[10px] font-mono text-white/50" : "text-[10px] font-mono text-white/20"}>
+                            <span className={isActive ? "text-[10px] font-mono text-gray-300" : "text-[10px] font-mono text-gray-500"}>
                               {String(index + 1).padStart(2, "0")}
                             </span>
                             <span className={isActive ? baseClasses.itemNameActive : baseClasses.itemName}>
