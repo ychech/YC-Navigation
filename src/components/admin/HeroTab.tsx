@@ -1,13 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  Plus, Trash2, Edit2, Terminal, Sparkles, Code, FileText
-} from "lucide-react";
+import { Plus, Trash2, Edit2, Code } from "lucide-react";
 import { toast } from "sonner";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { Modal } from "./Modal";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface HeroSlide {
   id: number;
@@ -16,7 +13,6 @@ interface HeroSlide {
   description: string | null;
   codeSnippet: string | null;
   isActive: boolean;
-  sortOrder: number;
 }
 
 export function HeroTab() {
@@ -24,8 +20,6 @@ export function HeroTab() {
   const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
-
-  // New slide state
   const [newSlide, setNewSlide] = useState<Partial<HeroSlide>>({
     title: "",
     subtitle: "",
@@ -47,10 +41,6 @@ export function HeroTab() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isEdit = !!editingSlide;
-    const url = "/api/hero";
-    const method = isEdit ? "PUT" : "POST";
-    
-    // 只传递需要的字段
     const body = isEdit && editingSlide ? {
       id: editingSlide.id,
       title: editingSlide.title,
@@ -58,198 +48,136 @@ export function HeroTab() {
       description: editingSlide.description,
       codeSnippet: editingSlide.codeSnippet,
       isActive: editingSlide.isActive,
-    } : {
-      title: newSlide.title,
-      subtitle: newSlide.subtitle,
-      description: newSlide.description,
-      codeSnippet: newSlide.codeSnippet,
-      isActive: newSlide.isActive ?? true,
-    };
+    } : newSlide;
 
     try {
-      const res = await fetch(url, {
-        method,
+      await fetch("/api/hero", {
+        method: isEdit ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "操作失败");
-      }
-      
       toast.success(isEdit ? "更新成功" : "创建成功");
       setIsModalOpen(false);
       setEditingSlide(null);
       setNewSlide({ title: "", subtitle: "", description: "", codeSnippet: "", isActive: true });
       fetchSlides();
-    } catch (error: any) {
-      toast.error(error.message || "操作失败");
+    } catch {
+      toast.error("操作失败");
     }
   };
 
   const handleDelete = async () => {
     if (!deleteConfirm) return;
-    try {
-      await fetch(`/api/hero?id=${deleteConfirm}`, { method: "DELETE" });
-      toast.success("删除成功");
-      setDeleteConfirm(null);
-      fetchSlides();
-    } catch (error) {
-      toast.error("删除失败");
-    }
+    await fetch(`/api/hero?id=${deleteConfirm}`, { method: "DELETE" });
+    toast.success("删除成功");
+    setDeleteConfirm(null);
+    fetchSlides();
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
-          <Terminal className="text-indigo-600 dark:text-[#6ee7b7]" />
-          档案展示管理
-        </h2>
+        <h2 className="text-lg font-semibold">首页展示管理</h2>
         <button
           onClick={() => { setEditingSlide(null); setIsModalOpen(true); }}
-          className="flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl font-bold hover:bg-indigo-600 dark:hover:bg-[#6ee7b7] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-medium"
         >
-          <Plus size={18} /> 新增 Slide
+          <Plus size={18} /> 新增
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {slides.map((slide) => (
-          <motion.div
+          <div
             key={slide.id}
-            layout
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="group relative bg-white dark:bg-[#0f0f0f] border border-gray-100 dark:border-white/5 rounded-3xl p-6 overflow-hidden hover:border-indigo-500/30 dark:hover:border-[#6ee7b7]/30 transition-colors shadow-sm dark:shadow-none"
+            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
           >
-            <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-              <button
-                onClick={() => { setEditingSlide(slide); setIsModalOpen(true); }}
-                className="p-2 bg-gray-100 dark:bg-white/10 rounded-lg hover:bg-indigo-600 dark:hover:bg-white text-gray-500 dark:text-white hover:text-white dark:hover:text-black transition-colors"
-              >
-                <Edit2 size={16} />
-              </button>
-              <button
-                onClick={() => setDeleteConfirm(slide.id)}
-                className="p-2 bg-gray-100 dark:bg-white/10 rounded-lg hover:bg-red-500 text-gray-500 dark:text-white hover:text-white transition-colors"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <div className="text-[10px] text-indigo-600 dark:text-[#6ee7b7] font-mono tracking-widest uppercase">Slide #{slide.id}</div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-1">{slide.title}</h3>
+            <div className="flex justify-between items-start mb-3">
+              <span className="text-xs text-gray-500">#{slide.id}</span>
+              <div className="flex gap-1">
+                <button
+                  onClick={() => { setEditingSlide(slide); setIsModalOpen(true); }}
+                  className="p-1.5 text-gray-500 hover:bg-gray-100 rounded"
+                >
+                  <Edit2 size={14} />
+                </button>
+                <button
+                  onClick={() => setDeleteConfirm(slide.id)}
+                  className="p-1.5 text-red-500 hover:bg-red-50 rounded"
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
-              
-              <p className="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 min-h-[40px]">{slide.subtitle}</p>
-              
-              {slide.description && (
-                <div className="flex items-center gap-2 text-[10px] text-gray-400">
-                  <FileText size={12} />
-                  <span>有描述文字</span>
-                </div>
-              )}
-              
-              {slide.codeSnippet && (
-                <div className="bg-slate-100 dark:bg-black/50 rounded-xl p-3 border border-gray-200 dark:border-white/5 font-mono text-[10px] text-slate-700 dark:text-gray-500 truncate transition-colors duration-300">
-                  <Code size={12} className="inline mr-2 text-indigo-500 dark:text-gray-600" />
-                  {slide.codeSnippet}
-                </div>
-              )}
             </div>
-          </motion.div>
+            <h3 className="font-medium mb-1 truncate">{slide.title}</h3>
+            <p className="text-sm text-gray-500 truncate mb-2">{slide.subtitle}</p>
+            {slide.codeSnippet && (
+              <div className="flex items-center gap-1 text-xs text-gray-400">
+                <Code size={12} /> 有代码片段
+              </div>
+            )}
+          </div>
         ))}
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <section className="bg-white dark:bg-[#0f0f0f] border border-gray-100 dark:border-white/10 rounded-3xl p-8 w-full max-w-2xl relative overflow-hidden max-h-[90vh] overflow-y-auto">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 dark:bg-[#6ee7b7]/10 blur-3xl pointer-events-none" />
-          
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-            <Sparkles size={18} className="text-indigo-600 dark:text-[#6ee7b7]" />
-            {editingSlide ? "编辑 Slide" : "新建 Slide"}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-lg">
+          <h2 className="text-lg font-semibold mb-4">
+            {editingSlide ? "编辑" : "新建"}
           </h2>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-xs text-gray-500 font-bold uppercase tracking-widest">标题</label>
-              <input
-                type="text"
-                value={editingSlide?.title ?? newSlide.title}
-                onChange={(e) => editingSlide 
-                  ? setEditingSlide({ ...editingSlide, title: e.target.value })
-                  : setNewSlide({ ...newSlide, title: e.target.value })
-                }
-                className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors"
-                placeholder="例如: ROOT"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs text-gray-500 font-bold uppercase tracking-widest">副标题</label>
-              <input
-                type="text"
-                value={editingSlide?.subtitle ?? newSlide.subtitle}
-                onChange={(e) => editingSlide 
-                  ? setEditingSlide({ ...editingSlide, subtitle: e.target.value })
-                  : setNewSlide({ ...newSlide, subtitle: e.target.value })
-                }
-                className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors"
-                placeholder="例如: system.init()"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs text-gray-500 font-bold uppercase tracking-widest">
-                描述文字 <span className="text-gray-400 font-normal normal-case">- 显示在 About 区域</span>
-              </label>
-              <textarea
-                value={editingSlide?.description ?? newSlide.description ?? ""}
-                onChange={(e) => editingSlide 
-                  ? setEditingSlide({ ...editingSlide, description: e.target.value })
-                  : setNewSlide({ ...newSlide, description: e.target.value })
-                }
-                className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors min-h-[80px]"
-                placeholder="一个精心整理的设计资源库..."
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs text-gray-500 font-bold uppercase tracking-widest">代码片段 (可选)</label>
-              <textarea
-                value={editingSlide?.codeSnippet ?? newSlide.codeSnippet ?? ""}
-                onChange={(e) => editingSlide 
-                  ? setEditingSlide({ ...editingSlide, codeSnippet: e.target.value })
-                  : setNewSlide({ ...newSlide, codeSnippet: e.target.value })
-                }
-                className="w-full bg-slate-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-indigo-600 dark:text-[#6ee7b7] font-mono text-sm focus:outline-none focus:border-indigo-500/50 dark:focus:border-[#6ee7b7]/50 transition-colors min-h-[120px]"
-                placeholder={`{\n  \"status\": \"active\"\n}`}
-              />
-            </div>
-
-            <div className="flex gap-4 pt-4">
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="px-6 py-3 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              placeholder="标题"
+              value={editingSlide?.title ?? newSlide.title}
+              onChange={(e) => editingSlide 
+                ? setEditingSlide({ ...editingSlide, title: e.target.value })
+                : setNewSlide({ ...newSlide, title: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+              required
+            />
+            <input
+              type="text"
+              placeholder="副标题"
+              value={editingSlide?.subtitle ?? newSlide.subtitle}
+              onChange={(e) => editingSlide 
+                ? setEditingSlide({ ...editingSlide, subtitle: e.target.value })
+                : setNewSlide({ ...newSlide, subtitle: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+              required
+            />
+            <textarea
+              placeholder="描述（可选）"
+              value={editingSlide?.description ?? newSlide.description ?? ""}
+              onChange={(e) => editingSlide 
+                ? setEditingSlide({ ...editingSlide, description: e.target.value })
+                : setNewSlide({ ...newSlide, description: e.target.value })
+              }
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+            />
+            <textarea
+              placeholder="代码片段（可选）"
+              value={editingSlide?.codeSnippet ?? newSlide.codeSnippet ?? ""}
+              onChange={(e) => editingSlide 
+                ? setEditingSlide({ ...editingSlide, codeSnippet: e.target.value })
+                : setNewSlide({ ...newSlide, codeSnippet: e.target.value })
+              }
+              rows={4}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 font-mono text-sm"
+            />
+            <div className="flex gap-2">
+              <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg">
                 取消
               </button>
-              <button
-                type="submit"
-                className="flex-1 px-6 py-3 rounded-xl bg-gray-900 dark:bg-[#6ee7b7] text-white dark:text-black font-bold hover:bg-indigo-600 dark:hover:bg-[#5cdcae] transition-colors"
-              >
+              <button type="submit" className="flex-1 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-medium">
                 保存
               </button>
             </div>
           </form>
-        </section>
+        </div>
       </Modal>
 
       <DeleteConfirmModal
