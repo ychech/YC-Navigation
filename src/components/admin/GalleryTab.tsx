@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Image as ImageIcon, Trash2 } from "lucide-react";
+import { Plus, Image as ImageIcon, Trash2, Upload } from "lucide-react";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 
@@ -9,6 +10,7 @@ export function GalleryTab() {
   const [gallery, setGallery] = useState<any[]>([]);
   const [newGalleryImg, setNewGalleryImg] = useState({ url: "", title: "" });
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     fetchGallery();
@@ -63,62 +65,94 @@ export function GalleryTab() {
         type="gallery"
       />
 
-      {/* Add Form */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-lg font-semibold mb-4">添加图片</h2>
-        <form onSubmit={handleAddGalleryImg} className="space-y-4">
-          <div className="flex gap-4">
+      {/* Upload Area */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl bg-gradient-to-br from-indigo-50/50 to-purple-50/50 
+                 dark:from-indigo-900/20 dark:to-purple-900/20
+                 border border-dashed border-indigo-300 dark:border-indigo-500/30
+                 p-8 text-center"
+      >
+        <div className="max-w-md mx-auto">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 
+                       flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
+            <Upload size={28} />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">上传图片</h3>
+          <p className="text-sm text-gray-500 mb-4">支持拖拽上传或点击选择文件</p>
+          
+          <form onSubmit={handleAddGalleryImg} className="space-y-4">
+            <div className="flex gap-3">
+              <input
+                type="text"
+                placeholder="图片 URL 或上传文件"
+                value={newGalleryImg.url}
+                onChange={(e) => setNewGalleryImg({...newGalleryImg, url: e.target.value})}
+                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 
+                         bg-white/50 dark:bg-slate-700/50"
+              />
+              <label className="px-4 py-3 bg-white dark:bg-slate-700 rounded-xl cursor-pointer 
+                           hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-600">
+                <ImageIcon size={20} className="text-indigo-500" />
+                <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
+              </label>
+            </div>
             <input
               type="text"
-              placeholder="图片 URL"
-              value={newGalleryImg.url}
-              onChange={(e) => setNewGalleryImg({...newGalleryImg, url: e.target.value})}
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-              required
+              placeholder="图片描述（可选）"
+              value={newGalleryImg.title}
+              onChange={(e) => setNewGalleryImg({...newGalleryImg, title: e.target.value})}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 
+                       bg-white/50 dark:bg-slate-700/50"
             />
-            <label className="px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center">
-              <ImageIcon size={20} />
-              <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
-            </label>
-          </div>
-          <input
-            type="text"
-            placeholder="图片描述（可选）"
-            value={newGalleryImg.title}
-            onChange={(e) => setNewGalleryImg({...newGalleryImg, title: e.target.value})}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-          />
-          <button type="submit" className="px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-medium">
-            <Plus size={18} className="inline mr-1" /> 添加
-          </button>
-        </form>
-      </div>
+            <button type="submit" disabled={!newGalleryImg.url}
+              className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white 
+                       rounded-xl font-medium shadow-lg shadow-indigo-500/25 
+                       hover:shadow-xl hover:shadow-indigo-500/30 transition-all
+                       disabled:opacity-50 disabled:cursor-not-allowed">
+              <Plus size={18} className="inline mr-2" /> 添加到画廊
+            </button>
+          </form>
+        </div>
+      </motion.div>
 
       {/* Gallery Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {gallery.map((img) => (
-          <div key={img.id} className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
-            <img src={img.url} alt={img.title} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {gallery.map((img, index) => (
+          <motion.div 
+            key={img.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.05 }}
+            className="group relative aspect-square rounded-2xl overflow-hidden 
+                     bg-gray-100 dark:bg-slate-700 shadow-lg"
+          >
+            <img src={img.url} alt={img.title} 
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+            
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent 
+                         opacity-0 group-hover:opacity-100 transition-all duration-300">
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <p className="text-white font-medium truncate">{img.title || "未命名"}</p>
+              </div>
               <button 
                 onClick={() => setDeleteConfirm(img.id)}
-                className="p-2 bg-white text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
+                className="absolute top-3 right-3 p-2 bg-white/20 backdrop-blur text-white 
+                         rounded-xl hover:bg-red-500 transition-colors"
               >
-                <Trash2 size={18} />
+                <Trash2 size={16} />
               </button>
             </div>
-            {img.title && (
-              <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/60">
-                <p className="text-white text-xs truncate">{img.title}</p>
-              </div>
-            )}
-          </div>
+          </motion.div>
         ))}
       </div>
 
       {gallery.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          暂无图片，点击上方添加
+        <div className="text-center py-16 text-gray-400">
+          <ImageIcon size={48} className="mx-auto mb-4 opacity-30" />
+          <p>画廊为空，上传第一张图片</p>
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, Globe, Shield } from "lucide-react";
+import { Loader2, Globe, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
@@ -28,7 +28,7 @@ const DEFAULT_ADMIN_TITLES: Record<string, string> = {
 };
 
 export default function AdminPage() {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("links");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -113,55 +113,81 @@ export default function AdminPage() {
   };
 
   if (!authenticated || !mounted) return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-      <Loader2 className="animate-spin text-gray-400" size={32} />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+      <Loader2 className="animate-spin text-indigo-500" size={32} />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 
+                    dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950
+                    text-gray-800 dark:text-gray-100 
+                    flex overflow-hidden transition-colors duration-500">
+      
+      {/* 背景装饰 - 深色模式下的灵动光效 */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-300/20 dark:bg-indigo-500/10 
+                        rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-300/20 dark:bg-purple-500/10 
+                        rounded-full blur-3xl animate-pulse delay-1000" />
+      </div>
+      
       <DashboardSidebar 
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isSidebarCollapsed={isSidebarCollapsed}
         setIsSidebarCollapsed={setIsSidebarCollapsed}
-        theme={theme}
-        setTheme={setTheme}
         handleLogout={handleLogout}
         currentStats={stats}
         siteSlogan={siteSlogan}
         adminTitles={adminTitles}
       />
 
-      <main className="flex-1 overflow-y-auto">
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto relative z-10">
         <div className="p-6 md:p-8">
           <div className="max-w-6xl mx-auto space-y-6">
             {/* Header */}
-            <div className="flex justify-between items-center pb-6 border-b border-gray-200 dark:border-gray-700">
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-between items-start"
+            >
               <div className="space-y-1">
-                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
-                  <Shield size={14} />
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-sm font-medium">
+                  <Sparkles size={14} />
                   <span>后台管理</span>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 
+                               dark:from-white dark:to-indigo-200 bg-clip-text text-transparent">
                   {adminTitles[activeTab] || DEFAULT_ADMIN_TITLES[activeTab]}
                 </h2>
-                <div className="flex items-center gap-3 text-xs text-gray-500">
-                  <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">{version}</span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" /> 
-                    运行正常
+                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                  <span className="px-2 py-1 bg-white/80 dark:bg-white/10 backdrop-blur rounded-md border 
+                                   border-gray-200/50 dark:border-white/10">
+                    {version}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 
+                    系统运行正常
                   </span>
                 </div>
               </div>
               <a 
                 href="/" 
-                className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors"
+                className="group flex items-center gap-2 px-5 py-2.5 
+                         bg-white/80 dark:bg-white/10 backdrop-blur
+                         border border-gray-200/50 dark:border-white/10
+                         rounded-xl text-sm font-medium 
+                         hover:border-indigo-300 dark:hover:border-indigo-400/50
+                         hover:shadow-lg hover:shadow-indigo-500/10 
+                         dark:hover:shadow-indigo-400/10
+                         transition-all duration-300"
               >
-                <Globe size={16} /> 
+                <Globe size={16} className="group-hover:rotate-12 transition-transform" /> 
                 返回前台
               </a>
-            </div>
+            </motion.div>
 
             <div className="min-h-[60vh]">
               <motion.div
@@ -169,7 +195,11 @@ export default function AdminPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-xl
+                         rounded-2xl border border-gray-200/50 dark:border-white/10
+                         shadow-xl shadow-gray-200/50 dark:shadow-black/20
+                         p-6"
               >
                 {activeTab === "links" && <LinksTab />}
                 {activeTab === "gallery" && <GalleryTab />}
