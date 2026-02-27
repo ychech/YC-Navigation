@@ -3,8 +3,6 @@ import prisma from "@/lib/prisma";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { GlobalSpotlight } from "@/components/GlobalSpotlight";
-import { ParticleWave } from "@/components/ParticleWave";
-import { StarFieldTransition } from "@/components/StarFieldTransition";
 import { MainContent } from "@/components/MainContent";
 
 export const dynamic = 'auto';
@@ -72,9 +70,6 @@ export default async function Home() {
         categories={categories}
         systemCode={configMap.site_slogan || "ARCHIVE.OS"}
       />
-
-      {/* 无缝过渡 */}
-      <div className="relative z-10 h-8 bg-gradient-to-b from-[#020617] to-gray-50 dark:from-[#020617] dark:to-[#020617]" style={{ background: 'linear-gradient(to bottom, #020617, rgb(249, 250, 251))' }} />
 
       {/* Main Content with Sidebar */}
       <MainContent 

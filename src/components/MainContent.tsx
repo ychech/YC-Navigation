@@ -31,7 +31,7 @@ export function MainContent({ categories, aboutContent, heroSlides, featuredLink
       
       {/* Main Content - 动态左边距 */}
       <div 
-        className={`w-full mx-auto px-4 md:px-6 lg:px-8 xl:px-12 pt-4 pb-20 relative z-10 transition-all duration-300 ${
+        className={`w-full mx-auto px-4 md:px-6 lg:px-8 xl:px-12 pt-0 pb-20 relative z-10 transition-all duration-300 bg-gray-50 dark:bg-[#020617] ${
           isSidebarCollapsed 
             ? 'max-w-[1920px] xl:pl-24' 
             : 'max-w-[1800px] xl:pl-56'
@@ -51,7 +51,7 @@ export function MainContent({ categories, aboutContent, heroSlides, featuredLink
             <div key={category.id} id={`category-${category.id}`} className="relative group scroll-mt-32">
               {/* Logo Carousel - 第一个分类 */}
               {idx === 0 && category.links && category.links.length > 0 && (
-                 <div className="mb-8">
+                 <div className="mt-2 relative z-20 mb-6">
                    <LogoCarousel links={category.links.slice(0, 8)} />
                  </div>
               )}

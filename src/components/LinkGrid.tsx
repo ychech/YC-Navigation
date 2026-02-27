@@ -116,7 +116,7 @@ const FeaturedCarousel = memo(({
                   }}
                 />
               )}
-              <div className={`absolute inset-0 ${isDark ? 'bg-black/60' : 'bg-gray-100/60'}`} />
+              <div className={`absolute inset-0 ${isDark ? 'bg-black/40' : 'bg-white/30'}`} />
             </div>
 
             {/* 内容 */}
@@ -286,10 +286,10 @@ const LinkCard = memo(({
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleClick}
     >
-      {/* 卡片主体 - 纯黑背景 */}
+      {/* 卡片主体 */}
       <div 
         className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${
-          isDark ? 'bg-black' : 'bg-white'
+          isDark ? 'bg-black' : 'bg-gray-50/50'
         }`}
         style={{
           border: `1px solid ${

@@ -28,3 +28,7 @@ ts-debug.log*
 # vercel
 .vercel
 docker-export/
+
+# VitePress
+docs/.vitepress/cache
+docs/.vitepress/dist

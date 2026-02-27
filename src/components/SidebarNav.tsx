@@ -55,10 +55,10 @@ export const SidebarNav = ({ categories, isCollapsed, onToggle }: SidebarNavProp
   // 支持暗黑模式的颜色配置
   const baseClasses = {
     container: "hidden xl:block fixed left-4 top-1/2 -translate-y-1/2 z-40",
-    toggleBtn: "absolute -right-4 top-1/2 -translate-y-1/2 z-50 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg bg-gray-200/50 dark:bg-white/10 border border-gray-300/50 dark:border-white/20 hover:bg-gray-300/50 dark:hover:bg-white/20",
-    sidebar: "relative rounded-2xl backdrop-blur-xl overflow-hidden bg-white/80 dark:bg-white/[0.02] border border-gray-200/50 dark:border-white/[0.06] shadow-lg dark:shadow-none",
+    toggleBtn: "absolute -right-4 top-1/2 -translate-y-1/2 z-50 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 bg-gray-100/80 dark:bg-black/40 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/20",
+    sidebar: "relative rounded-2xl overflow-hidden bg-gray-100/80 dark:bg-black/40 border border-gray-200/50 dark:border-white/[0.05]",
     item: "relative w-full group",
-    itemBg: "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gray-200/50 dark:bg-white/[0.03]",
+    itemBg: "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gray-200/60 dark:bg-white/[0.05]",
     itemText: "text-[10px] font-mono text-gray-500 dark:text-white/40 group-hover:text-gray-700 dark:group-hover:text-white/60",
     itemTextActive: "text-[10px] font-mono text-gray-900 dark:text-gray-200",
     itemName: "text-xs tracking-wide transition-colors text-gray-600 dark:text-white/40 group-hover:text-gray-900 dark:group-hover:text-white/60",

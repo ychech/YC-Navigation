@@ -66,11 +66,11 @@ export const LogoCarousel = ({ links }: LogoCarouselProps) => {
   const displayLinks = Array(multiplier).fill(validLinks).flat();
 
   return (
-    <div className="w-full overflow-hidden py-3 relative border-b border-gray-200 dark:border-white/5 bg-transparent transition-colors duration-300">
-      {/* 顶部动态白色线条 */}
+    <div className="w-full overflow-hidden py-3 relative border-b border-gray-100 dark:border-white/5">
+      {/* 顶部动态装饰线 */}
       <div className="absolute top-0 left-0 right-0 h-[1px] overflow-hidden">
         <div 
-          className="w-1/3 h-full bg-gradient-to-r from-transparent via-white/60 to-transparent"
+          className="w-1/3 h-full bg-gradient-to-r from-transparent via-gray-400/40 to-transparent dark:via-white/40"
           style={{ animation: 'slideLine 3s ease-in-out infinite' }} 
         />
       </div>
@@ -81,9 +81,9 @@ export const LogoCarousel = ({ links }: LogoCarouselProps) => {
         }
       `}</style>
       
-      {/* Gradient Masks for fading edges - 使用透明渐变 */}
-      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-[#020617] dark:via-[#020617]/80 z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white via-white/80 to-transparent dark:from-[#020617] dark:via-[#020617]/80 z-10 pointer-events-none" />
+      {/* Gradient Masks for fading edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[#f9fafb] to-transparent dark:from-[#020617] z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[#f9fafb] to-transparent dark:from-[#020617] z-10 pointer-events-none" />
       
       {/* Framer Motion Infinite Scroll */}
       {/* Use CSS animation instead of Framer Motion for better performance */}

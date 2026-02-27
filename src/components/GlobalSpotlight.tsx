@@ -20,9 +20,9 @@ export const GlobalSpotlight = () => {
   return (
     <div 
       ref={containerRef}
-      className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-500 mix-blend-screen"
+      className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-500"
       style={{
-        background: `radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 102, 241, 0.12), transparent 50%)`
+        background: `radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 102, 241, 0.08), transparent 40%)`
       } as any}
     />
   );

@@ -57,7 +57,7 @@ export const Hero = ({ title, subtitle, categories = [], systemCode = "Archive.O
         {/* 3D 地球 */}
         <div className="absolute inset-0 z-0">
           <motion.div style={{ opacity }} className="w-full h-full">
-            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(29,78,216,0.15),transparent_60%)] dark:bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.12),transparent_60%)]" />
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full" />
             <WorldGlobe />
           </motion.div>
         </div>
@@ -65,7 +65,7 @@ export const Hero = ({ title, subtitle, categories = [], systemCode = "Archive.O
         {/* 内容 */}
         <motion.div 
           style={{ y, opacity }}
-          className="relative z-20 w-full max-w-[1920px] mx-auto px-6 md:px-12 flex flex-col items-center text-center space-y-6 pt-[25vh] pb-16"
+          className="relative z-20 w-full max-w-[1920px] mx-auto px-6 md:px-12 flex flex-col items-center text-center space-y-6 pt-[22vh] pb-12"
         >
           <div className="space-y-6">
             <motion.div
