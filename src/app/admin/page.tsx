@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, Globe, Fingerprint } from "lucide-react";
+import { Loader2, Globe, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
@@ -19,13 +19,12 @@ interface SiteConfig {
   value: string;
 }
 
-// 默认标题配置
 const DEFAULT_ADMIN_TITLES: Record<string, string> = {
   links: "链接管理",
   gallery: "图库管理", 
-  about: "馆主资料",
+  about: "关于页面",
   config: "系统配置",
-  hero: "档案展示"
+  hero: "首页展示"
 };
 
 export default function AdminPage() {
@@ -36,10 +35,9 @@ export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [stats, setStats] = useState({ totalLinks: 0, totalGallery: 0 });
   
-  // 从数据库读取的配置
-  const [siteSlogan, setSiteSlogan] = useState("ART.NAV");
+  const [siteSlogan, setSiteSlogan] = useState("艺术导航");
   const [adminTitles, setAdminTitles] = useState<Record<string, string>>(DEFAULT_ADMIN_TITLES);
-  const [version, setVersion] = useState("v2.0.4");
+  const [version, setVersion] = useState("v2.0");
   
   const router = useRouter();
 
@@ -64,18 +62,15 @@ export default function AdminPage() {
     }
   }, [activeTab, mounted]);
 
-  // 获取后台配置
   const fetchAdminConfig = async () => {
     try {
       const res = await fetch("/api/config");
       if (res.ok) {
         const configs: SiteConfig[] = await res.json();
         
-        // 读取站点标语
         const slogan = configs.find(c => c.key === "site_slogan");
         if (slogan) setSiteSlogan(slogan.value);
         
-        // 读取各个菜单标题
         const titles: Record<string, string> = { ...DEFAULT_ADMIN_TITLES };
         configs.forEach(c => {
           if (c.key.startsWith("admin_title_")) {
@@ -85,7 +80,6 @@ export default function AdminPage() {
         });
         setAdminTitles(titles);
         
-        // 读取版本号
         const versionConfig = configs.find(c => c.key === "admin_version");
         if (versionConfig) setVersion(versionConfig.value);
       }
@@ -119,17 +113,13 @@ export default function AdminPage() {
   };
 
   if (!authenticated || !mounted) return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] flex items-center justify-center">
-      <Loader2 className="animate-spin text-gray-400 dark:text-[#6ee7b7]/20" size={40} />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <Loader2 className="animate-spin text-gray-400" size={32} />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#080808] text-gray-900 dark:text-white transition-colors duration-300 flex overflow-hidden font-sans relative">
-      {/* Background Decorative Grid */}
-      <div className="absolute inset-0 admin-grid opacity-5 dark:opacity-20 pointer-events-none" />
-      <div className="absolute inset-0 ink-flow-bg opacity-10 dark:opacity-30 pointer-events-none" />
-      
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex overflow-hidden">
       <DashboardSidebar 
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -143,40 +133,43 @@ export default function AdminPage() {
         adminTitles={adminTitles}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto bg-transparent relative z-10 scroll-smooth">
-        <div className="p-6 md:p-10">
-          <div className="max-w-7xl mx-auto space-y-10">
-            {/* Page Title & Quick Actions */}
-            <div className="flex justify-between items-start">
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 text-indigo-600 dark:text-[#6ee7b7] text-[10px] font-black uppercase tracking-[0.5em]">
-                  <Fingerprint size={14} />
-                  <span>验证访问</span>
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-6 md:p-8">
+          <div className="max-w-6xl mx-auto space-y-6">
+            {/* Header */}
+            <div className="flex justify-between items-center pb-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
+                  <Shield size={14} />
+                  <span>后台管理</span>
                 </div>
-                <h2 className="text-5xl font-black tracking-tighter text-gray-900 dark:text-white archive-title">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {adminTitles[activeTab] || DEFAULT_ADMIN_TITLES[activeTab]}
                 </h2>
-                <div className="flex items-center gap-4 text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest opacity-60">
-                  <span className="px-3 py-1 bg-gray-200 dark:bg-white/5 rounded-full text-gray-600 dark:text-gray-300">{version}</span>
-                  <span className="flex items-center gap-2 text-gray-600 dark:text-gray-300"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 节点在线</span>
+                <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">{version}</span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" /> 
+                    运行正常
+                  </span>
                 </div>
               </div>
-              <div className="flex gap-4 pt-2">
-                <a href="/" className="group flex items-center gap-4 px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-black rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-600 dark:hover:bg-[#6ee7b7] hover:text-white dark:hover:text-white transition-all shadow-xl hover:shadow-indigo-500/20 dark:hover:shadow-[#6ee7b7]/20 active:scale-95">
-                  <Globe size={16} className="group-hover:rotate-12 transition-transform" strokeWidth={2.5} /> 
-                  返回前台
-                </a>
-              </div>
+              <a 
+                href="/" 
+                className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors"
+              >
+                <Globe size={16} /> 
+                返回前台
+              </a>
             </div>
 
             <div className="min-h-[60vh]">
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
               >
                 {activeTab === "links" && <LinksTab />}
                 {activeTab === "gallery" && <GalleryTab />}
