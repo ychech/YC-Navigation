@@ -38,6 +38,14 @@ export default defineConfig({
             { text: '后台系统', link: '/guide/admin' },
             { text: '画廊展示', link: '/guide/gallery' }
           ]
+        },
+        {
+          text: '开发',
+          items: [
+            { text: '项目架构', link: '/guide/architecture' },
+            { text: '数据库详解', link: '/guide/database' },
+            { text: '前端开发', link: '/guide/frontend' }
+          ]
         }
       ],
       '/api/': [
