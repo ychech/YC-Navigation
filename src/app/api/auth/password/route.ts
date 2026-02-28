@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function PUT(req: Request) {
+export async function POST(req: Request) {
   const { oldPassword, newPassword } = await req.json();
   
   // Get stored password

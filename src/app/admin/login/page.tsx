@@ -2,101 +2,90 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Lock, ArrowRight, Loader2 } from "lucide-react";
+import { Lock, User } from "lucide-react";
+import { toast } from "sonner";
 
-export default function LoginPage() {
+export default function AdminLoginPage() {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
     
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
         credentials: "include",
-        body: JSON.stringify({ password }),
       });
-      const data = await res.json();
 
-      if (data.success) {
-        localStorage.setItem("admin_auth", "true");
+      if (res.ok) {
+        toast.success("登录成功");
         router.push("/admin");
       } else {
-        setError(data.message || "密码错误，请重试。");
-        setLoading(false);
+        toast.error("用户名或密码错误");
       }
-    } catch (err) {
-      setError("登录失败，请检查网络连接。");
-      setLoading(false);
+    } catch {
+      toast.error("登录失败");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6 selection:bg-white selection:text-black">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full"
-      >
-        <div className="mb-12 text-center">
-          <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Lock size={24} className="text-gray-400" strokeWidth={1.5} />
-          </div>
-          <h1 className="text-3xl font-extralight tracking-tight mb-2">身份验证</h1>
-          <p className="text-[10px] uppercase tracking-[0.5em] text-gray-600">Secure Access Required</p>
+    <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-2xl font-light tracking-wide mb-2">ADMIN</h1>
+          <p className="text-sm text-black/40 dark:text-white/40">后台管理</p>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleLogin} className="space-y-6">
-          <div className="relative">
-            <input
-              type="password"
-              placeholder="请输入管理员密码"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setError("");
-              }}
-              className="w-full bg-white/[0.02] border border-white/10 p-5 text-sm focus:outline-none focus:border-white transition-all font-light tracking-widest"
-              required
-            />
+          <div className="space-y-4">
+            <div className="relative">
+              <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-black/30 dark:text-white/30" />
+              <input
+                type="text"
+                placeholder="用户名"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                required
+              />
+            </div>
+            <div className="relative">
+              <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-black/30 dark:text-white/30" />
+              <input
+                type="password"
+                placeholder="密码"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                required
+              />
+            </div>
           </div>
 
-          <AnimatePresence>
-            {error && (
-              <motion.p 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="text-red-400 text-[10px] uppercase tracking-widest text-center"
-              >
-                {error}
-              </motion.p>
-            )}
-          </AnimatePresence>
-
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="w-full bg-white text-black p-5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-3 disabled:opacity-50"
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-4 bg-black text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity disabled:opacity-50 font-light tracking-wider"
           >
-            {loading ? <Loader2 size={14} className="animate-spin" /> : <>进入后台 <ArrowRight size={14} /></>}
+            {isLoading ? "登录中..." : "登录"}
           </button>
         </form>
 
-        <div className="mt-12 text-center">
-          <a href="/" className="text-[10px] uppercase tracking-[0.3em] text-gray-600 hover:text-white transition-colors">
-            返回首页
-          </a>
-        </div>
-      </motion.div>
+        {/* Footer */}
+        <p className="text-center text-xs text-black/30 dark:text-white/30 mt-12">
+          YC-NAVIGATION
+        </p>
+      </div>
     </div>
   );
 }
-
-import { AnimatePresence } from "framer-motion";

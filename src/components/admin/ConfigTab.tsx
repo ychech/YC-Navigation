@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, Lock, Plus, X, Palette } from "lucide-react";
-import { motion } from "framer-motion";
+import { Save, Lock, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
 export function ConfigTab() {
@@ -83,22 +82,10 @@ export function ConfigTab() {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-8 max-w-2xl">
       {/* Site Config */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl bg-white/60 dark:bg-slate-700/30 backdrop-blur 
-                 border border-gray-200/50 dark:border-white/10 p-6"
-      >
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 
-                       flex items-center justify-center text-white">
-            <Palette size={20} />
-          </div>
-          <h2 className="text-lg font-semibold">站点配置</h2>
-        </div>
-        
+      <div className="border border-black/10 dark:border-white/10 p-6">
+        <h2 className="text-lg font-light mb-6">站点配置</h2>
         <div className="space-y-4">
           {[
             { label: "站点名称", value: siteSlogan, setter: setSiteSlogan, key: "site_slogan" },
@@ -106,19 +93,17 @@ export function ConfigTab() {
             { label: "首页副标题", value: heroSubtitle, setter: setHeroSubtitle, key: "hero_subtitle" },
           ].map((field) => (
             <div key={field.key}>
-              <label className="block text-sm text-gray-500 mb-2">{field.label}</label>
+              <label className="block text-sm text-black/50 dark:text-white/50 mb-2">{field.label}</label>
               <div className="flex gap-3">
                 <input
                   type="text"
                   value={field.value}
                   onChange={(e) => field.setter(e.target.value)}
-                  className="flex-1 px-4 py-3 rounded-xl border border-gray-200/50 dark:border-white/10 
-                           bg-white/50 dark:bg-slate-800/50 focus:ring-2 focus:ring-indigo-500/20"
+                  className="flex-1 px-4 py-3 border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:border-black dark:focus:border-white"
                 />
                 <button 
                   onClick={() => handleSaveConfig(field.key, field.value)}
-                  className="px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl
-                           shadow-lg shadow-indigo-500/25 hover:shadow-xl transition-all"
+                  className="px-4 py-3 bg-black text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity"
                 >
                   <Save size={18} />
                 </button>
@@ -126,17 +111,11 @@ export function ConfigTab() {
             </div>
           ))}
         </div>
-      </motion.div>
+      </div>
 
       {/* Tags */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="rounded-2xl bg-white/60 dark:bg-slate-700/30 backdrop-blur 
-                 border border-gray-200/50 dark:border-white/10 p-6"
-      >
-        <h2 className="text-lg font-semibold mb-4">链接标签</h2>
+      <div className="border border-black/10 dark:border-white/10 p-6">
+        <h2 className="text-lg font-light mb-6">链接标签</h2>
         <div className="flex gap-3 mb-4">
           <input
             type="text"
@@ -144,74 +123,50 @@ export function ConfigTab() {
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
-            className="flex-1 px-4 py-3 rounded-xl border border-gray-200/50 dark:border-white/10 
-                     bg-white/50 dark:bg-slate-800/50"
+            className="flex-1 px-4 py-3 border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:border-black dark:focus:border-white"
           />
           <button 
             onClick={handleAddTag}
-            className="px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl
-                     shadow-lg shadow-purple-500/25"
+            className="px-4 py-3 border border-black/10 dark:border-white/10 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
           >
             <Plus size={18} />
           </button>
         </div>
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <span key={tag} 
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl 
-                       bg-gradient-to-r from-indigo-50 to-purple-50 
-                       dark:from-indigo-900/30 dark:to-purple-900/30
-                       border border-indigo-200/50 dark:border-indigo-500/30
-                       text-sm font-medium">
+            <span key={tag} className="inline-flex items-center gap-2 px-3 py-2 border border-black/10 dark:border-white/10 text-sm">
               {tag}
-              <button onClick={() => handleRemoveTag(tag)} 
-                className="text-gray-400 hover:text-red-500 transition-colors">
+              <button onClick={() => handleRemoveTag(tag)} className="text-black/30 hover:text-red-600 dark:text-white/30 dark:hover:text-red-400">
                 <X size={14} />
               </button>
             </span>
           ))}
         </div>
-      </motion.div>
+      </div>
 
       {/* Password */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="rounded-2xl bg-white/60 dark:bg-slate-700/30 backdrop-blur 
-                 border border-gray-200/50 dark:border-white/10 p-6"
-      >
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 
-                       flex items-center justify-center text-white">
-            <Lock size={20} />
-          </div>
-          <h2 className="text-lg font-semibold">修改密码</h2>
-        </div>
-        
+      <div className="border border-black/10 dark:border-white/10 p-6">
+        <h2 className="text-lg font-light mb-6 flex items-center gap-2">
+          <Lock size={18} /> 修改密码
+        </h2>
         <form onSubmit={handleChangePassword} className="space-y-4">
           <input type="password" placeholder="当前密码"
             value={passwordChange.oldPassword}
             onChange={(e) => setPasswordChange({...passwordChange, oldPassword: e.target.value})}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200/50 dark:border-white/10 
-                     bg-white/50 dark:bg-slate-800/50" required />
+            className="w-full px-4 py-3 border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:border-black dark:focus:border-white" required />
           <input type="password" placeholder="新密码"
             value={passwordChange.newPassword}
             onChange={(e) => setPasswordChange({...passwordChange, newPassword: e.target.value})}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200/50 dark:border-white/10 
-                     bg-white/50 dark:bg-slate-800/50" required />
+            className="w-full px-4 py-3 border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:border-black dark:focus:border-white" required />
           <input type="password" placeholder="确认新密码"
             value={passwordChange.confirmPassword}
             onChange={(e) => setPasswordChange({...passwordChange, confirmPassword: e.target.value})}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200/50 dark:border-white/10 
-                     bg-white/50 dark:bg-slate-800/50" required />
-          <button type="submit" 
-            className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl 
-                     font-medium shadow-lg shadow-orange-500/25 hover:shadow-xl transition-all">
+            className="w-full px-4 py-3 border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:border-black dark:focus:border-white" required />
+          <button type="submit" className="w-full py-3 bg-black text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity">
             修改密码
           </button>
         </form>
-      </motion.div>
+      </div>
     </div>
   );
 }

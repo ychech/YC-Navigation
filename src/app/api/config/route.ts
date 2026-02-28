@@ -6,6 +6,24 @@ export async function GET() {
   return NextResponse.json(configs);
 }
 
+// 单个配置更新（ConfigTab 使用）
+export async function POST(req: Request) {
+  const { key, value } = await req.json();
+  
+  if (!key) {
+    return NextResponse.json({ error: "Key is required" }, { status: 400 });
+  }
+  
+  await prisma.siteConfig.upsert({
+    where: { key },
+    update: { value },
+    create: { key, value },
+  });
+  
+  return NextResponse.json({ success: true });
+}
+
+// 批量配置更新
 export async function PUT(req: Request) {
   const { configs } = await req.json(); // Array of { key, value }
   

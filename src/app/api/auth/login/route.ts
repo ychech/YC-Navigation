@@ -2,18 +2,24 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
-  const { password } = await req.json();
+  const { username, password } = await req.json();
   
-  // Get stored password from config
-  let storedPassword = await prisma.siteConfig.findUnique({
+  // Default credentials
+  const defaultUsername = "admin";
+  const defaultPassword = "admin123";
+  
+  // Get stored credentials from config
+  const storedUsername = await prisma.siteConfig.findUnique({
+    where: { key: "admin_username" }
+  });
+  const storedPassword = await prisma.siteConfig.findUnique({
     where: { key: "admin_password" }
   });
 
-  // Default password if not set
-  const defaultPassword = "admin123";
+  const validUsername = storedUsername ? storedUsername.value : defaultUsername;
   const validPassword = storedPassword ? storedPassword.value : defaultPassword;
 
-  if (password === validPassword) {
+  if (username === validUsername && password === validPassword) {
     // Create session cookie
     const response = NextResponse.json({ success: true });
     const timestamp = Date.now();
@@ -30,6 +36,6 @@ export async function POST(req: Request) {
     
     return response;
   } else {
-    return NextResponse.json({ success: false, message: "密码错误" }, { status: 401 });
+    return NextResponse.json({ success: false, message: "用户名或密码错误" }, { status: 401 });
   }
 }
