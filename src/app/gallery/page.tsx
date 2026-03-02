@@ -5,7 +5,7 @@ import { AnimatedSectionHeader } from "@/components/AnimatedSectionHeader";
 
 export default async function GalleryPage() {
   const galleryImages = await prisma.galleryImage.findMany({
-    orderBy: { createdAt: 'desc' },
+    orderBy: { sortOrder: 'asc' },
   });
 
   return (

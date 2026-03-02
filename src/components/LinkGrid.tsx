@@ -5,6 +5,7 @@ import { ArrowUpRight, Activity, ChevronLeft, ChevronRight, Star } from "lucide-
 import type { Link } from "@prisma/client";
 import React, { useState, memo, useMemo, useEffect, useCallback } from "react";
 import { useTheme } from "next-themes";
+import { getImageUrl } from "@/lib/image-url";
 
 interface LinkGridProps {
   links: Link[];
@@ -99,7 +100,7 @@ const FeaturedCarousel = memo(({
             <div className="absolute inset-0">
               {currentLink.snapshotUrl ? (
                 <img 
-                  src={currentLink.snapshotUrl} 
+                  src={getImageUrl(currentLink.snapshotUrl)} 
                   alt="" 
                   className="w-full h-full object-cover"
                   style={{
@@ -160,7 +161,7 @@ const FeaturedCarousel = memo(({
               <div className="flex-1 flex flex-col justify-center py-4">
                 <div className="flex items-center gap-3 mb-3">
                   {currentLink.icon ? (
-                    <img src={currentLink.icon} alt="" className="w-10 h-10 rounded-xl object-contain bg-black/20 p-1" />
+                    <img src={getImageUrl(currentLink.icon)} alt="" className="w-10 h-10 rounded-xl object-contain bg-black/20 p-1" />
                   ) : (
                     <div 
                       className="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold"
@@ -308,7 +309,7 @@ const LinkCard = memo(({
           {link.snapshotUrl ? (
             <div className="w-full h-full relative">
               <img 
-                src={link.snapshotUrl} 
+                src={getImageUrl(link.snapshotUrl)} 
                 alt="" 
                 className="w-full h-full object-cover"
                 style={{
@@ -340,7 +341,7 @@ const LinkCard = memo(({
                 }}
               >
                 {link.icon ? (
-                  <img src={link.icon} alt="" className="w-5 h-5 object-contain" />
+                  <img src={getImageUrl(link.icon)} alt="" className="w-5 h-5 object-contain" />
                 ) : (
                   <span 
                     className="text-lg font-medium"

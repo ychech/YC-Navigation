@@ -5,6 +5,7 @@ import { CustomCursor } from "@/components/CustomCursor";
 import { Toaster } from "sonner";
 
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { DynamicMeta } from "@/components/DynamicMeta";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
@@ -17,14 +18,6 @@ export const metadata: Metadata = {
   authors: [{ name: "艺术导航" }],
   creator: "艺术导航",
   metadataBase: new URL("https://your-domain.com"),
-  icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
-    apple: [
-      { url: "/apple-touch-icon.svg", type: "image/svg+xml", sizes: "180x180" },
-    ],
-  },
   openGraph: {
     type: "website",
     title: "艺术导航 | 设计师的灵感宝库",
@@ -50,6 +43,9 @@ export default function RootLayout({
   return (
     <html lang="zh" suppressHydrationWarning>
       <head>
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
         <style>{`
           /* 关键 CSS - 防止首次渲染闪烁 */
           html { background-color: #ffffff; }
@@ -69,10 +65,16 @@ export default function RootLayout({
           enableSystem={true}
           disableTransitionOnChange={false}
         >
+          <DynamicMeta />
           <div className="paper-texture" />
           <div className="ink-flow-bg" />
           <CustomCursor />
-          <Toaster theme="system" position="bottom-right" />
+          <Toaster 
+            theme="system" 
+            position="bottom-right" 
+            duration={2000}
+            closeButton
+          />
           {children}
         </ThemeProvider>
       </body>

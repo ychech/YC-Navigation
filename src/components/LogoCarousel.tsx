@@ -3,6 +3,7 @@
 import { Link as PrismaLink } from "@prisma/client";
 import { useEffect, useState, useRef, memo } from "react";
 import { motion } from "framer-motion";
+import { getImageUrl } from "@/lib/image-url";
 
 interface LogoCarouselProps {
   links: PrismaLink[];
@@ -22,7 +23,7 @@ const LogoItem = memo(({ link, index }: { link: PrismaLink; index: number }) => 
       {!hasError && link.icon ? (
         <div className="w-6 h-6 relative shrink-0">
           <img 
-            src={link.icon} 
+            src={getImageUrl(link.icon)} 
             alt="" 
             className="object-contain w-full h-full filter drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]"
             onError={() => setHasError(true)}

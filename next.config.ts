@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // 开发测试时不使用 standalone 模式
+  // output: "standalone",
+  
+  // 确保静态文件被正确处理
+  images: {
+    unoptimized: true,
+  },
   
   // 禁用源码映射（防止泄露代码）
   productionBrowserSourceMaps: false,

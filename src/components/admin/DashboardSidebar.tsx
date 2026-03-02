@@ -2,21 +2,21 @@
 
 import { useTheme } from "next-themes";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { 
   Link2, 
   Image, 
   Settings, 
-  Info, 
   LogOut, 
   ChevronLeft,
   ChevronRight,
-  Home,
   Sun,
   Moon,
   ArrowLeft,
   Type,
   Layout
 } from "lucide-react";
+import { getImageUrl } from "@/lib/image-url";
 
 type Tab = "links" | "gallery" | "site" | "heroSlides" | "heroConfig";
 
@@ -38,6 +38,34 @@ export function DashboardSidebar({
   stats,
 }: DashboardSidebarProps) {
   const { theme, setTheme } = useTheme();
+  const [siteConfig, setSiteConfig] = useState<{ name?: string; favicon?: string }>({});
+
+  // 获取站点配置
+  const fetchSiteConfig = () => {
+    fetch("/api/config")
+      .then(res => res.json())
+      .then((configs: any[]) => {
+        const nameConfig = configs.find(c => c.key === "site_name");
+        const faviconConfig = configs.find(c => c.key === "site_favicon");
+        setSiteConfig({
+          name: nameConfig?.value,
+          favicon: faviconConfig?.value,
+        });
+      })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchSiteConfig();
+    
+    // 监听站点配置更新事件
+    const handleConfigUpdate = () => fetchSiteConfig();
+    window.addEventListener("site-config-updated", handleConfigUpdate);
+    
+    return () => {
+      window.removeEventListener("site-config-updated", handleConfigUpdate);
+    };
+  }, []);
 
   const menuItems = [
     { id: "links" as Tab, icon: Link2, label: "链接" },
@@ -79,27 +107,46 @@ export function DashboardSidebar({
         isSidebarCollapsed ? "w-20" : "w-64"
       }`}
     >
-      {/* Header */}
-      <div className={`h-16 flex items-center border-b border-black/10 dark:border-white/10 flex-shrink-0 ${
-        isSidebarCollapsed ? "justify-center px-2" : "justify-between px-4"
+      {/* Header with Site Info */}
+      <div className={`border-b border-black/10 dark:border-white/10 flex-shrink-0 ${
+        isSidebarCollapsed ? "p-3" : "p-4"
       }`}>
-        {!isSidebarCollapsed && (
-          <span className="text-sm font-light tracking-wider">后台管理</span>
-        )}
-        <button
-          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          className="p-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-        >
-          {isSidebarCollapsed ? (
-            <ChevronRight size={18} className="text-black/40 dark:text-white/40" />
-          ) : (
-            <ChevronLeft size={18} className="text-black/40 dark:text-white/40" />
+        {/* Site Logo & Name */}
+        <div className={`flex items-center gap-3 ${isSidebarCollapsed ? "justify-center" : ""}`}>
+          <div className={`flex-shrink-0 overflow-hidden border border-black/10 dark:border-white/10 ${
+            isSidebarCollapsed ? "w-10 h-10" : "w-12 h-12"
+          }`}>
+            {siteConfig.favicon ? (
+              <img 
+                src={getImageUrl(siteConfig.favicon)} 
+                alt="" 
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  // 如果图片加载失败，显示默认图标
+                  (e.target as HTMLImageElement).style.display = 'none';
+                  const parent = (e.target as HTMLImageElement).parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center"><span class="text-white font-bold text-lg">艺</span></div>';
+                  }
+                }}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                <span className="text-white font-bold text-lg">艺</span>
+              </div>
+            )}
+          </div>
+          {!isSidebarCollapsed && (
+            <div className="flex-1 min-w-0">
+              <div className="font-medium truncate">{siteConfig.name || "艺术导航"}</div>
+              <div className="text-xs text-black/40 dark:text-white/40">后台管理</div>
+            </div>
           )}
-        </button>
+        </div>
       </div>
 
       {/* Back to Home */}
-      <div className="p-3 pb-0 flex-shrink-0">
+      <div className="px-3 py-2 flex-shrink-0">
         <Link
           href="/"
           className={`w-full flex items-center gap-3 px-3 py-3 text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all ${
@@ -113,7 +160,7 @@ export function DashboardSidebar({
       </div>
 
       {/* Navigation */}
-      <nav className="p-3 space-y-1 flex-shrink-0">
+      <nav className="px-3 space-y-1 flex-shrink-0 overflow-y-auto flex-1">
         {!isSidebarCollapsed && (
           <div className="px-3 py-2 text-xs text-black/30 dark:text-white/30 uppercase tracking-wider">
             内容管理
@@ -136,12 +183,9 @@ export function DashboardSidebar({
         {otherItems.map(renderMenuItem)}
       </nav>
 
-      {/* Spacer */}
-      <div className="flex-1" />
-
       {/* Stats - only show when expanded */}
       {!isSidebarCollapsed && (
-        <div className="px-6 py-4 border-t border-black/10 dark:border-white/10">
+        <div className="px-6 py-4 border-t border-black/10 dark:border-white/10 flex-shrink-0">
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
               <div className="text-2xl font-light">{stats.links}</div>
@@ -182,6 +226,19 @@ export function DashboardSidebar({
           </button>
         </div>
       </div>
+
+      {/* Collapse Button - Right side middle */}
+      <button
+        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-12 flex items-center justify-center bg-white dark:bg-black border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors z-50 rounded-r"
+        title={isSidebarCollapsed ? "展开" : "收起"}
+      >
+        {isSidebarCollapsed ? (
+          <ChevronRight size={14} className="text-black/60 dark:text-white/60" />
+        ) : (
+          <ChevronLeft size={14} className="text-black/60 dark:text-white/60" />
+        )}
+      </button>
     </aside>
   );
 }

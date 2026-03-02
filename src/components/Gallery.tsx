@@ -2,21 +2,64 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import type { GalleryImage } from "@prisma/client";
-import React, { useState } from "react";
-import { X } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { getImageUrl } from "@/lib/image-url";
 
 interface GalleryProps {
   images: GalleryImage[];
 }
 
+const ITEMS_PER_PAGE = 12; // 前台每页12张
+
 export const Gallery = ({ images }: GalleryProps) => {
   const [errorImages, setErrorImages] = useState<Set<number>>(new Set());
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // 分页计算
+  const { paginatedImages, totalPages } = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    return {
+      paginatedImages: images.slice(start, end),
+      totalPages: Math.ceil(images.length / ITEMS_PER_PAGE),
+    };
+  }, [images, currentPage]);
+
+  // 分页控制
+  const Pagination = () => {
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="flex items-center justify-center gap-6 mt-12">
+        <button
+          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          disabled={currentPage === 1}
+          className="p-3 border border-gray-200 dark:border-white/10 hover:border-gray-400 dark:hover:border-white/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        
+        <span className="text-sm text-gray-500 dark:text-white/50 font-mono">
+          {currentPage} / {totalPages}
+        </span>
+        
+        <button
+          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+          disabled={currentPage === totalPages}
+          className="p-3 border border-gray-200 dark:border-white/10 hover:border-gray-400 dark:hover:border-white/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
+    );
+  };
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 min-h-[400px]">
-        {images.map((img, i) => (
+        {paginatedImages.map((img, i) => (
           <motion.div
             key={img.id}
             initial={{ opacity: 0, scale: 0.95 }}
@@ -30,7 +73,7 @@ export const Gallery = ({ images }: GalleryProps) => {
           >
             {!errorImages.has(img.id) ? (
               <motion.img
-                src={img.url}
+                src={getImageUrl(img.url)}
                 alt={img.title || ""}
                 onError={() => setErrorImages(prev => new Set(prev).add(img.id))}
                 className="w-full h-full object-cover transition-all duration-1000 ease-in-out scale-110 group-hover:scale-100"
@@ -51,6 +94,8 @@ export const Gallery = ({ images }: GalleryProps) => {
           </motion.div>
         ))}
       </div>
+
+      <Pagination />
 
       <AnimatePresence>
         {selectedImage && (
@@ -77,7 +122,7 @@ export const Gallery = ({ images }: GalleryProps) => {
               onClick={(e) => e.stopPropagation()}
             >
               <img 
-                src={selectedImage.url} 
+                src={getImageUrl(selectedImage.url)} 
                 alt={selectedImage.title || ""} 
                 className="w-full h-auto max-h-[80vh] object-contain shadow-2xl"
               />

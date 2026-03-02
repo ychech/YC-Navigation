@@ -81,7 +81,7 @@ export class LocalStorage implements StorageProvider {
 
       await writeFile(filepath, buffer);
       
-      return { url: `/uploads/${filename}` };
+      return { url: `/api/uploads/${filename}` };
     } catch (error) {
       console.error("Upload error:", error);
       return { url: "", error: "Upload failed" };
